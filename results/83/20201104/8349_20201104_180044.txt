@@ -1,0 +1,21 @@
+99
+20201104_180044
+0.8349006387508872
+              precision    recall  f1-score   support
+
+           0       0.88      0.84      0.86      9711
+           1       0.88      0.75      0.81      7458
+           2       0.79      0.92      0.85      2421
+           3       0.71      0.96      0.82      2754
+           4       0.46      0.89      0.60       200
+
+    accuracy                           0.83     22544
+   macro avg       0.74      0.87      0.79     22544
+weighted avg       0.85      0.83      0.84     22544
+
+[[8182  630  231  610   58]
+ [1055 5606  353  371   73]
+ [   1  126 2220   57   17]
+ [  30   16    9 2637   62]
+ [   0    2    1   20  177]]
+{'normal.': 32, 'ipsweep.': 2, 'nmap.': 0, 'portsweep.': 2, 'satan.': 10, 'saint.': 8, 'mscan.': 10, 'back.': 4, 'land.': 0, 'neptune.': 12, 'pod.': 0, 'smurf.': 4, 'teardrop.': 4, 'apache2.': 3, 'udpstorm.': 0, 'processtable.': 3, 'mailbomb.': 2, 'buffer_overflow.': 8, 'loadmodule.': 2, 'perl.': 0, 'rootkit.': 2, 'xterm.': 2, 'ps.': 2, 'sqlattack.': 0, 'httptunnel.': 16, 'ftp_write.': 0, 'guess_passwd.': 12, 'imap.': 0, 'multihop.': 0, 'phf.': 0, 'spy.': 0, 'warezclient.': 4, 'warezmaster.': 8, 'snmpgetattack.': 4, 'named.': 0, 'xlock.': 0, 'xsnoop.': 0, 'sendmail.': 0, 'worm.': 0, 'snmpguess.': 4}
