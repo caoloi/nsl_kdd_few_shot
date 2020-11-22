@@ -1,11 +1,9 @@
-#!/usr/bin/env python3
-
-#!/usr/bin/env python3
-
 import plaidml.keras
 import os
 plaidml.keras.install_backend()
 os.environ["KERAS_BACKEND"] = "plaidml.keras.backend"
+os.environ["PLAIDML_EXPERIMENTAL"] = "1"
+os.environ["PLAIDML_DEVICE_IDS"] = "opencl_amd_gfx1010.0"
 
 from constants import CONFIG
 from classifications import calc_ensemble_accuracy
@@ -19,13 +17,13 @@ from keras.layers import (
     Input
 )
 import numpy as np
-from multiprocessing import Pool, cpu_count
+from multiprocessing import Pool, cpu_count, set_start_method
 from time import sleep
 
 
 def train(args):
   index, x_train, x_support, x_test, y_train, y_support, y_test, y_train_value, y_support_value, y_test_value, input_shape = args
-  sleep(index % cpu_count())
+  sleep(index)
   print("Setting up Model " + str(index + 1) + "/" + str(CONFIG["num_models"]))
 
   input = Input(shape=input_shape)
@@ -85,7 +83,7 @@ def train(args):
 
 
 def load_models(index):
-  sleep(index % cpu_count())
+  sleep(index)
   print("Load Model " + str(index + 1) + "/" + str(CONFIG["num_models"]))
 
   models = [
@@ -104,6 +102,11 @@ def main():
   #   p = Pool(cpu_count())
   p = Pool(CONFIG["num_models"])
   datasets = np.array(p.map(data_processing, range(CONFIG["num_models"])))
+
+  p.close()
+  p.terminate()
+  p = Pool(CONFIG["num_models"])
+
   args = []
   for i in range(CONFIG["num_models"]):
     _, x_train, _, _, y_train, _, _, y_train_value, _, _, _ = datasets[i]
@@ -127,14 +130,22 @@ def main():
 
   print("-" * 200)
 
+  p.close()
+  p.terminate()
+  p = Pool(CONFIG["num_models"])
+
   models = np.array(p.map(load_models, range(CONFIG["num_models"])))
   models = np.array(sorted(models, key=lambda x: x[-1]))
   models = models[:, 0]
   # x_supports = results[:, 0]
   # y_supports = results[:, 1]
 
+  p.close()
+  p.terminate()
+
   calc_ensemble_accuracy(x_test, y_test_value, x_support, y_support_value, models)
 
 
 if __name__ == "__main__":
+  set_start_method("spawn", True)
   main()

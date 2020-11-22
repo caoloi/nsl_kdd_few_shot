@@ -1,3 +1,10 @@
+import plaidml.keras
+import os
+plaidml.keras.install_backend()
+os.environ["KERAS_BACKEND"] = "plaidml.keras.backend"
+os.environ["PLAIDML_EXPERIMENTAL"] = "1"
+os.environ["PLAIDML_DEVICE_IDS"] = "opencl_amd_gfx1010.0"
+
 from keras import backend as K
 import numpy as np
 from constants import CONFIG, SAMPLE_NUM_PER_LABEL
@@ -63,7 +70,7 @@ def calc_distance(x, x_support, y_support, model):
 def calc_distances(args):
   index, x, x_support, y_support, models = args
 
-  sleep(index % cpu_count() * 0.01)
+  sleep(index)
 
   preds = np.array(
       [
@@ -103,7 +110,7 @@ def calc_pred(x, x_support, y_support, model):
 def calc_preds(args):
   index, x, x_support, y_support, models = args
 
-  sleep(index % cpu_count() * 0.01)
+  sleep(index)
   print("Calculate Prediction " + str(index + 1) + "/" + str(CONFIG["num_models"]))
 
   preds = np.array(
@@ -124,7 +131,7 @@ def calc_preds(args):
 def accuracy_scores(args):
   index, y, preds = args
 
-  sleep(index % cpu_count() * 0.01)
+  sleep(index)
   print("Calculate Accuracy " + str(index + 1) + "/" + str(CONFIG["num_models"]))
 
   acc_list = np.array(
@@ -159,6 +166,10 @@ def calc_ensemble_accuracy(x, y, x_support, y_support, models):
   distances = np.array(sorted(distances, key=lambda x: x[-1]))
   distances = np.array([distances[i][0] for i in range(CONFIG["num_models"])])
 
+  p.close()
+  p.terminate()
+  p = Pool(CONFIG["num_models"])
+
   print("-" * 200)
 
   args = [
@@ -172,6 +183,10 @@ def calc_ensemble_accuracy(x, y, x_support, y_support, models):
   acc_list = np.array(p.map(accuracy_scores, args))
   acc_list = np.array(sorted(acc_list, key=lambda x: x[-1]))
   acc_list = np.array([acc_list[i][0] for i in range(CONFIG["num_models"])])
+
+  p.close()
+  p.terminate()
+#   p = Pool(CONFIG["num_models"])
 
   print("-" * 200)
 
@@ -262,7 +277,7 @@ def calc_ensemble_accuracy(x, y, x_support, y_support, models):
     plt.plot(x, acc_list[i], label="Model %s" % (i + 1))
   plt.xlabel("Epoch")
   plt.xlim(0, CONFIG["epochs"])
-  plt.xticks(np.arange(0, CONFIG["epochs"] + 1, 5))
+  plt.xticks(np.arange(0, CONFIG["epochs"] + 1, 50))
   plt.ylabel("Accuracy")
   plt.grid(True)
   plt.legend(bbox_to_anchor=(1, 1), loc="upper left", fontsize=10)

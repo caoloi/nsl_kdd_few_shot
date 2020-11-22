@@ -21,7 +21,7 @@ pd.options.mode.chained_assignment = None  # default="warn" | Disable warnings
 
 def data_processing(index=None):
   if index is not None:
-    sleep((index % cpu_count()) * 0.1)
+    sleep(index)
     print("Load Dataset " + str(index + 1) + "/" + str(CONFIG["num_models"]))
 
   x_train, x_support, x_test, y_train, y_support, y_test = __load_data()
