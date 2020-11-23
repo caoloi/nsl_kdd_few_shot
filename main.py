@@ -22,7 +22,7 @@ from time import sleep
 
 
 def train(args):
-  index, x_train, x_support, x_test, y_train, y_support, y_test, y_train_value, y_support_value, y_test_value, input_shape = args
+  index, x_train, x_support, x_test, y_train, y_support, _, y_train_value, y_support_value, y_test_value, input_shape = args
   sleep(index)
   print("Setting up Model " + str(index + 1) + "/" + str(CONFIG["num_models"]))
 
@@ -79,8 +79,6 @@ def train(args):
       ]
   )
 
-  return x_support, y_support_value, index
-
 
 def load_models(index):
   sleep(index)
@@ -99,17 +97,16 @@ def load_models(index):
 def main():
   _, x_support, x_test, _, y_support, y_test, _, y_support_value, y_test_value, input_shape = data_processing()
   # x_train, x_support, x_test, y_train, y_support, y_test, y_train_value, y_support_value, y_test_value, input_shape = data_processing()
-  #   p = Pool(cpu_count())
-  p = Pool(CONFIG["num_models"])
+  p = Pool()
   datasets = np.array(p.map(data_processing, range(CONFIG["num_models"])))
 
   p.close()
   p.terminate()
-  p = Pool(CONFIG["num_models"])
+  p = Pool()
 
   args = []
   for i in range(CONFIG["num_models"]):
-    _, x_train, _, _, y_train, _, _, y_train_value, _, _, _ = datasets[i]
+    x_train, _, _, y_train, _, _, y_train_value, _, _, _ = datasets[i]
     args.append(
       [
         i,
@@ -125,14 +122,13 @@ def main():
         input_shape
       ]
     )
-  results = np.array(p.map(train, args))
-  results = np.array(sorted(results, key=lambda x: x[-1]))
+  np.array(p.map(train, args))
 
   print("-" * 200)
 
   p.close()
   p.terminate()
-  p = Pool(CONFIG["num_models"])
+  p = Pool()
 
   models = np.array(p.map(load_models, range(CONFIG["num_models"])))
   models = np.array(sorted(models, key=lambda x: x[-1]))

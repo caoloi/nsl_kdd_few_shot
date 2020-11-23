@@ -88,10 +88,7 @@ def data_processing(index=None):
   y_support = to_categorical(y_support, CONFIG["num_classes"])
   y_test = to_categorical(y_test, CONFIG["num_classes"])
 
-  if index is None:
-    return x_train, x_support, x_test, y_train, y_support, y_test, y_train_value, y_support_value, y_test_value, input_shape
-  else:
-    return index, x_train, x_support, x_test, y_train, y_support, y_test, y_train_value, y_support_value, y_test_value, input_shape
+  return x_train, x_support, x_test, y_train, y_support, y_test, y_train_value, y_support_value, y_test_value, input_shape
 
 
 def t_sne_data_processing():

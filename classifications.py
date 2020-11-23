@@ -96,7 +96,7 @@ def calc_distances(args):
       ]
   )
 
-  return preds, index
+  return preds
 
 
 def calc_pred(x, x_support, y_support, model):
@@ -125,7 +125,7 @@ def calc_preds(args):
       ]
   )
 
-  return preds, index
+  return preds
 
 
 def accuracy_scores(args):
@@ -148,7 +148,7 @@ def accuracy_scores(args):
 
 
 def calc_ensemble_accuracy(x, y, x_support, y_support, models):
-  p = Pool(CONFIG["num_models"])
+  p = Pool()
 
   print("-" * 200)
 
@@ -163,12 +163,10 @@ def calc_ensemble_accuracy(x, y, x_support, y_support, models):
       for i in range(CONFIG["num_models"])
   ]
   distances = np.array(p.map(calc_distances, args))
-  distances = np.array(sorted(distances, key=lambda x: x[-1]))
-  distances = np.array([distances[i][0] for i in range(CONFIG["num_models"])])
 
   p.close()
   p.terminate()
-  p = Pool(CONFIG["num_models"])
+  p = Pool()
 
   print("-" * 200)
 
@@ -181,12 +179,10 @@ def calc_ensemble_accuracy(x, y, x_support, y_support, models):
       for i in range(CONFIG["num_models"])
   ]
   acc_list = np.array(p.map(accuracy_scores, args))
-  acc_list = np.array(sorted(acc_list, key=lambda x: x[-1]))
-  acc_list = np.array([acc_list[i][0] for i in range(CONFIG["num_models"])])
 
   p.close()
   p.terminate()
-#   p = Pool(CONFIG["num_models"])
+#   p = Pool()
 
   print("-" * 200)
 
