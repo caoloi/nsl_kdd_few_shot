@@ -1,15 +1,16 @@
 # REFERENCES PARAMETERS
 CONFIG = {
-    "epochs": 100,
-    "batch_size": 140,
+    "epochs": 150,
+    "batch_size": 256,
     "num_classes": 5,
     # "num_classes": 40,
-    "num_models": 6,
+    "num_models": 12,
     "dataset": "kdd",
     "train_data": "train+",
     "img_rows": 11,
     "img_cols": 11,
     "output_dim": 121,
+    "process_num": 6,
 }
 
 LABEL_TO_NUM = {
@@ -125,21 +126,21 @@ ENTRY_TYPE = {
 
 SAMPLE_NUM_PER_LABEL = {
     # normal
-    "normal.": [6000, 12],  # 0
+    "normal.": [67343 * 0 + 12000, 12],  # 0
     # probe
-    "ipsweep.": [2000, 2],  # 1
+    "ipsweep.": [0, 2],  # 1
     "nmap.": [0, 2],  # 2
-    "portsweep.": [2000, 2],  # 3
-    "satan.": [2000, 2],  # 4
+    "portsweep.": [0, 2],  # 3
+    "satan.": [0, 2],  # 4
     "saint.": [0, 2],  # 5
     "mscan.": [0, 2],  # 6
     # dos
-    "back.": [956, 2],  # 7
+    "back.": [956 * 0 + 3000, 2],  # 7
     "land.": [0, 0],  # 8
-    "neptune.": [2951, 2],  # 9
-    "pod.": [201, 0],  # 10
-    "smurf.": [2646, 2],  # 11
-    "teardrop.": [892, 0],  # 12
+    "neptune.": [1305 * 0 + 3000, 2],  # 9
+    "pod.": [201 * 0, 0],  # 10
+    "smurf.": [2646 * 0 + 3000, 2],  # 11
+    "teardrop.": [892 * 0 + 3000, 0],  # 12
     "apache2.": [0, 2],  # 13
     "udpstorm.": [0, 0],  # 14
     "processtable.": [0, 2],  # 15
@@ -155,13 +156,13 @@ SAMPLE_NUM_PER_LABEL = {
     "httptunnel.": [0, 4],  # 24
     # r2l
     "ftp_write.": [0, 0],  # 25
-    "guess_passwd.": [2000, 3],  # 26
+    "guess_passwd.": [4000, 3],  # 26
     "imap.": [0, 0],  # 27
     "multihop.": [0, 0],  # 28
     "phf.": [0, 0],  # 29
     "spy.": [0, 0],  # 30
-    "warezclient.": [2000, 0],  # 31
-    "warezmaster.": [2000, 3],  # 32
+    "warezclient.": [4000, 0],  # 31
+    "warezmaster.": [4000, 3],  # 32
     "snmpgetattack.": [0, 3],  # 33
     "named.": [0, 0],  # 34
     "xlock.": [0, 0],  # 35

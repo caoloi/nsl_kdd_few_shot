@@ -70,7 +70,6 @@ def calc_distance(x, x_support, y_support, model):
 def calc_distances(args):
   index, x, x_support, y_support, models = args
 
-  sleep(index)
 
   preds = np.array(
       [
@@ -80,9 +79,9 @@ def calc_distances(args):
                   "\tEpoch: " + str(j + 1) + "/" + str(CONFIG["epochs"])
                   + "\tModel: " + str(index + 1) + "/" + str(CONFIG["num_models"])
               ) if (
-                  (j + 1) % 10 == 0
+                  (j + 1) % 25 == 0
                   and
-                  (index + 1) == CONFIG["num_models"]
+                  (index + 1) % 6 == 0
               ) else False
           )
           or
@@ -110,7 +109,6 @@ def calc_pred(x, x_support, y_support, model):
 def calc_preds(args):
   index, x, x_support, y_support, models = args
 
-  sleep(index)
   print("Calculate Prediction " + str(index + 1) + "/" + str(CONFIG["num_models"]))
 
   preds = np.array(
@@ -131,7 +129,6 @@ def calc_preds(args):
 def accuracy_scores(args):
   index, y, preds = args
 
-  sleep(index)
   print("Calculate Accuracy " + str(index + 1) + "/" + str(CONFIG["num_models"]))
 
   acc_list = np.array(
@@ -144,11 +141,11 @@ def accuracy_scores(args):
       ]
   )
 
-  return acc_list, index
+  return acc_list
 
 
 def calc_ensemble_accuracy(x, y, x_support, y_support, models):
-  p = Pool()
+  p = Pool(CONFIG["process_num"])
 
   print("-" * 200)
 
@@ -163,10 +160,10 @@ def calc_ensemble_accuracy(x, y, x_support, y_support, models):
       for i in range(CONFIG["num_models"])
   ]
   distances = np.array(p.map(calc_distances, args))
-
   p.close()
   p.terminate()
-  p = Pool()
+  p.join()
+  p = Pool(CONFIG["process_num"])
 
   print("-" * 200)
 
@@ -179,10 +176,10 @@ def calc_ensemble_accuracy(x, y, x_support, y_support, models):
       for i in range(CONFIG["num_models"])
   ]
   acc_list = np.array(p.map(accuracy_scores, args))
-
   p.close()
   p.terminate()
-#   p = Pool()
+  p.join()
+#   p = Pool(CONFIG["process_num"])
 
   print("-" * 200)
 
@@ -244,7 +241,85 @@ def calc_ensemble_accuracy(x, y, x_support, y_support, models):
 
   print("-" * 200)
 
-  distances = np.array(
+  last_60_distances = np.array(
+      [
+          distances[i][j]
+          for j in range(np.max([0, CONFIG["epochs"] - 60]), CONFIG["epochs"])
+          for i in range(CONFIG["num_models"])
+      ]
+  )
+  pred = [
+      np.argmin(
+          np.sum(
+              last_60_distances[:, i],
+              axis=0
+          )
+      )
+      for i in range(last_60_distances.shape[1])
+  ]
+  acc = accuracy_score(y, pred)
+  print("Last 60 Ensemble Accuracy:\t" + "{:.07f}".format(acc))
+  report = classification_report(y, pred)
+  print(report)
+  c_mat = confusion_matrix(y, pred)
+  print(c_mat)
+  save_report(acc, report, c_mat, "Last 60 Ensemble")
+
+  print("-" * 200)
+
+  last_40_distances = np.array(
+      [
+          distances[i][j]
+          for j in range(np.max([0, CONFIG["epochs"] - 40]), CONFIG["epochs"])
+          for i in range(CONFIG["num_models"])
+      ]
+  )
+  pred = [
+      np.argmin(
+          np.sum(
+              last_40_distances[:, i],
+              axis=0
+          )
+      )
+      for i in range(last_40_distances.shape[1])
+  ]
+  acc = accuracy_score(y, pred)
+  print("Last 40 Ensemble Accuracy:\t" + "{:.07f}".format(acc))
+  report = classification_report(y, pred)
+  print(report)
+  c_mat = confusion_matrix(y, pred)
+  print(c_mat)
+  save_report(acc, report, c_mat, "Last 40 Ensemble")
+
+  print("-" * 200)
+
+  last_20_distances = np.array(
+      [
+          distances[i][j]
+          for j in range(np.max([0, CONFIG["epochs"] - 20]), CONFIG["epochs"])
+          for i in range(CONFIG["num_models"])
+      ]
+  )
+  pred = [
+      np.argmin(
+          np.sum(
+              last_20_distances[:, i],
+              axis=0
+          )
+      )
+      for i in range(last_20_distances.shape[1])
+  ]
+  acc = accuracy_score(y, pred)
+  print("Last 20 Ensemble Accuracy:\t" + "{:.07f}".format(acc))
+  report = classification_report(y, pred)
+  print(report)
+  c_mat = confusion_matrix(y, pred)
+  print(c_mat)
+  save_report(acc, report, c_mat, "Last 20 Ensemble")
+
+  print("-" * 200)
+
+  all_distances = np.array(
       [
           distances[i][j]
           for j in range(CONFIG["epochs"])
@@ -254,19 +329,19 @@ def calc_ensemble_accuracy(x, y, x_support, y_support, models):
   pred = [
       np.argmin(
           np.sum(
-              distances[:, i],
+              all_distances[:, i],
               axis=0
           )
       )
-      for i in range(distances.shape[1])
+      for i in range(all_distances.shape[1])
   ]
   acc = accuracy_score(y, pred)
-  print("Ensemble Accuracy:\t" + "{:.07f}".format(acc))
+  print("All Ensemble Accuracy:\t" + "{:.07f}".format(acc))
   report = classification_report(y, pred)
   print(report)
   c_mat = confusion_matrix(y, pred)
   print(c_mat)
-  save_report(acc, report, c_mat, "Ensemble")
+  save_report(acc, report, c_mat, "All Ensemble")
 
   x = list(range(1, CONFIG["epochs"] + 1))
   for i in range(CONFIG["num_models"]):

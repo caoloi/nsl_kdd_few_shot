@@ -23,7 +23,7 @@ from time import sleep
 
 def train(args):
   index, x_train, x_support, x_test, y_train, y_support, _, y_train_value, y_support_value, y_test_value, input_shape = args
-  sleep(index)
+
   print("Setting up Model " + str(index + 1) + "/" + str(CONFIG["num_models"]))
 
   input = Input(shape=input_shape)
@@ -81,7 +81,6 @@ def train(args):
 
 
 def load_models(index):
-  sleep(index)
   print("Load Model " + str(index + 1) + "/" + str(CONFIG["num_models"]))
 
   models = [
@@ -91,18 +90,18 @@ def load_models(index):
       )
       for j in range(CONFIG["epochs"])
   ]
-  return models, index
+  return models
 
 
 def main():
   _, x_support, x_test, _, y_support, y_test, _, y_support_value, y_test_value, input_shape = data_processing()
   # x_train, x_support, x_test, y_train, y_support, y_test, y_train_value, y_support_value, y_test_value, input_shape = data_processing()
-  p = Pool()
+  p = Pool(CONFIG["process_num"])
   datasets = np.array(p.map(data_processing, range(CONFIG["num_models"])))
-
   p.close()
   p.terminate()
-  p = Pool()
+  p.join()
+  p = Pool(CONFIG["process_num"])
 
   args = []
   for i in range(CONFIG["num_models"]):
@@ -123,21 +122,20 @@ def main():
       ]
     )
   np.array(p.map(train, args))
+  p.close()
+  p.terminate()
+  p.join()
+  p = Pool(CONFIG["process_num"])
 
   print("-" * 200)
 
+  models = np.array(p.map(load_models, range(CONFIG["num_models"])))
   p.close()
   p.terminate()
-  p = Pool()
+  p.join()
 
-  models = np.array(p.map(load_models, range(CONFIG["num_models"])))
-  models = np.array(sorted(models, key=lambda x: x[-1]))
-  models = models[:, 0]
   # x_supports = results[:, 0]
   # y_supports = results[:, 1]
-
-  p.close()
-  p.terminate()
 
   calc_ensemble_accuracy(x_test, y_test_value, x_support, y_support_value, models)
 
