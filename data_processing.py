@@ -239,8 +239,18 @@ def __numerical_processing(train_df, test_df):
   train_df = __column_processing(train_df)
   test_df = __column_processing(test_df)
 
+  # print(train_df["difficulty"].value_counts())
+  # print(test_df["difficulty"].value_counts())
+  # for k in SAMPLE_NUM_PER_LABEL:
+  #   if SAMPLE_NUM_PER_LABEL[k][1] > 0:
+  #     print(k, SAMPLE_NUM_PER_LABEL[k])
+  #     print(test_df.loc[test_df["label"] == k[:-1], "difficulty"].min())
+  #     print(test_df.loc[test_df["label"] == k[:-1]].sort_values("difficulty")["difficulty"])
+  #     print(test_df.loc[test_df["label"] == k[:-1]].sort_values("difficulty")["difficulty"].value_counts())
+  # exit()
+
   for c in COLUMNS:
-    if c != "label":
+    if c != "label" and c != "difficulty":
       train_df[c] = train_df[c].astype(float)
       test_df[c] = test_df[c].astype(float)
 
@@ -293,7 +303,7 @@ def __column_processing(df):
   # drop columns
   df = df.drop(
       columns=[
-          "difficulty",
+          # "difficulty",
           "num_outbound_cmds",
           "service",
           "protocol_type",
@@ -314,10 +324,31 @@ def __resample_processing(df, balanced, supported, type="train", nums=[]):
     df_list = []
     for label in SAMPLE_NUM_PER_LABEL:
       if SAMPLE_NUM_PER_LABEL[label][type == "test"] >= 0:
-        samples = df_per_category[label].sample(
-            n=SAMPLE_NUM_PER_LABEL[label][type == "test"],
-            replace=SAMPLE_NUM_PER_LABEL[label][type == "test"] > len(df_per_category[label])
-        )
+        if type == "test":
+          # sorted_df = df_per_category[label].sort_values("difficulty")
+          # temp_df = sorted_df.tail(10)
+          # temp_df = sorted_df.head(5).append(sorted_df.tail(5))
+          # temp_df = sorted_df.tail(np.max([SAMPLE_NUM_PER_LABEL[label][type == "test"], len(sorted_df) // 4]))
+          # temp_df = sorted_df[(len(sorted_df) // 4):(3 * (len(sorted_df) // 4))]
+          # temp_df = df_per_category[label].sort_values("difficulty").head(len(df_per_category[label]) // 2)
+          # samples = temp_df.sample(
+          #     n=SAMPLE_NUM_PER_LABEL[label][type == "test"],
+          #     replace=SAMPLE_NUM_PER_LABEL[label][type == "test"] > len(temp_df)
+          # )
+          samples = df_per_category[label].sample(
+              n=SAMPLE_NUM_PER_LABEL[label][type == "test"],
+              replace=SAMPLE_NUM_PER_LABEL[label][type == "test"] > len(df_per_category[label])
+          )
+        else:
+          # print(label)
+          # print(len(df_per_category[label]))
+          # temp_df = df_per_category[label].sort_values("difficulty").head(len(df_per_category[label]) // 2)
+          temp_df = df_per_category[label].sort_values("difficulty")[(len(df_per_category[label]) // 4):]
+          # print(len(temp_df))
+          samples = temp_df.sample(
+              n=SAMPLE_NUM_PER_LABEL[label][type == "test"],
+              replace=SAMPLE_NUM_PER_LABEL[label][type == "test"] > len(temp_df)
+          )
         df_list.append(samples)
       # samples = df_per_category[label].sample(n=int(np.log(len(df_per_category[label]) + 1)))
       # df_list.append(samples)
@@ -354,11 +385,24 @@ def __resample_processing(df, balanced, supported, type="train", nums=[]):
 
     # Assign x (inputs) and y (outputs) of the network
     balanced_df = balanced_df.sample(frac=1)
-
+    # print(balanced_df["label"].value_counts())
     y = balanced_df["label"]
-    x = balanced_df.drop(columns="label")
+    # x = balanced_df.drop(columns="label")
+    x = balanced_df.drop(
+      columns=[
+        "label",
+        "difficulty",
+      ]
+    )
   else:
+    # print(df["label"].value_counts())
     y = df["label"]
-    x = df.drop(columns="label")
+    # x = df.drop(columns="label")
+    x = df.drop(
+      columns=[
+        "label",
+        "difficulty",
+      ]
+    )
 
   return x, y

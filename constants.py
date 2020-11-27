@@ -1,9 +1,9 @@
 # REFERENCES PARAMETERS
 CONFIG = {
-    "epochs": 150,
-    "batch_size": 256,
+    "epochs": 50,
+    "batch_size": 128,
     "num_classes": 5,
-    # "num_classes": 40,
+    # "num_models": 1,
     "num_models": 12,
     "dataset": "kdd",
     "train_data": "train+",
@@ -102,7 +102,7 @@ ENTRY_TYPE = {
         "xterm.",
         "ps.",
         "sqlattack.",
-        "httptunnel.",  # こっち？
+        # "httptunnel.",  # こっち？
     ],
     "r2l": [
         "ftp_write.",
@@ -118,7 +118,7 @@ ENTRY_TYPE = {
         "xlock.",
         "xsnoop.",
         "sendmail.",
-        # "httptunnel.",
+        "httptunnel.",
         "worm.",
         "snmpguess.",
     ]
@@ -126,10 +126,10 @@ ENTRY_TYPE = {
 
 SAMPLE_NUM_PER_LABEL = {
     # normal
-    "normal.": [67343 * 0 + 12000, 12],  # 0
+    "normal.": [67343 * 0 + 12000, 10],  # 0
     # probe
     "ipsweep.": [0, 2],  # 1
-    "nmap.": [0, 2],  # 2
+    "nmap.": [0, 0],  # 2
     "portsweep.": [0, 2],  # 3
     "satan.": [0, 2],  # 4
     "saint.": [0, 2],  # 5
@@ -144,32 +144,33 @@ SAMPLE_NUM_PER_LABEL = {
     "apache2.": [0, 2],  # 13
     "udpstorm.": [0, 0],  # 14
     "processtable.": [0, 2],  # 15
-    "mailbomb.": [0, 2],  # 16
+    "mailbomb.": [0, 0],  # 16
     # u2r
-    "buffer_overflow.": [0, 2],  # 17
+    "buffer_overflow.": [0, 3],  # 17
     "loadmodule.": [0, 0],  # 18
     "perl.": [0, 0],  # 19
     "rootkit.": [0, 2],  # 20
     "xterm.": [0, 2],  # 21
-    "ps.": [0, 2],  # 22
+    "ps.": [0, 3],  # 22
     "sqlattack.": [0, 0],  # 23
-    "httptunnel.": [0, 4],  # 24
+    # "httptunnel.": [0, 4],  # 24
     # r2l
+    "httptunnel.": [0, 2],  # 24
     "ftp_write.": [0, 0],  # 25
-    "guess_passwd.": [4000, 3],  # 26
-    "imap.": [0, 0],  # 27
+    "guess_passwd.": [3000, 2],  # 26
+    "imap.": [3000, 0],  # 27
     "multihop.": [0, 0],  # 28
     "phf.": [0, 0],  # 29
     "spy.": [0, 0],  # 30
-    "warezclient.": [4000, 0],  # 31
-    "warezmaster.": [4000, 3],  # 32
-    "snmpgetattack.": [0, 3],  # 33
+    "warezclient.": [3000, 0],  # 31
+    "warezmaster.": [3000, 2],  # 32
+    "snmpgetattack.": [0, 2],  # 33
     "named.": [0, 0],  # 34
     "xlock.": [0, 0],  # 35
     "xsnoop.": [0, 0],  # 36
     "sendmail.": [0, 0],  # 37
     "worm.": [0, 0],  # 38
-    "snmpguess.": [0, 3],  # 39
+    "snmpguess.": [0, 2],  # 39
 }
 
 # ***** KDD STRING FEATURES VALUES *****
@@ -405,6 +406,7 @@ BASE_COLUMNS = [
     "dst_host_srv_serror_rate",
     "dst_host_rerror_rate",
     "dst_host_srv_rerror_rate",
+    "difficulty",
 ]
 
 idxs = [
@@ -452,8 +454,8 @@ idxs = [
 #     10, 102, 79, 41, 44, 83, 19, 9, 92, 117, 11,
 # ]
 
-COLUMNS = [BASE_COLUMNS[i] for i in idxs]
-# COLUMNS = BASE_COLUMNS
+# COLUMNS = [BASE_COLUMNS[i] for i in idxs]
+COLUMNS = BASE_COLUMNS
 
 [
     # (1)
