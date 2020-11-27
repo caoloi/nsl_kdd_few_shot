@@ -4,7 +4,7 @@ CONFIG = {
     "batch_size": 128,
     "num_classes": 5,
     # "num_models": 1,
-    "num_models": 12,
+    "num_models": 6,
     "dataset": "kdd",
     "train_data": "train+",
     "img_rows": 11,
@@ -102,7 +102,7 @@ ENTRY_TYPE = {
         "xterm.",
         "ps.",
         "sqlattack.",
-        # "httptunnel.",  # こっち？
+        "httptunnel.",  # こっち？
     ],
     "r2l": [
         "ftp_write.",
@@ -118,7 +118,7 @@ ENTRY_TYPE = {
         "xlock.",
         "xsnoop.",
         "sendmail.",
-        "httptunnel.",
+        # "httptunnel.",
         "worm.",
         "snmpguess.",
     ]
@@ -126,51 +126,51 @@ ENTRY_TYPE = {
 
 SAMPLE_NUM_PER_LABEL = {
     # normal
-    "normal.": [67343 * 0 + 12000, 10],  # 0
+    "normal.": [67343 * 0 + 12000, 9711 * 0 + 10],  # 0
     # probe
-    "ipsweep.": [0, 2],  # 1
-    "nmap.": [0, 0],  # 2
-    "portsweep.": [0, 2],  # 3
-    "satan.": [0, 2],  # 4
-    "saint.": [0, 2],  # 5
-    "mscan.": [0, 2],  # 6
+    "ipsweep.": [3599 * 0, 141 * 0 + 2],  # 1
+    "nmap.": [1493 * 0, 73 * 0 + 0],  # 2
+    "portsweep.": [2931 * 0, 157 * 0 + 2],  # 3
+    "satan.": [3633 * 0, 735 * 0 + 2],  # 4
+    "saint.": [0 * 0, 319 * 0 + 2],  # 5
+    "mscan.": [0 * 0, 996 * 0 + 2],  # 6
     # dos
-    "back.": [956 * 0 + 3000, 2],  # 7
-    "land.": [0, 0],  # 8
-    "neptune.": [1305 * 0 + 3000, 2],  # 9
-    "pod.": [201 * 0, 0],  # 10
-    "smurf.": [2646 * 0 + 3000, 2],  # 11
-    "teardrop.": [892 * 0 + 3000, 0],  # 12
-    "apache2.": [0, 2],  # 13
-    "udpstorm.": [0, 0],  # 14
-    "processtable.": [0, 2],  # 15
-    "mailbomb.": [0, 0],  # 16
+    "back.": [956 * 0 + 3000, 359 * 0 + 2],  # 7
+    "land.": [18 * 0, 7 * 0 + 0],  # 8
+    "neptune.": [41214 * 0 + 1305 * 0 + 3000, 4657 * 0 + 2],  # 9
+    "pod.": [201 * 0, 41 * 0 + 0],  # 10
+    "smurf.": [2646 * 0 + 3000, 665 * 0 + 2],  # 11
+    "teardrop.": [892 * 0 + 3000, 12 * 0 + 0],  # 12
+    "apache2.": [0 * 0, 737 * 0 + 2],  # 13
+    "udpstorm.": [0 * 0, 2 * 0 + 0],  # 14
+    "processtable.": [0 * 0, 685 * 0 + 2],  # 15
+    "mailbomb.": [0 * 0, 293 * 0 + 0],  # 16
     # u2r
-    "buffer_overflow.": [0, 3],  # 17
-    "loadmodule.": [0, 0],  # 18
-    "perl.": [0, 0],  # 19
-    "rootkit.": [0, 2],  # 20
-    "xterm.": [0, 2],  # 21
-    "ps.": [0, 3],  # 22
-    "sqlattack.": [0, 0],  # 23
-    # "httptunnel.": [0, 4],  # 24
+    "buffer_overflow.": [30 * 0, 20 * 0 + 2],  # 17
+    "loadmodule.": [9 * 0, 2 * 0 + 0],  # 18
+    "perl.": [3 * 0, 2 * 0 + 0],  # 19
+    "rootkit.": [10 * 0, 13 * 0 + 2],  # 20
+    "xterm.": [0 * 0, 13 * 0 + 2],  # 21
+    "ps.": [0 * 0, 15 * 0 + 2],  # 22
+    "sqlattack.": [0 * 0, 2 * 0 + 0],  # 23
+    "httptunnel.": [0 * 0, 133 * 0 + 2],  # 24
     # r2l
-    "httptunnel.": [0, 2],  # 24
-    "ftp_write.": [0, 0],  # 25
-    "guess_passwd.": [3000, 2],  # 26
-    "imap.": [3000, 0],  # 27
-    "multihop.": [0, 0],  # 28
-    "phf.": [0, 0],  # 29
-    "spy.": [0, 0],  # 30
-    "warezclient.": [3000, 0],  # 31
-    "warezmaster.": [3000, 2],  # 32
-    "snmpgetattack.": [0, 2],  # 33
-    "named.": [0, 0],  # 34
-    "xlock.": [0, 0],  # 35
-    "xsnoop.": [0, 0],  # 36
-    "sendmail.": [0, 0],  # 37
-    "worm.": [0, 0],  # 38
-    "snmpguess.": [0, 2],  # 39
+    # "httptunnel.": [0 * 0, 133 * 0 + 2],  # 24
+    "ftp_write.": [8 * 0, 3 * 0 + 0],  # 25
+    "guess_passwd.": [53 * 0 + 3000, 1231 * 0 + 2],  # 26
+    "imap.": [11 * 0 + 3000, 1 * 0 + 0],  # 27
+    "multihop.": [7 * 0, 18 * 0 + 1],  # 28
+    "phf.": [4 * 0, 2 * 0 + 0],  # 29
+    "spy.": [2 * 0, 0 * 0 + 0],  # 30
+    "warezclient.": [890 * 0 + 3000, 0 * 0 + 0],  # 31
+    "warezmaster.": [20 * 0 + 3000, 944 * 0 + 2],  # 32
+    "snmpgetattack.": [0 * 0, 178 * 0 + 2],  # 33
+    "named.": [0 * 0, 17 * 0 + 1],  # 34
+    "xlock.": [0 * 0, 9 * 0 + 0],  # 35
+    "xsnoop.": [0 * 0, 4 * 0 + 0],  # 36
+    "sendmail.": [0 * 0, 14 * 0 + 0],  # 37
+    "worm.": [0 * 0, 2 * 0 + 0],  # 38
+    "snmpguess.": [0 * 0, 331 * 0 + 2],  # 39
 }
 
 # ***** KDD STRING FEATURES VALUES *****
