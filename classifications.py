@@ -1,9 +1,12 @@
-import plaidml.keras
-import os
-plaidml.keras.install_backend()
-os.environ["KERAS_BACKEND"] = "plaidml.keras.backend"
-os.environ["PLAIDML_EXPERIMENTAL"] = "1"
-os.environ["PLAIDML_DEVICE_IDS"] = "opencl_amd_gfx1010.0"
+import platform
+pf = platform.system()
+if pf == 'Darwin':
+  import plaidml.keras
+  import os
+  plaidml.keras.install_backend()
+  os.environ["KERAS_BACKEND"] = "plaidml.keras.backend"
+  os.environ["PLAIDML_EXPERIMENTAL"] = "1"
+  # os.environ["PLAIDML_DEVICE_IDS"] = "opencl_amd_gfx1010.0"
 
 from keras import backend as K
 import numpy as np
