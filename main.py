@@ -139,7 +139,8 @@ def main():
 
   print("-" * 200)
 
-  models = np.array(p.map(load_models, range(CONFIG["num_models"])))
+  # models = np.array(p.map(load_models, range(CONFIG["num_models"])))
+  models = np.array([load_models(i) for i in range(CONFIG["num_models"])])
   p.close()
   p.terminate()
   p.join()
