@@ -1,0 +1,24 @@
+Epoch: 0
+20201130_115107
+Accuracy: 0.6116039744499645
+Classification Report:
+              precision    recall  f1-score   support
+
+           0       0.84      0.84      0.84      9711
+           1       0.33      0.65      0.44      2421
+           2       0.66      0.42      0.52      7458
+           3       0.04      0.35      0.08       200
+           4       0.54      0.32      0.40      2754
+
+    accuracy                           0.61     22544
+   macro avg       0.48      0.52      0.45     22544
+weighted avg       0.68      0.61      0.63     22544
+
+Confusion Matrix:
+[[8110  123  856  360  262]
+ [ 292 1581  218  199  131]
+ [ 590 3007 3154  385  322]
+ [   0   99   12   70   19]
+ [ 714    4  533  630  873]]
+{'epochs': 1, 'batch_size': 128, 'num_classes': 5, 'num_models': 12, 'dataset': 'kdd', 'train_data': 'train+', 'img_rows': 11, 'img_cols': 11, 'output_dim': 121, 'num_process': 4}
+{'normal.': [12000, 10], 'ipsweep.': [0, 2], 'nmap.': [0, 0], 'portsweep.': [0, 2], 'satan.': [0, 2], 'saint.': [0, 2], 'mscan.': [0, 2], 'back.': [3000, 2], 'land.': [0, 0], 'neptune.': [3000, 2], 'pod.': [0, 0], 'smurf.': [3000, 2], 'teardrop.': [3000, 0], 'apache2.': [0, 2], 'udpstorm.': [0, 0], 'processtable.': [0, 2], 'mailbomb.': [0, 0], 'buffer_overflow.': [0, 2], 'loadmodule.': [0, 0], 'perl.': [0, 0], 'rootkit.': [0, 2], 'xterm.': [0, 2], 'ps.': [0, 2], 'sqlattack.': [0, 0], 'httptunnel.': [0, 2], 'ftp_write.': [0, 0], 'guess_passwd.': [3000, 2], 'imap.': [3000, 0], 'multihop.': [0, 1], 'phf.': [0, 0], 'spy.': [0, 0], 'warezclient.': [3000, 0], 'warezmaster.': [3000, 2], 'snmpgetattack.': [0, 2], 'named.': [0, 1], 'xlock.': [0, 0], 'xsnoop.': [0, 0], 'sendmail.': [0, 0], 'worm.': [0, 0], 'snmpguess.': [0, 2]}
