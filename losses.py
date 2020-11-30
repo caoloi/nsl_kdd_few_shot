@@ -111,7 +111,7 @@ def __euclidean(x, y):
 def __cosine(x, y):
   x = K.l2_normalize(x, axis=-1)
   y = K.l2_normalize(y, axis=-1)
-  c = K.sum(K.dot(x, y), axis=-1)
+  c = K.sum(x * y, axis=-1)
   # c = K.sum(c)
   return - c
   # average = K.sum(c, axis=-1) / K.sum(K.ones_like(c), axis=-1)
