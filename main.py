@@ -106,12 +106,12 @@ def load_models(index):
 def main():
   _, x_support, x_test, _, y_support, y_test, _, y_support_value, y_test_value, input_shape = data_processing()
   # x_train, x_support, x_test, y_train, y_support, y_test, y_train_value, y_support_value, y_test_value, input_shape = data_processing()
-  p = Pool(CONFIG["process_num"])
+  p = Pool(CONFIG["num_process"])
   datasets = np.array(p.map(data_processing, range(CONFIG["num_models"])))
   p.close()
   p.terminate()
   p.join()
-  p = Pool(CONFIG["process_num"])
+  p = Pool(CONFIG["num_process"])
 
   args = []
   for i in range(CONFIG["num_models"]):
@@ -135,7 +135,7 @@ def main():
   p.close()
   p.terminate()
   p.join()
-  p = Pool(CONFIG["process_num"])
+  p = Pool(CONFIG["num_process"])
 
   print("-" * 200)
 

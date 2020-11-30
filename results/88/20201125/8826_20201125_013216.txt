@@ -20,5 +20,5 @@ Confusion Matrix:
  [ 276   90 6503   38  551]
  [  15   21    8  144   12]
  [  89   20   21  119 2505]]
-{'epochs': 100, 'batch_size': 128, 'num_classes': 5, 'num_models': 36, 'dataset': 'kdd', 'train_data': 'train+', 'img_rows': 11, 'img_cols': 11, 'output_dim': 121, 'process_num': 6}
+{'epochs': 100, 'batch_size': 128, 'num_classes': 5, 'num_models': 36, 'dataset': 'kdd', 'train_data': 'train+', 'img_rows': 11, 'img_cols': 11, 'output_dim': 121, 'num_process': 6}
 {'normal.': [12000, 12], 'ipsweep.': [0, 2], 'nmap.': [0, 2], 'portsweep.': [0, 2], 'satan.': [0, 2], 'saint.': [0, 2], 'mscan.': [0, 2], 'back.': [3000, 2], 'land.': [0, 0], 'neptune.': [3000, 2], 'pod.': [0, 0], 'smurf.': [3000, 2], 'teardrop.': [3000, 0], 'apache2.': [0, 2], 'udpstorm.': [0, 0], 'processtable.': [0, 2], 'mailbomb.': [0, 2], 'buffer_overflow.': [0, 2], 'loadmodule.': [0, 0], 'perl.': [0, 0], 'rootkit.': [0, 2], 'xterm.': [0, 2], 'ps.': [0, 2], 'sqlattack.': [0, 0], 'httptunnel.': [0, 4], 'ftp_write.': [0, 0], 'guess_passwd.': [4000, 3], 'imap.': [0, 0], 'multihop.': [0, 0], 'phf.': [0, 0], 'spy.': [0, 0], 'warezclient.': [4000, 0], 'warezmaster.': [4000, 3], 'snmpgetattack.': [0, 3], 'named.': [0, 0], 'xlock.': [0, 0], 'xsnoop.': [0, 0], 'sendmail.': [0, 0], 'worm.': [0, 0], 'snmpguess.': [0, 3]}

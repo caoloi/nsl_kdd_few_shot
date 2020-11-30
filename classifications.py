@@ -148,7 +148,7 @@ def accuracy_scores(args):
 
 
 def calc_ensemble_accuracy(x, y, x_support, y_support, models):
-  p = Pool(CONFIG["process_num"])
+  p = Pool(CONFIG["num_process"])
 
   print("-" * 200)
 
@@ -166,7 +166,7 @@ def calc_ensemble_accuracy(x, y, x_support, y_support, models):
   p.close()
   p.terminate()
   p.join()
-  p = Pool(CONFIG["process_num"])
+  p = Pool(CONFIG["num_process"])
 
   print("-" * 200)
 
@@ -182,7 +182,7 @@ def calc_ensemble_accuracy(x, y, x_support, y_support, models):
   p.close()
   p.terminate()
   p.join()
-#   p = Pool(CONFIG["process_num"])
+#   p = Pool(CONFIG["num_process"])
 
   print("-" * 200)
 

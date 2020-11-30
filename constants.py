@@ -10,7 +10,7 @@ CONFIG = {
     "img_rows": 11,
     "img_cols": 11,
     "output_dim": 121,
-    "process_num": 6,
+    "num_process": 6,
 }
 
 LABEL_TO_NUM = {
