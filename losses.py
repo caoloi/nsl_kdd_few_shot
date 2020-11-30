@@ -11,55 +11,72 @@ def center_loss(x_support, y_support, y_support_value, model):
 
     loss1 = 0.5 * K.sum(
         K.square(
-            y_pred - K.batch_dot(
+            y_pred - K.dot(
                 y_true[:, :5],
                 K.variable(
                     centers
                 ),
-                axes=(1, 0)
             )
         ),
         axis=-1
     )
     # loss2 = - K.sum(K.square(y_pred - K.batch_dot(K.ones_like(y_true[:, :5]) - y_true[:, :5], K.variable(centers), axes=(1, 0))), axis=-1)
 
-    # loss3 = __euclidean(y_pred, K.batch_dot(y_true[:, :5], K.variable(centers), axes=(1, 0)))
+    # loss3 = __euclidean(
+    #     y_pred,
+    #     K.dot(
+    #         y_true[:, :5],
+    #         K.variable(
+    #             centers
+    #         )
+    #     )
+    # )
     # tmp_loss3 = K.variable(0.0)
     # for center in centers:
     #   tmp_loss3 += K.exp(
     #       -__euclidean(
     #           y_pred,
-    #           K.batch_dot(
+    #           K.dot(
     #               K.ones_like(
     #                   y_true[:, :1]
     #               ),
     #               K.variable(
-    #                   [
-    #                       center
-    #                   ]
+    #                   np.array(
+    #                       [
+    #                           center
+    #                       ]
+    #                   )
     #               ),
-    #               axes=(1, 0)
     #           )
     #       )
     #   )
     # loss3 += K.log(tmp_loss3)
 
-    loss4 = __cosine(y_pred, K.batch_dot(y_true[:, :5], K.variable(centers), axes=(1, 0)))
+    loss4 = __cosine(
+        y_pred,
+        K.dot(
+            y_true[:, :5],
+            K.variable(
+                centers
+            )
+        )
+    )
     tmp_loss4 = K.variable(0.0)
     for center in centers:
       tmp_loss4 += K.exp(
           -__cosine(
               y_pred,
-              K.batch_dot(
+              K.dot(
                   K.ones_like(
                       y_true[:, :1]
                   ),
                   K.variable(
-                      [
-                          center
-                      ]
+                      np.array(
+                          [
+                              center
+                          ]
+                      )
                   ),
-                  axes=(1, 0)
               )
           )
       )

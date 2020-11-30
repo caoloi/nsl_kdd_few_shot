@@ -7,6 +7,13 @@ if pf == 'Darwin':
   os.environ["KERAS_BACKEND"] = "plaidml.keras.backend"
   os.environ["PLAIDML_EXPERIMENTAL"] = "1"
   # os.environ["PLAIDML_DEVICE_IDS"] = "opencl_amd_gfx1010.0"
+else:
+  from keras import backend as K
+  import tensorflow as tf
+  config = tf.ConfigProto()
+  config.gpu_options.allow_growth = True
+  sess = tf.Session(config=config)
+  K.set_session(sess)
 
 from constants import CONFIG
 from classifications import calc_ensemble_accuracy
