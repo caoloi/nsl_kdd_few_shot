@@ -12,7 +12,7 @@ else:
   import tensorflow as tf
   config = tf.ConfigProto()
   config.gpu_options.allow_growth = True
-  sess = tf.Session(config=config)
+  sess = tf.compat.v1.Session(config=config)
   K.set_session(sess)
   K.clear_session ()
 
@@ -109,10 +109,6 @@ def main():
   # x_train, x_support, x_test, y_train, y_support, y_test, y_train_value, y_support_value, y_test_value, input_shape = data_processing()
   p = Pool(CONFIG["num_process"])
   datasets = np.array(p.map(data_processing, range(CONFIG["num_models"])))
-  p.close()
-  p.terminate()
-  p.join()
-  p = Pool(CONFIG["num_process"])
 
   args = []
   for i in range(CONFIG["num_models"]):
@@ -133,10 +129,6 @@ def main():
       ]
     )
   np.array(p.map(train, args))
-  p.close()
-  p.terminate()
-  p.join()
-  p = Pool(CONFIG["num_process"])
 
   print("-" * 200)
 

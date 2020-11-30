@@ -57,9 +57,9 @@ def build_fsl_cnn(inputs):
   x2 = MaxPooling2D(pool_size=2, strides=2)(x2)
   x2 = Conv2D(36, 3, strides=1, padding="same")(x2)
   x2 = MaxPooling2D(pool_size=2, strides=2)(x2)
-  x2 = Conv2D(108, 3, strides=1, padding="same")(x2)
+  x2 = Conv2D(121, 3, strides=1, padding="same")(x2)
   x2 = Flatten()(x2)
-  x2 = Dense(121)(x2)
+  # x2 = Dense(121)(x2)
 
   x_in = Flatten()(inputs)
   x = Add()(

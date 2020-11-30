@@ -7,8 +7,16 @@ if pf == 'Darwin':
   os.environ["KERAS_BACKEND"] = "plaidml.keras.backend"
   os.environ["PLAIDML_EXPERIMENTAL"] = "1"
   # os.environ["PLAIDML_DEVICE_IDS"] = "opencl_amd_gfx1010.0"
+  from keras import backend as K
+else:
+  from keras import backend as K
+  import tensorflow as tf
+  config = tf.ConfigProto()
+  config.gpu_options.allow_growth = True
+  sess = tf.compat.v1.Session(config=config)
+  K.set_session(sess)
+  K.clear_session ()
 
-from keras import backend as K
 import numpy as np
 from constants import CONFIG, SAMPLE_NUM_PER_LABEL
 from sklearn.metrics import classification_report, accuracy_score, confusion_matrix
@@ -163,10 +171,6 @@ def calc_ensemble_accuracy(x, y, x_support, y_support, models):
       for i in range(CONFIG["num_models"])
   ]
   distances = np.array(p.map(calc_distances, args))
-  p.close()
-  p.terminate()
-  p.join()
-  p = Pool(CONFIG["num_process"])
 
   print("-" * 200)
 
@@ -179,10 +183,6 @@ def calc_ensemble_accuracy(x, y, x_support, y_support, models):
       for i in range(CONFIG["num_models"])
   ]
   acc_list = np.array(p.map(accuracy_scores, args))
-  p.close()
-  p.terminate()
-  p.join()
-#   p = Pool(CONFIG["num_process"])
 
   print("-" * 200)
 
