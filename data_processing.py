@@ -1,3 +1,9 @@
+from imblearn.over_sampling import SMOTENC, SMOTE, SVMSMOTE
+from collections import Counter
+import pandas as pd
+import numpy as np
+from keras.backend import image_data_format
+from keras.utils import to_categorical
 from constants import (
     CONFIG,
     LABEL_TO_NUM,
@@ -9,13 +15,8 @@ from constants import (
     PROTOCOL_TYPE_VALUES,
     COLUMNS
 )
-from sklearn.preprocessing import LabelEncoder, MinMaxScaler
-from keras.utils import to_categorical
-from keras.backend import image_data_format
-import numpy as np
-from multiprocessing import cpu_count
-from time import sleep
-import pandas as pd
+from sklearn.preprocessing import QuantileTransformer
+from scipy.stats import boxcox
 pd.options.mode.chained_assignment = None  # default="warn" | Disable warnings
 
 
@@ -25,7 +26,7 @@ def data_processing(index=None):
 
   x_train, x_support, x_test, y_train, y_support, y_test = __load_data()
 
-  if image_data_format() == "channels_first":
+  if image_data_format() == "channels_first" and CONFIG["model_type"] == "cnn":
     x_train = x_train.reshape(
         x_train.shape[0],
         1,
@@ -49,32 +50,34 @@ def data_processing(index=None):
         1,
         CONFIG["img_rows"],
         CONFIG["img_cols"]
+    )
+  elif CONFIG["model_type"] == "cnn":
+    x_train = x_train.reshape(
+        x_train.shape[0],
+        CONFIG["img_rows"],
+        CONFIG["img_cols"],
+        1
+    )
+    x_support = x_support.reshape(
+        x_support.shape[0],
+        CONFIG["img_rows"],
+        CONFIG["img_cols"],
+        1
+    )
+    x_test = x_test.reshape(
+        x_test.shape[0],
+        CONFIG["img_rows"],
+        CONFIG["img_cols"],
+        1
+    )
+
+    input_shape = (
+        CONFIG["img_rows"],
+        CONFIG["img_cols"],
+        1
     )
   else:
-    x_train = x_train.reshape(
-        x_train.shape[0],
-        CONFIG["img_rows"],
-        CONFIG["img_cols"],
-        1
-    )
-    x_support = x_support.reshape(
-        x_support.shape[0],
-        CONFIG["img_rows"],
-        CONFIG["img_cols"],
-        1
-    )
-    x_test = x_test.reshape(
-        x_test.shape[0],
-        CONFIG["img_rows"],
-        CONFIG["img_cols"],
-        1
-    )
-
-    input_shape = (
-        CONFIG["img_rows"],
-        CONFIG["img_cols"],
-        1
-    )
+    input_shape = (121,)
 
   # Maintain single value ground truth labels for center loss inputs
   # Because Embedding layer only accept index as inputs instead of one-hot vector
@@ -98,18 +101,15 @@ def t_sne_data_processing():
   x_train, _ = __resample_processing(
       train_df,
       balanced=False,
-      supported=False,
   )
   x_support, _ = __resample_processing(
       test_df,
       balanced=True,
-      supported=True,
       type="test",
   )
   x_test, _ = __resample_processing(
       test_df,
       balanced=False,
-      supported=False,
   )
 
   y_train = x_train.T.index.values
@@ -167,67 +167,49 @@ def __kdd_encoding():
 
   train_df, test_df = __numerical_processing(train_df, test_df)
 
-  x_train, y_train = __resample_processing(
+  # train_df = __smote_processing(train_df)
+  train_df = __resample_processing(
       train_df,
       balanced=True,
-      supported=True,
   )
-  # x_train_support, y_train_support = __resample_processing(
-  #     train_df,
-  #     balanced=True,
-  #     supported=False,
-  #     nums=[
-  #         6,
-  #         6,
-  #         6,
-  #         6,
-  #         6,
-  #     ],
-  # )
-  x_support, y_support = __resample_processing(
-      # x_test_support, y_test_support = __resample_processing(
+  x_train, y_train = __label_to_num_processing(train_df)
+  support_df = __resample_processing(
       test_df,
       balanced=True,
-      supported=True,
       type="test",
   )
-  # x_support, y_support = np.array(np.concatenate([x_train_support, x_test_support])), np.array(np.concatenate([y_train_support, y_test_support]))
-  # p = np.random.permutation(len(x_support))
-  # x_support = x_support[p]
-  # y_support = y_support[p]
-  # x_support, y_support = __resample_processing(
-  #     pd.concat([train_df, test_df], ignore_index=True),
-  #     balanced=True,
-  #     supported=True,
-  #     nums=[
-  #         52,
-  #         52,
-  #         52,
-  #         52,
-  #         52,
-  #     ],
+  # support_df = __smote_processing(
+  #     support_df,
+  #     r=CONFIG["smote_rate"],
+  #     type="test",
   # )
-  x_test, y_test = __resample_processing(
+  x_support, y_support = __label_to_num_processing(support_df)
+  test_df = __resample_processing(
       test_df,
       balanced=False,
-      supported=False,
   )
+  x_test, y_test = __label_to_num_processing(test_df)
 
-  x_train = np.array(x_train).reshape(
-      x_train.shape[0],
-      CONFIG["img_rows"],
-      CONFIG["img_cols"]
-  )
-  x_support = np.array(x_support).reshape(
-      x_support.shape[0],
-      CONFIG["img_rows"],
-      CONFIG["img_cols"]
-  )
-  x_test = np.array(x_test).reshape(
-      x_test.shape[0],
-      CONFIG["img_rows"],
-      CONFIG["img_cols"]
-  )
+  if CONFIG["model_type"] == "cnn":
+    x_train = np.array(x_train).reshape(
+        x_train.shape[0],
+        CONFIG["img_rows"],
+        CONFIG["img_cols"]
+    )
+    x_support = np.array(x_support).reshape(
+        x_support.shape[0],
+        CONFIG["img_rows"],
+        CONFIG["img_cols"]
+    )
+    x_test = np.array(x_test).reshape(
+        x_test.shape[0],
+        CONFIG["img_rows"],
+        CONFIG["img_cols"]
+    )
+  else:
+    x_train = x_train.to_numpy()
+    x_support = x_support.to_numpy()
+    x_test = x_test.to_numpy()
   y_train = y_train.to_numpy()
   y_support = y_support.to_numpy()
   y_test = y_test.to_numpy()
@@ -239,24 +221,24 @@ def __numerical_processing(train_df, test_df):
   train_df = __column_processing(train_df)
   test_df = __column_processing(test_df)
 
-  # print(train_df["difficulty"].value_counts())
-  # print(test_df["difficulty"].value_counts())
-  # for k in SAMPLE_NUM_PER_LABEL:
-  #   if SAMPLE_NUM_PER_LABEL[k][1] > 0:
-  #     print(k, SAMPLE_NUM_PER_LABEL[k])
-  #     print(test_df.loc[test_df["label"] == k[:-1], "difficulty"].min())
-  #     print(test_df.loc[test_df["label"] == k[:-1]].sort_values("difficulty")["difficulty"])
-  #     print(test_df.loc[test_df["label"] == k[:-1]].sort_values("difficulty")["difficulty"].value_counts())
-  # exit()
-
   for c in COLUMNS:
     if c != "label" and c != "difficulty":
       train_df[c] = train_df[c].astype(float)
       test_df[c] = test_df[c].astype(float)
 
       # x = log(x + 1)
-      train_df[c] = np.log(train_df[c] + 1)
-      test_df[c] = np.log(test_df[c] + 1)
+      if train_df[c].min() != train_df[c].max():
+        train_df[c] = np.log(train_df[c] + 1)
+      if test_df[c].min() != test_df[c].max():
+        test_df[c] = np.log(test_df[c] + 1)
+
+      # boxcox
+      # if train_df[c].min() != train_df[c].max():
+      #   train_df[c] = train_df[c] + 1
+      #   train_df[c] = boxcox(train_df[c], lmbda=0.5)
+      # if test_df[c].min() != test_df[c].max():
+      #   test_df[c] = test_df[c] + 1
+      #   test_df[c] = boxcox(test_df[c], lmbda=0.5)
 
       # scale to range [0, 1]
       min = np.min([train_df[c].min(), test_df[c].min()])
@@ -314,8 +296,8 @@ def __column_processing(df):
   return df
 
 
-def __resample_processing(df, balanced, supported, type="train", nums=[]):
-  if supported:
+def __resample_processing(df, balanced, type="train"):
+  if balanced:
     df_per_category = {}
     for label in ENTRY_TYPE:
       for minor_label in ENTRY_TYPE[label]:
@@ -323,31 +305,44 @@ def __resample_processing(df, balanced, supported, type="train", nums=[]):
 
     df_list = []
     for label in SAMPLE_NUM_PER_LABEL:
-      if SAMPLE_NUM_PER_LABEL[label][type == "test"] >= 0:
+      if SAMPLE_NUM_PER_LABEL[label][type] >= 0:
         if type == "test":
           # sorted_df = df_per_category[label].sort_values("difficulty")
           # temp_df = sorted_df.tail(10)
           # temp_df = sorted_df.head(5).append(sorted_df.tail(5))
-          # temp_df = sorted_df.tail(np.max([SAMPLE_NUM_PER_LABEL[label][type == "test"], len(sorted_df) // 4]))
+          # temp_df = sorted_df.tail(np.max([SAMPLE_NUM_PER_LABEL[label][type], len(sorted_df) // 4]))
           # temp_df = sorted_df[(len(sorted_df) // 4):(3 * (len(sorted_df) // 4))]
           # temp_df = df_per_category[label].sort_values("difficulty").head(len(df_per_category[label]) // 2)
           # samples = temp_df.sample(
-          #     n=SAMPLE_NUM_PER_LABEL[label][type == "test"],
-          #     replace=SAMPLE_NUM_PER_LABEL[label][type == "test"] > len(temp_df)
+          #     n=SAMPLE_NUM_PER_LABEL[label][type],
+          #     replace=SAMPLE_NUM_PER_LABEL[label][type] > len(temp_df)
           # )
           samples = df_per_category[label].sample(
-              n=SAMPLE_NUM_PER_LABEL[label][type == "test"],
-              replace=SAMPLE_NUM_PER_LABEL[label][type == "test"] > len(df_per_category[label])
+              n=SAMPLE_NUM_PER_LABEL[label][type],
+              replace=SAMPLE_NUM_PER_LABEL[label][type] > len(
+                  df_per_category[label]
+              )
           )
         else:
           # print(label)
           # print(len(df_per_category[label]))
           # temp_df = df_per_category[label].sort_values("difficulty").head(len(df_per_category[label]) // 2)
-          temp_df = df_per_category[label].sort_values("difficulty")[(len(df_per_category[label]) // 4):]
+          # temp_df = df_per_category[label].sort_values(
+          #     "difficulty"
+          # )[
+          #     (
+          #         len(
+          #             df_per_category[label]
+          #         ) // 4
+          #     ):
+          # ]
           # print(len(temp_df))
+          temp_df = df_per_category[label]
           samples = temp_df.sample(
-              n=SAMPLE_NUM_PER_LABEL[label][type == "test"],
-              replace=SAMPLE_NUM_PER_LABEL[label][type == "test"] > len(temp_df)
+              n=SAMPLE_NUM_PER_LABEL[label][type],
+              replace=SAMPLE_NUM_PER_LABEL[label][type] > len(
+                  temp_df
+              )
           )
         df_list.append(samples)
       # samples = df_per_category[label].sample(n=int(np.log(len(df_per_category[label]) + 1)))
@@ -357,6 +352,10 @@ def __resample_processing(df, balanced, supported, type="train", nums=[]):
     # Assign x (inputs) and y (outputs) of the network
     df = df.sample(frac=1)
 
+  return df
+
+
+def __label_to_num_processing(df):
   # Replace connexion type string with an int (also works with NSL)
   for label in ENTRY_TYPE:
     for i in range(len(ENTRY_TYPE[label])):
@@ -368,41 +367,153 @@ def __resample_processing(df, balanced, supported, type="train", nums=[]):
           LABEL_TO_NUM[label]
       )
 
-  if balanced and (not supported):
-    df_per_category = []
-    for i in range(CONFIG["num_classes"]):
-      df_per_category.append(df[df["label"] == i])
-
-    df_list = []
-    for i in range(CONFIG["num_classes"]):
-      if nums[i % 5] == 0:
-        df_list.append(df_per_category[i])
-      else:
-        if len(df_per_category[i]) > 0:
-          samples = df_per_category[i].sample(n=nums[i % 5], replace=nums[i % 5] > len(df_per_category[i]))
-          df_list.append(samples)
-    balanced_df = pd.concat(df_list, ignore_index=True)
-
-    # Assign x (inputs) and y (outputs) of the network
-    balanced_df = balanced_df.sample(frac=1)
-    # print(balanced_df["label"].value_counts())
-    y = balanced_df["label"]
-    # x = balanced_df.drop(columns="label")
-    x = balanced_df.drop(
+  # print(df["label"].value_counts())
+  y = df["label"]
+  # x = df.drop(columns="label")
+  x = df.drop(
       columns=[
-        "label",
-        "difficulty",
+          "label",
+          "difficulty",
       ]
-    )
-  else:
-    # print(df["label"].value_counts())
-    y = df["label"]
-    # x = df.drop(columns="label")
-    x = df.drop(
-      columns=[
-        "label",
-        "difficulty",
-      ]
-    )
+  )
 
   return x, y
+
+
+def __smote_processing(df, r=1, type="train"):
+  classes = []
+  for k in SAMPLE_NUM_PER_LABEL:
+    if SAMPLE_NUM_PER_LABEL[k][type] > 0:
+      classes.append(k[:-1])
+  df = df[df["label"].isin(classes)]
+  x = df.drop(columns="label")
+  y = df["label"]
+  # print('Original dataset samples per class {}'.format(Counter(y)))
+
+  strategy = Counter(y)
+  for k in strategy:
+    strategy[k] = np.max(
+        [
+            strategy[k],
+            (1 if k == "normal" else r) *
+            SAMPLE_NUM_PER_LABEL[k + "."][type]
+        ]
+    )
+  sm = SMOTENC(
+      sampling_strategy=strategy,
+      categorical_features=[
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20,
+          21,
+          22,
+          23,
+          24,
+          25,
+          26,
+          27,
+          28,
+          29,
+          30,
+          31,
+          32,
+          33,
+          34,
+          35,
+          36,
+          37,
+          38,
+          39,
+          40,
+          41,
+          42,
+          43,
+          44,
+          45,
+          46,
+          47,
+          48,
+          49,
+          50,
+          51,
+          52,
+          53,
+          54,
+          55,
+          56,
+          57,
+          58,
+          59,
+          60,
+          61,
+          62,
+          63,
+          64,
+          65,
+          66,
+          67,
+          68,
+          69,
+          70,
+          71,
+          72,
+          73,
+          74,
+          75,
+          76,
+          77,
+          78,
+          79,
+          80,
+          81,
+          82,
+          83,
+          84,
+          87,
+          92,
+          100,
+          101,
+          121,
+      ],
+      k_neighbors=(2 if type == "test" else 5),
+      n_jobs=-1
+  )
+  x, y = sm.fit_resample(x, y)
+  # print('Resampled dataset samples per class {}'.format(Counter(y)))
+  df = pd.concat([y, x], axis=1)
+  return df
+
+
+def __rank_gauss(df):
+  for col in df.columns:
+    if col != "label" and col != "difficulty":
+      transformer = QuantileTransformer(
+          n_quantiles=100,
+          random_state=0,
+          output_distribution='normal'
+      )
+      vec_len = len(df[col].values)
+      raw_vec = df[col].values.reshape(vec_len, 1)
+      transformer.fit(raw_vec)
+
+      # 変換後のデータで各列を置換
+      df[col] = transformer.transform(raw_vec).reshape(1, vec_len)[0]
+
+  return df

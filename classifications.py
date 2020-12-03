@@ -7,10 +7,11 @@ from time import sleep
 import datetime
 import pathlib
 import matplotlib.pyplot as plt
+from io import StringIO
 
 
 def calc_centers(x, y, model):
-  output = model.predict(x)
+  output = model.predict_on_batch(x)
   centers = [[] for _ in range(CONFIG["num_classes"])]
 
   for xx, yy in zip(output, y):
@@ -36,7 +37,7 @@ def calc_centers_2(pred, true):
 
 
 def calc_distance(x, x_support, y_support, model):
-  output = model.predict(x)
+  output = model.predict_on_batch(x)
   centers = calc_centers(x_support, y_support, model)
 
   d_list = np.array(
@@ -222,7 +223,7 @@ def calc_ensemble_accuracy(x, y, x_support, y_support, models):
       print(report)
       c_mat = confusion_matrix(y, pred)
       print(c_mat)
-      save_report(acc, report, c_mat, "Ensemble")
+      save_report(acc, report, c_mat, "Ensemble", models[0][0])
 
   print("-" * 200)
 
@@ -248,7 +249,7 @@ def calc_ensemble_accuracy(x, y, x_support, y_support, models):
   print(report)
   c_mat = confusion_matrix(y, pred)
   print(c_mat)
-  save_report(acc, report, c_mat, "Last 60 Ensemble")
+  save_report(acc, report, c_mat, "Last 60 Ensemble", models[0][0])
 
   print("-" * 200)
 
@@ -274,7 +275,7 @@ def calc_ensemble_accuracy(x, y, x_support, y_support, models):
   print(report)
   c_mat = confusion_matrix(y, pred)
   print(c_mat)
-  save_report(acc, report, c_mat, "Last 40 Ensemble")
+  save_report(acc, report, c_mat, "Last 40 Ensemble", models[0][0])
 
   print("-" * 200)
 
@@ -300,7 +301,7 @@ def calc_ensemble_accuracy(x, y, x_support, y_support, models):
   print(report)
   c_mat = confusion_matrix(y, pred)
   print(c_mat)
-  save_report(acc, report, c_mat, "Last 20 Ensemble")
+  save_report(acc, report, c_mat, "Last 20 Ensemble", models[0][0])
 
   print("-" * 200)
 
@@ -326,7 +327,7 @@ def calc_ensemble_accuracy(x, y, x_support, y_support, models):
   print(report)
   c_mat = confusion_matrix(y, pred)
   print(c_mat)
-  save_report(acc, report, c_mat, "All Ensemble")
+  save_report(acc, report, c_mat, "All Ensemble", models[0][0])
 
   x = list(range(1, CONFIG["epochs"] + 1))
   for i in range(CONFIG["num_models"]):
@@ -340,7 +341,7 @@ def calc_ensemble_accuracy(x, y, x_support, y_support, models):
   plt.show()
 
 
-def save_report(acc, report, c_mat, title=""):
+def save_report(acc, report, c_mat, title="", model=None):
   now = datetime.datetime.now()
   dir = "./results/" + "{:.07f}".format(acc)[2:4] + "/" + now.strftime("%Y%m%d")
   if not pathlib.Path(dir).exists():
@@ -354,5 +355,16 @@ def save_report(acc, report, c_mat, title=""):
     print(report, file=f)
     print("Confusion Matrix:", file=f)
     print(c_mat, file=f)
+    print("CONFIG:", file=f)
     print(CONFIG, file=f)
+    print("SAMPLE_NUM_PER_LABEL:", file=f)
     print(SAMPLE_NUM_PER_LABEL, file=f)
+    if model is not None:
+      print("Model Summary:", file=f)
+      with StringIO() as buf:
+        # StringIOに書き込む
+        model.summary(print_fn=lambda x: buf.write(x + "\n"))
+        # StringIOから取得
+        text = buf.getvalue()
+
+      print(text, file=f)

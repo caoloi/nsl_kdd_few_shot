@@ -28,9 +28,9 @@ class Histories(keras.callbacks.Callback):
   def on_epoch_end(self, epoch, logs={}):
     # print("Model: " + str(self.index + 1) + "/" + str(CONFIG["num_models"]))
     # print("========= train =========")
-    train_pred = calc_pred(self.x_train, self.x_support, self.y_support, self.model)
+    # train_pred = calc_pred(self.x_train, self.x_support, self.y_support, self.model)
     # print(classification_report(self.y_train, train_pred))
-    train_acc = accuracy_score(self.y_train, train_pred)
+    # train_acc = accuracy_score(self.y_train, train_pred)
     # print(train_acc)
 
     # print("========= test =========")
@@ -60,10 +60,10 @@ class Histories(keras.callbacks.Callback):
       )
       plt.draw()
       plt.pause(0.001)
-    if acc >= 0.88 or epoch == CONFIG["epochs"] - 1:
+    if acc >= 0.90 or epoch == CONFIG["epochs"] - 1:
       report = classification_report(self.y_test, pred)
       c_mat = confusion_matrix(self.y_test, pred)
-      save_report(acc, report, c_mat, "Epoch: " + str(epoch))
+      save_report(acc, report, c_mat, "Epoch: " + str(epoch), self.model)
 
     # print("=========")
 

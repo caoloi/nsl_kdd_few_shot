@@ -20,7 +20,7 @@ from constants import CONFIG
 from classifications import calc_ensemble_accuracy
 from data_processing import data_processing
 from callbacks import Histories
-from models import build_fsl_cnn
+from models import build_fsl_cnn, build_fsl_dnn
 from losses import center_loss
 from keras.optimizers import Adam, SGD, RMSprop, Nadam
 from keras.models import Model, model_from_json, load_model
@@ -38,12 +38,13 @@ def train(args):
   print("Setting up Model " + str(index + 1) + "/" + str(CONFIG["num_models"]))
 
   input = Input(shape=input_shape)
-  output = build_fsl_cnn(input)
+  output = build_fsl_cnn(
+      input) if CONFIG["model_type"] == "cnn" else build_fsl_dnn(input)
   model = Model(inputs=input, outputs=output)
   model.compile(
       # optimizer=RMSprop(),
       #   optimizer=SGD(lr=0.0020),
-    #   optimizer=Nadam(),
+      #   optimizer=Nadam(),
       optimizer=Adam(),
       loss=[
           center_loss(
@@ -113,24 +114,44 @@ def main():
   args = []
   for i in range(CONFIG["num_models"]):
     x_train, _, _, y_train, _, _, y_train_value, _, _, _ = datasets[i]
+    for _ in range(CONFIG["support_rate"]):
+      x_train = np.vstack((x_train, x_support))
+      y_train = np.vstack((y_train, y_support))
+      y_train_value = np.hstack((y_train_value, y_support_value))
+    # ids = np.random.permutation(x_train.shape[0])
+    # x_train = x_train[ids]
+    # y_train = y_train[ids]
+    # y_train_value = y_train_value[ids]
     args.append(
-      [
-        i,
-        x_train,
-        x_support,
-        x_test,
-        y_train,
-        y_support,
-        y_test,
-        y_train_value,
-        y_support_value,
-        y_test_value,
-        input_shape
-      ]
+        [
+            i,
+            x_train,
+            x_support,
+            x_test,
+            y_train,
+            y_support,
+            y_test,
+            y_train_value,
+            y_support_value,
+            y_test_value,
+            input_shape
+        ]
     )
   np.array(p.map(train, args))
 
   print("-" * 200)
+
+  p.close()
+  p.terminate()
+  p.join()
+  p = Pool(
+      np.min(
+          [
+              CONFIG["num_models"],
+              cpu_count()
+          ]
+      )
+  )
 
   models = np.array(p.map(load_models, range(CONFIG["num_models"])))
   p.close()
@@ -140,7 +161,8 @@ def main():
   # x_supports = results[:, 0]
   # y_supports = results[:, 1]
 
-  calc_ensemble_accuracy(x_test, y_test_value, x_support, y_support_value, models)
+  calc_ensemble_accuracy(x_test, y_test_value, x_support,
+                         y_support_value, models)
 
 
 if __name__ == "__main__":

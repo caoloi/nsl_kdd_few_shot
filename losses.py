@@ -9,7 +9,7 @@ def center_loss(x_support, y_support, y_support_value, model):
     centers = calc_centers(x_support, y_support_value, model)
     # train_centers = calc_centers_2(y_pred, y_true[:, :5])
 
-    loss1 = 0.5 * K.sum(
+    loss1 = K.sum(
         K.square(
             y_pred - K.dot(
                 y_true[:, :5],
