@@ -109,19 +109,27 @@ def main():
   _, x_support, x_test, _, y_support, y_test, _, y_support_value, y_test_value, input_shape = data_processing()
   # x_train, x_support, x_test, y_train, y_support, y_test, y_train_value, y_support_value, y_test_value, input_shape = data_processing()
   p = Pool(CONFIG["num_process"])
-  datasets = np.array(p.map(data_processing, range(CONFIG["num_models"])))
+  datasets = p.map(data_processing, range(CONFIG["num_models"]))
 
   args = []
   for i in range(CONFIG["num_models"]):
     x_train, _, _, y_train, _, _, y_train_value, _, _, _ = datasets[i]
-    for _ in range(CONFIG["support_rate"]):
-      x_train = np.vstack((x_train, x_support))
-      y_train = np.vstack((y_train, y_support))
-      y_train_value = np.hstack((y_train_value, y_support_value))
-    # ids = np.random.permutation(x_train.shape[0])
-    # x_train = x_train[ids]
-    # y_train = y_train[ids]
-    # y_train_value = y_train_value[ids]
+    ids = np.random.permutation(x_support.shape[0])
+    ids = np.random.choice(ids, int(x_train.shape[0] * CONFIG["support_rate"]))
+    # ids = [
+    #     i % x_support.shape[0]
+    #     for i in range(
+    #         int(
+    #             x_train.shape[0] * CONFIG["support_rate"]
+    #         )
+    #     )
+    # ]
+    random_x_support = x_support[ids]
+    random_y_support = y_support[ids]
+    random_y_support_value = y_support_value[ids]
+    x_train = np.vstack((x_train, random_x_support))
+    y_train = np.vstack((y_train, random_y_support))
+    y_train_value = np.hstack((y_train_value, random_y_support_value))
     args.append(
         [
             i,
@@ -140,18 +148,6 @@ def main():
   np.array(p.map(train, args))
 
   print("-" * 200)
-
-  p.close()
-  p.terminate()
-  p.join()
-  p = Pool(
-      np.min(
-          [
-              CONFIG["num_models"],
-              cpu_count()
-          ]
-      )
-  )
 
   models = np.array(p.map(load_models, range(CONFIG["num_models"])))
   p.close()

@@ -14,10 +14,9 @@ def calc_centers(x, y, model):
   output = model.predict_on_batch(x)
   centers = [[] for _ in range(CONFIG["num_classes"])]
 
-  for xx, yy in zip(output, y):
-    centers[yy].append(xx)
+  for i in range(len(y)):
+    centers[y[i]].append(output[i])
 
-  centers = np.array(centers)
   centers = np.array([np.mean(center, axis=0) for center in centers])
 
   return centers
@@ -64,18 +63,18 @@ def calc_distance(x, x_support, y_support, model):
 def calc_distances(args):
   index, x, x_support, y_support, models = args
 
-
   preds = np.array(
       [
           (
               print(
-                  "Calculate Distances" +
-                  "\tEpoch: " + str(j + 1) + "/" + str(CONFIG["epochs"])
-                  + "\tModel: " + str(index + 1) + "/" + str(CONFIG["num_models"])
+                  "Calculate Distances"
+                  + "\tEpoch: " + str(j + 1) + "/" + str(CONFIG["epochs"])
+                  + "\tModel: " + str(index + 1) + "/" +
+                  str(CONFIG["num_models"])
               ) if (
                   (j + 1) % 25 == 0
                   and
-                  (index + 1) % 6 == 0
+                  (index + 1) % CONFIG["num_process"] == 0
               ) else False
           )
           or
@@ -103,7 +102,10 @@ def calc_pred(x, x_support, y_support, model):
 def calc_preds(args):
   index, x, x_support, y_support, models = args
 
-  print("Calculate Prediction " + str(index + 1) + "/" + str(CONFIG["num_models"]))
+  print(
+      "Calculate Prediction "
+      + str(index + 1) + "/" + str(CONFIG["num_models"])
+  )
 
   preds = np.array(
       [
@@ -123,7 +125,10 @@ def calc_preds(args):
 def accuracy_scores(args):
   index, y, preds = args
 
-  print("Calculate Accuracy " + str(index + 1) + "/" + str(CONFIG["num_models"]))
+  print(
+      "Calculate Accuracy "
+      + str(index + 1) + "/" + str(CONFIG["num_models"])
+  )
 
   acc_list = np.array(
       [
@@ -174,7 +179,8 @@ def calc_ensemble_accuracy(x, y, x_support, y_support, models):
         "Model: " + str(i + 1) + "/" + str(CONFIG["num_models"])
         + "\tTest Accuracy: "
         + "\tLast: " + "{:.07f}".format(acc_list[i][-1])
-        + "\tAverage: " + "{:.07f}".format(np.mean(acc_list[i])) + " ± " + "{:.07f}".format(np.std(acc_list[i]))
+        + "\tAverage: " + "{:.07f}".format(np.mean(acc_list[i]))
+          + " ± " + "{:.07f}".format(np.std(acc_list[i]))
         + "\tMin: " + "{:.07f}".format(np.min(acc_list[i]))
         + "\tMax: " + "{:.07f}".format(np.max(acc_list[i]))
         + "\tEnsemble Accuracy: " + "{:.07f}".format(
@@ -196,7 +202,8 @@ def calc_ensemble_accuracy(x, y, x_support, y_support, models):
   print("-" * 200)
 
   print(
-      "Accuracy Summary: " + "{:.07f}".format(np.mean(acc_list[:, -1])) + " ± " + "{:.07f}".format(np.std(acc_list[:, -1]))
+      "Accuracy Summary: " + "{:.07f}".format(np.mean(acc_list[:, -1]))
+      + " ± " + "{:.07f}".format(np.std(acc_list[:, -1]))
       + "\tMin: " + "{:.07f}".format(np.min(acc_list[:, -1]))
       + "\tMax: " + "{:.07f}".format(np.max(acc_list[:, -1]))
   )
@@ -223,85 +230,33 @@ def calc_ensemble_accuracy(x, y, x_support, y_support, models):
       print(report)
       c_mat = confusion_matrix(y, pred)
       print(c_mat)
-      save_report(acc, report, c_mat, "Ensemble", models[0][0])
+      save_report(acc, report, c_mat, "Last Ensemble", models[0][0])
 
   print("-" * 200)
 
-  last_60_distances = np.array(
+  last_10_distances = np.array(
       [
           distances[i][j]
-          for j in range(np.max([0, CONFIG["epochs"] - 60]), CONFIG["epochs"])
+          for j in range(np.max([0, CONFIG["epochs"] - 10]), CONFIG["epochs"])
           for i in range(CONFIG["num_models"])
       ]
   )
   pred = [
       np.argmin(
           np.sum(
-              last_60_distances[:, i],
+              last_10_distances[:, i],
               axis=0
           )
       )
-      for i in range(last_60_distances.shape[1])
+      for i in range(last_10_distances.shape[1])
   ]
   acc = accuracy_score(y, pred)
-  print("Last 60 Ensemble Accuracy:\t" + "{:.07f}".format(acc))
+  print("Last 10 Ensemble Accuracy:\t" + "{:.07f}".format(acc))
   report = classification_report(y, pred)
   print(report)
   c_mat = confusion_matrix(y, pred)
   print(c_mat)
-  save_report(acc, report, c_mat, "Last 60 Ensemble", models[0][0])
-
-  print("-" * 200)
-
-  last_40_distances = np.array(
-      [
-          distances[i][j]
-          for j in range(np.max([0, CONFIG["epochs"] - 40]), CONFIG["epochs"])
-          for i in range(CONFIG["num_models"])
-      ]
-  )
-  pred = [
-      np.argmin(
-          np.sum(
-              last_40_distances[:, i],
-              axis=0
-          )
-      )
-      for i in range(last_40_distances.shape[1])
-  ]
-  acc = accuracy_score(y, pred)
-  print("Last 40 Ensemble Accuracy:\t" + "{:.07f}".format(acc))
-  report = classification_report(y, pred)
-  print(report)
-  c_mat = confusion_matrix(y, pred)
-  print(c_mat)
-  save_report(acc, report, c_mat, "Last 40 Ensemble", models[0][0])
-
-  print("-" * 200)
-
-  last_20_distances = np.array(
-      [
-          distances[i][j]
-          for j in range(np.max([0, CONFIG["epochs"] - 20]), CONFIG["epochs"])
-          for i in range(CONFIG["num_models"])
-      ]
-  )
-  pred = [
-      np.argmin(
-          np.sum(
-              last_20_distances[:, i],
-              axis=0
-          )
-      )
-      for i in range(last_20_distances.shape[1])
-  ]
-  acc = accuracy_score(y, pred)
-  print("Last 20 Ensemble Accuracy:\t" + "{:.07f}".format(acc))
-  report = classification_report(y, pred)
-  print(report)
-  c_mat = confusion_matrix(y, pred)
-  print(c_mat)
-  save_report(acc, report, c_mat, "Last 20 Ensemble", models[0][0])
+  save_report(acc, report, c_mat, "Last 10 Ensemble", models[0][0])
 
   print("-" * 200)
 
@@ -343,10 +298,14 @@ def calc_ensemble_accuracy(x, y, x_support, y_support, models):
 
 def save_report(acc, report, c_mat, title="", model=None):
   now = datetime.datetime.now()
-  dir = "./results/" + "{:.07f}".format(acc)[2:4] + "/" + now.strftime("%Y%m%d")
+  dir = "./results/" + \
+      "{:.07f}".format(acc)[2:4] + "/" + now.strftime("%Y%m%d")
   if not pathlib.Path(dir).exists():
     pathlib.Path(dir).mkdir(parents=True)
-  file = pathlib.Path(dir + "/" + "{:.07f}".format(acc)[2:6] + "_" + now.strftime("%Y%m%d_%H%M%S.txt"))
+  file = pathlib.Path(
+      dir + "/" + "{:.07f}".format(acc)[2:6] +
+      "_" + now.strftime("%Y%m%d_%H%M%S.txt")
+  )
   with file.open(mode="w") as f:
     print(title, file=f)
     print(now.strftime("%Y%m%d_%H%M%S"), file=f)

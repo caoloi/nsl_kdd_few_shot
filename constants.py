@@ -1,19 +1,19 @@
 # REFERENCES PARAMETERS
 CONFIG = {
-    "epochs": 200,
-    "batch_size": 32,
+    "epochs": 300,
+    "batch_size": 16,
     "num_classes": 5,
     # "num_models": 1,
-    "num_models": 36,
+    "num_models": 16,
     "dataset": "kdd",
     "train_data": "train+",
     "img_rows": 11,
     "img_cols": 11,
     "output_dim": 121,
-    "num_process": 6,
+    "num_process": 8,
     "smote_rate": 1,
     "model_type": "cnn",
-    "support_rate": 10,
+    "support_rate": 1,
 }
 
 LABEL_TO_NUM = {
@@ -128,214 +128,118 @@ ENTRY_TYPE = {
 }
 
 __TRAIN_SAMLE_NUM_PER_LABEL = [
-    96,
-    71,
-    63,
-    69,
-    71,
-    0,
-    0,
-    59,
-    25,
-    92,
-    46,
-    68,
-    59,
-    0,
-    0,
-    0,
-    0,
-    30,
-    20,
-    12,
-    21,
-    0,
-    0,
-    0,
-    0,
-    19,
-    34,
-    21,
-    18,
-    14,
-    9,
-    59,
-    26,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
+    # 1000
+    # 94, 71, 63, 69, 71, 0, 0, 59, 25, 92, 46, 68, 59, 0, 0, 0, 0, 30, 20, 12, 21, 0, 0, 0, 0, 19, 34, 21, 18, 14, 9, 59, 26, 0, 0, 0, 0, 0, 0, 0,
+
+    # 1000 per major label
+    # 200, 52, 46, 50, 52, 0, 0, 34, 15, 52, 26, 39, 34, 0, 0, 0, 0, 73, 48, 29, 50, 0, 0, 0, 0, 19, 34, 21, 18, 14, 9, 59, 26, 0, 0, 0, 0, 0, 0, 0,
+
+    # 2000
+    # 192, 141, 126, 138, 141, 0, 0, 118, 51, 183, 91, 136, 117, 0, 0, 0, 0, 59, 40, 24, 41, 0, 0, 0, 0, 38, 69, 43, 36, 28, 19, 117, 52, 0, 0, 0, 0, 0, 0, 0,
+
+    # 2000 per major label
+    # 400, 103, 92, 101, 104, 0, 0, 68, 29, 105, 53, 78, 67, 0, 0, 0, 0, 144, 97, 58, 101, 0, 0, 0, 0, 38, 68, 43, 36, 28, 19, 116, 52, 0, 0, 0, 0, 0, 0, 0,
+
+    # 3000
+    # 286, 212, 189, 206, 212, 0, 0, 177, 76, 275, 137, 204, 176, 0, 0, 0, 0, 89, 60, 36, 62, 0, 0, 0, 0, 57, 103, 64, 54, 42, 28, 176, 79, 0, 0, 0, 0, 0, 0, 0,
+
+    # 3000 x e^1
+    # 240, 188, 172, 184, 188, 0, 0, 164, 93, 232, 136, 182, 163, 0, 0, 0, 0, 102, 81, 61, 83, 0, 0, 0, 0, 79, 112, 84, 76, 67, 55, 163, 95, 0, 0, 0, 0, 0, 0, 0,
+
+    # 3000 per major label
+    # 600, 155, 138, 151, 156, 0, 0, 102, 44, 157, 79, 117, 101, 0, 0, 0, 0, 217, 145, 87, 151, 0, 0, 0, 0, 57, 103, 64, 54, 41, 28, 175, 78, 0, 0, 0, 0, 0, 0, 0,
+
+    # 4000
+    # 382, 282, 252, 275, 283, 0, 0, 237, 102, 366, 183, 272, 234, 0, 0, 0, 0, 118, 79, 48, 83, 0, 0, 0, 0, 76, 138, 86, 72, 55, 38, 234, 105, 0, 0, 0, 0, 0, 0, 0,
+
+    # 4000 per major label
+    # 800, 207, 185, 202, 208, 0, 0, 136, 58, 211, 105, 156, 134, 0, 0, 0, 0, 290, 193, 116, 201, 0, 0, 0, 0, 75, 137, 85, 71, 55, 38, 234, 105, 0, 0, 0, 0, 0, 0, 0,
+
+    # 5000
+    478, 353, 315, 344, 353, 0, 0, 296, 127, 458, 229, 340, 293, 0, 0, 0, 0, 148, 99, 60, 103, 0, 0, 0, 0, 95, 172, 107, 90, 69, 47, 293, 131, 0, 0, 0, 0, 0, 0, 0,
+
+    # 5000 per major label
+    # 1000, 258, 231, 252, 259, 0, 0, 170, 73, 263, 131, 195, 168, 0, 0, 0, 0, 360, 242, 146, 252, 0, 0, 0, 0, 94, 171, 107, 89, 69, 47, 292, 131, 0, 0, 0, 0, 0, 0, 0,
+]
+
+__TEST_SAMLE_NUM_PER_LABEL = [
+    # const
+    # 20, 4, 0, 4, 4, 4, 4, 4, 0, 4, 0, 4, 0, 4, 0, 4, 0, 4, 0, 0, 4, 4, 4, 0, 4, 0, 4, 0, 4, 0, 0, 0, 4, 4, 0, 0, 0, 0, 0, 4,
+
+    # 25
+    # 2, 1, 1, 1, 1, 1, 1, 1, 0, 2, 1, 1, 0, 1, 0, 1, 1, 1, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 1,
+
+    # 25 per major label
+    # 5, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 1, 1, 0, 1, 0, 2, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1,
+
+    # 50
+    # 3, 2, 2, 2, 2, 2, 2, 2, 1, 3, 1, 2, 1, 2, 0, 2, 2, 1, 0, 0, 1, 1, 1, 0, 2, 0, 2, 0, 1, 0, 0, 0, 2, 2, 1, 1, 1, 1, 0, 2,
+
+    # 50 per major label
+    # 10, 1, 1, 2, 2, 2, 2, 1, 0, 2, 1, 1, 1, 2, 0, 1, 1, 2, 1, 1, 1, 1, 1, 0, 3, 0, 2, 0, 1, 0, 0, 0, 2, 1, 1, 1, 0, 1, 0, 1,
+
+    # 75
+    # 5, 2, 2, 2, 3, 3, 3, 3, 1, 4, 2, 3, 1, 3, 1, 3, 3, 2, 1, 1, 1, 1, 1, 1, 2, 1, 4, 0, 1, 1, 0, 0, 3, 3, 1, 1, 1, 1, 1, 3,
+
+    # 75 per major label
+    # 15, 2, 2, 2, 3, 3, 3, 2, 1, 2, 1, 2, 1, 2, 0, 2, 2, 2, 1, 1, 2, 2, 2, 1, 4, 0, 3, 0, 1, 0, 0, 0, 3, 2, 1, 1, 1, 1, 0, 2,
+
+    # 100
+    6, 3, 3, 3, 4, 4, 4, 4, 1, 6, 2, 4, 2, 4, 1, 4, 4, 2, 1, 1, 2, 2, 2, 1, 3, 1, 5, 0, 2, 1, 0, 0, 4, 3, 2, 1, 1, 2, 1, 4,
+
+    # 100 x e^1
+    # 4, 3, 3, 3, 3, 3, 4, 3, 2, 4, 3, 3, 2, 4, 2, 3, 3, 2, 2, 2, 2, 2, 2, 2, 3, 2, 4, 1, 2, 2, 0, 0, 4, 3, 2, 2, 2, 2, 2, 3,
+
+    # 100 per major label
+    # 20, 3, 3, 3, 4, 3, 4, 2, 1, 3, 2, 3, 1, 3, 0, 3, 2, 3, 1, 1, 3, 3, 3, 1, 5, 1, 4, 0, 1, 1, 0, 0, 3, 2, 1, 1, 1, 1, 1, 3,
 ]
 
 SAMPLE_NUM_PER_LABEL = {
     # normal
-    "normal.": {
-        "train": __TRAIN_SAMLE_NUM_PER_LABEL[0],
-        "test": 10 * CONFIG["smote_rate"]
-    },
+    "normal.": {"train": __TRAIN_SAMLE_NUM_PER_LABEL[0], "test": __TEST_SAMLE_NUM_PER_LABEL[0]},
     # probe
-    "ipsweep.": {
-        "train": __TRAIN_SAMLE_NUM_PER_LABEL[1],
-        "test":  2,
-    },
-    "nmap.": {
-        "train": __TRAIN_SAMLE_NUM_PER_LABEL[2],
-        "test": 0,
-    },
-    "portsweep.": {
-        "train": __TRAIN_SAMLE_NUM_PER_LABEL[3],
-        "test":  2,
-    },
-    "satan.": {
-        "train": __TRAIN_SAMLE_NUM_PER_LABEL[4],
-        "test":  2,
-    },
-    "saint.": {
-        "train": __TRAIN_SAMLE_NUM_PER_LABEL[5],
-        "test":  2,
-    },
-    "mscan.": {
-        "train": __TRAIN_SAMLE_NUM_PER_LABEL[6],
-        "test":  2,
-    },
+    "ipsweep.": {"train": __TRAIN_SAMLE_NUM_PER_LABEL[1], "test": __TEST_SAMLE_NUM_PER_LABEL[1]},
+    "nmap.": {"train": __TRAIN_SAMLE_NUM_PER_LABEL[2], "test": __TEST_SAMLE_NUM_PER_LABEL[2]},
+    "portsweep.": {"train": __TRAIN_SAMLE_NUM_PER_LABEL[3], "test": __TEST_SAMLE_NUM_PER_LABEL[3]},
+    "satan.": {"train": __TRAIN_SAMLE_NUM_PER_LABEL[4], "test": __TEST_SAMLE_NUM_PER_LABEL[4]},
+    "saint.": {"train": __TRAIN_SAMLE_NUM_PER_LABEL[5], "test": __TEST_SAMLE_NUM_PER_LABEL[5]},
+    "mscan.": {"train": __TRAIN_SAMLE_NUM_PER_LABEL[6], "test": __TEST_SAMLE_NUM_PER_LABEL[6]},
     # dos
-    "back.": {
-        "train": __TRAIN_SAMLE_NUM_PER_LABEL[7],
-        "test": 2,
-    },
-    "land.": {
-        "train": __TRAIN_SAMLE_NUM_PER_LABEL[8],
-        "test": 0,
-    },
-    "neptune.": {
-        "train": __TRAIN_SAMLE_NUM_PER_LABEL[9],
-        "test": 2,
-    },
-    "pod.": {
-        "train": __TRAIN_SAMLE_NUM_PER_LABEL[10],
-        "test": 0,
-    },
-    "smurf.": {
-        "train": __TRAIN_SAMLE_NUM_PER_LABEL[11],
-        "test": 2,
-    },
-    "teardrop.": {
-        "train": __TRAIN_SAMLE_NUM_PER_LABEL[12],
-        "test": 0,
-    },
-    "apache2.": {
-        "train": __TRAIN_SAMLE_NUM_PER_LABEL[13],
-        "test": 2,
-    },
-    "udpstorm.": {
-        "train": __TRAIN_SAMLE_NUM_PER_LABEL[14],
-        "test": 0,
-    },
-    "processtable.": {
-        "train": __TRAIN_SAMLE_NUM_PER_LABEL[15],
-        "test": 2,
-    },
-    "mailbomb.": {
-        "train": __TRAIN_SAMLE_NUM_PER_LABEL[16],
-        "test": 0,
-    },
+    "back.": {"train": __TRAIN_SAMLE_NUM_PER_LABEL[7], "test": __TEST_SAMLE_NUM_PER_LABEL[7]},
+    "land.": {"train": __TRAIN_SAMLE_NUM_PER_LABEL[8], "test": __TEST_SAMLE_NUM_PER_LABEL[8]},
+    "neptune.": {"train": __TRAIN_SAMLE_NUM_PER_LABEL[9], "test": __TEST_SAMLE_NUM_PER_LABEL[9]},
+    "pod.": {"train": __TRAIN_SAMLE_NUM_PER_LABEL[10], "test": __TEST_SAMLE_NUM_PER_LABEL[10]},
+    "smurf.": {"train": __TRAIN_SAMLE_NUM_PER_LABEL[11], "test": __TEST_SAMLE_NUM_PER_LABEL[11]},
+    "teardrop.": {"train": __TRAIN_SAMLE_NUM_PER_LABEL[12], "test": __TEST_SAMLE_NUM_PER_LABEL[12]},
+    "apache2.": {"train": __TRAIN_SAMLE_NUM_PER_LABEL[13], "test": __TEST_SAMLE_NUM_PER_LABEL[13]},
+    "udpstorm.": {"train": __TRAIN_SAMLE_NUM_PER_LABEL[14], "test": __TEST_SAMLE_NUM_PER_LABEL[14]},
+    "processtable.": {"train": __TRAIN_SAMLE_NUM_PER_LABEL[15], "test": __TEST_SAMLE_NUM_PER_LABEL[15]},
+    "mailbomb.": {"train": __TRAIN_SAMLE_NUM_PER_LABEL[16], "test": __TEST_SAMLE_NUM_PER_LABEL[16]},
     # u2r
-    "buffer_overflow.": {
-        "train": __TRAIN_SAMLE_NUM_PER_LABEL[17],
-        "test": 2,
-    },
-    "loadmodule.": {
-        "train": __TRAIN_SAMLE_NUM_PER_LABEL[18],
-        "test": 0,
-    },
-    "perl.": {
-        "train": __TRAIN_SAMLE_NUM_PER_LABEL[19],
-        "test": 0,
-    },
-    "rootkit.": {
-        "train": __TRAIN_SAMLE_NUM_PER_LABEL[20],
-        "test": 2,
-    },
-    "xterm.": {
-        "train": __TRAIN_SAMLE_NUM_PER_LABEL[21],
-        "test": 2,
-    },
-    "ps.": {
-        "train": __TRAIN_SAMLE_NUM_PER_LABEL[22],
-        "test": 2,
-    },
-    "sqlattack.": {
-        "train": __TRAIN_SAMLE_NUM_PER_LABEL[23],
-        "test": 0,
-    },
-    "httptunnel.": {
-        "train": __TRAIN_SAMLE_NUM_PER_LABEL[24],
-        "test": 2,
-    },
+    "buffer_overflow.": {"train": __TRAIN_SAMLE_NUM_PER_LABEL[17], "test": __TEST_SAMLE_NUM_PER_LABEL[17]},
+    "loadmodule.": {"train": __TRAIN_SAMLE_NUM_PER_LABEL[18], "test": __TEST_SAMLE_NUM_PER_LABEL[18]},
+    "perl.": {"train": __TRAIN_SAMLE_NUM_PER_LABEL[19], "test": __TEST_SAMLE_NUM_PER_LABEL[19]},
+    "rootkit.": {"train": __TRAIN_SAMLE_NUM_PER_LABEL[20], "test": __TEST_SAMLE_NUM_PER_LABEL[20]},
+    "xterm.": {"train": __TRAIN_SAMLE_NUM_PER_LABEL[21], "test": __TEST_SAMLE_NUM_PER_LABEL[21]},
+    "ps.": {"train": __TRAIN_SAMLE_NUM_PER_LABEL[22], "test": __TEST_SAMLE_NUM_PER_LABEL[22]},
+    "sqlattack.": {"train": __TRAIN_SAMLE_NUM_PER_LABEL[23], "test": __TEST_SAMLE_NUM_PER_LABEL[23]},
+    "httptunnel.": {"train": __TRAIN_SAMLE_NUM_PER_LABEL[24], "test": __TEST_SAMLE_NUM_PER_LABEL[24]},
     # r2l
-    "ftp_write.": {
-        "train": __TRAIN_SAMLE_NUM_PER_LABEL[25],
-        "test": 0,
-    },
-    "guess_passwd.": {
-        "train": __TRAIN_SAMLE_NUM_PER_LABEL[26],
-        "test": 2,
-    },
-    "imap.": {
-        "train": __TRAIN_SAMLE_NUM_PER_LABEL[27],
-        "test": 0,
-    },
-    "multihop.": {
-        "train": __TRAIN_SAMLE_NUM_PER_LABEL[28],
-        "test": 2,
-    },
-    "phf.": {
-        "train": __TRAIN_SAMLE_NUM_PER_LABEL[29],
-        "test": 0,
-    },
-    "spy.": {
-        "train": __TRAIN_SAMLE_NUM_PER_LABEL[30],
-        "test": 0,
-    },
-    "warezclient.": {
-        "train": __TRAIN_SAMLE_NUM_PER_LABEL[31],
-        "test": 0,
-    },
-    "warezmaster.": {
-        "train": __TRAIN_SAMLE_NUM_PER_LABEL[32],
-        "test": 2,
-    },
-    "snmpgetattack.": {
-        "train": __TRAIN_SAMLE_NUM_PER_LABEL[33],
-        "test": 2,
-    },
-    "named.": {
-        "train": __TRAIN_SAMLE_NUM_PER_LABEL[34],
-        "test": 0,
-    },
-    "xlock.": {
-        "train": __TRAIN_SAMLE_NUM_PER_LABEL[35],
-        "test": 0,
-    },
-    "xsnoop.": {
-        "train": __TRAIN_SAMLE_NUM_PER_LABEL[36],
-        "test": 0,
-    },
-    "sendmail.": {
-        "train": __TRAIN_SAMLE_NUM_PER_LABEL[37],
-        "test": 0,
-    },
-    "worm.": {
-        "train": __TRAIN_SAMLE_NUM_PER_LABEL[38],
-        "test": 0,
-    },
-    "snmpguess.": {
-        "train": __TRAIN_SAMLE_NUM_PER_LABEL[39],
-        "test": 2,
-    },
+    "ftp_write.": {"train": __TRAIN_SAMLE_NUM_PER_LABEL[25], "test": __TEST_SAMLE_NUM_PER_LABEL[25]},
+    "guess_passwd.": {"train": __TRAIN_SAMLE_NUM_PER_LABEL[26], "test": __TEST_SAMLE_NUM_PER_LABEL[26]},
+    "imap.": {"train": __TRAIN_SAMLE_NUM_PER_LABEL[27], "test": __TEST_SAMLE_NUM_PER_LABEL[27]},
+    "multihop.": {"train": __TRAIN_SAMLE_NUM_PER_LABEL[28], "test": __TEST_SAMLE_NUM_PER_LABEL[28]},
+    "phf.": {"train": __TRAIN_SAMLE_NUM_PER_LABEL[29], "test": __TEST_SAMLE_NUM_PER_LABEL[29]},
+    "spy.": {"train": __TRAIN_SAMLE_NUM_PER_LABEL[30], "test": __TEST_SAMLE_NUM_PER_LABEL[30]},
+    "warezclient.": {"train": __TRAIN_SAMLE_NUM_PER_LABEL[31], "test": __TEST_SAMLE_NUM_PER_LABEL[31]},
+    "warezmaster.": {"train": __TRAIN_SAMLE_NUM_PER_LABEL[32], "test": __TEST_SAMLE_NUM_PER_LABEL[32]},
+    "snmpgetattack.": {"train": __TRAIN_SAMLE_NUM_PER_LABEL[33], "test": __TEST_SAMLE_NUM_PER_LABEL[33]},
+    "named.": {"train": __TRAIN_SAMLE_NUM_PER_LABEL[34], "test": __TEST_SAMLE_NUM_PER_LABEL[34]},
+    "xlock.": {"train": __TRAIN_SAMLE_NUM_PER_LABEL[35], "test": __TEST_SAMLE_NUM_PER_LABEL[35]},
+    "xsnoop.": {"train": __TRAIN_SAMLE_NUM_PER_LABEL[36], "test": __TEST_SAMLE_NUM_PER_LABEL[36]},
+    "sendmail.": {"train": __TRAIN_SAMLE_NUM_PER_LABEL[37], "test": __TEST_SAMLE_NUM_PER_LABEL[37]},
+    "worm.": {"train": __TRAIN_SAMLE_NUM_PER_LABEL[38], "test": __TEST_SAMLE_NUM_PER_LABEL[38]},
+    "snmpguess.": {"train": __TRAIN_SAMLE_NUM_PER_LABEL[39], "test": __TEST_SAMLE_NUM_PER_LABEL[39]},
 }
 
 # ***** KDD STRING FEATURES VALUES *****
