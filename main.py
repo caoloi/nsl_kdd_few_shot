@@ -22,7 +22,7 @@ from data_processing import data_processing
 from callbacks import Histories
 from models import build_fsl_cnn, build_fsl_dnn
 from losses import center_loss
-from keras.optimizers import Adam, SGD, RMSprop, Nadam
+from keras.optimizers import Adam, SGD, RMSprop, Nadam, Adamax
 from keras.models import Model, model_from_json, load_model
 from keras.layers import (
     Input
@@ -43,9 +43,10 @@ def train(args):
   model = Model(inputs=input, outputs=output)
   model.compile(
       # optimizer=RMSprop(),
-      #   optimizer=SGD(lr=0.0020),
-      #   optimizer=Nadam(),
+      # optimizer=SGD(lr=0.1),
+      # optimizer=Nadam(),
       optimizer=Adam(),
+      # optimizer=Adamax(),
       loss=[
           center_loss(
               x_support,
