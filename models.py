@@ -81,11 +81,11 @@ def build_fsl_cnn(inputs):
   x = __pool_block(x)
   # x = __se_block(x, 4)
 
-  x = __conv_block(x, 12)
+  x = __conv_block(x, 16)
   x = __pool_block(x)
   # x = __se_block(x, 12)
 
-  x = __conv_block(x, 36)
+  x = __conv_block(x, 64)
   x = __pool_block(x)
   # x = __se_block(x, 36)
 
