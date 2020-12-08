@@ -116,7 +116,7 @@ def main():
   for i in range(CONFIG["num_models"]):
     x_train, _, _, y_train, _, _, y_train_value, _, _, _ = datasets[i]
     ids = np.random.permutation(x_support.shape[0])
-    ids = np.random.choice(ids, int(x_train.shape[0] * CONFIG["support_rate"]))
+    ids = np.random.choice(ids, CONFIG["support_rate"])
     # ids = [
     #     i % x_support.shape[0]
     #     for i in range(
