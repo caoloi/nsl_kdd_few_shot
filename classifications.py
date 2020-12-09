@@ -1,9 +1,6 @@
-from keras import backend as K
 import numpy as np
 from constants import CONFIG, SAMPLE_NUM_PER_LABEL
 from sklearn.metrics import classification_report, accuracy_score, confusion_matrix
-from multiprocessing import Pool, cpu_count
-from time import sleep
 import datetime
 import pathlib
 import matplotlib.pyplot as plt
@@ -91,6 +88,18 @@ def calc_distances(args):
   return preds
 
 
+def load_distances(index):
+  print("Load Distance " + str(index + 1) + "/" + str(CONFIG["num_models"]))
+
+  distance = [
+      np.load(
+          "./temp/model_" + str(index) + "_epoch_" + str(j) + ".npy"
+      )
+      for j in range(CONFIG["epochs"])
+  ]
+  return distance
+
+
 def calc_pred(x, x_support, y_support, model):
   d_list = calc_distance(x, x_support, y_support, model)
 
@@ -143,23 +152,10 @@ def accuracy_scores(args):
   return acc_list
 
 
-def calc_ensemble_accuracy(x, y, x_support, y_support, models, p):
-#   p = Pool(CONFIG["num_process"])
-
+def calc_ensemble_accuracy(x, y, p):
   print("-" * 200)
 
-  args = [
-      [
-          i,
-          x,
-          x_support,
-          y_support,
-          models[i]
-      ]
-      for i in range(CONFIG["num_models"])
-  ]
-#   distances = np.array(p.map(calc_distances, args))
-  distances = models
+  distances = np.array(p.map(load_distances, range(CONFIG["num_models"])))
 
   print("-" * 200)
 
@@ -231,7 +227,7 @@ def calc_ensemble_accuracy(x, y, x_support, y_support, models, p):
       print(report)
       c_mat = confusion_matrix(y, pred)
       print(c_mat)
-      save_report(acc, report, c_mat, "Last Ensemble") # models[0][0])
+      save_report(acc, report, c_mat, "Last Ensemble")  # models[0][0])
 
   print("-" * 200)
 
@@ -257,7 +253,7 @@ def calc_ensemble_accuracy(x, y, x_support, y_support, models, p):
   print(report)
   c_mat = confusion_matrix(y, pred)
   print(c_mat)
-  save_report(acc, report, c_mat, "Last 10 Ensemble") # models[0][0])
+  save_report(acc, report, c_mat, "Last 10 Ensemble")  # models[0][0])
 
   print("-" * 200)
 
@@ -283,7 +279,7 @@ def calc_ensemble_accuracy(x, y, x_support, y_support, models, p):
   print(report)
   c_mat = confusion_matrix(y, pred)
   print(c_mat)
-  save_report(acc, report, c_mat, "All Ensemble") # models[0][0])
+  save_report(acc, report, c_mat, "All Ensemble")  # models[0][0])
 
   x = list(range(1, CONFIG["epochs"] + 1))
   for i in range(CONFIG["num_models"]):

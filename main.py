@@ -6,18 +6,9 @@ if pf == 'Darwin':
   plaidml.keras.install_backend()
   os.environ["KERAS_BACKEND"] = "plaidml.keras.backend"
   os.environ["PLAIDML_EXPERIMENTAL"] = "1"
-  # os.environ["PLAIDML_DEVICE_IDS"] = "opencl_amd_gfx1010.0"
 else:
   import os
   os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
-#   from keras import backend as K
-#   import tensorflow as tf
-#   config = tf.compat.v1.ConfigProto()
-#   config.gpu_options.per_process_gpu_memory_fraction = 0.1
-#   config.gpu_options.allow_growth = True
-#   sess = tf.compat.v1.Session(config=config)
-#   K.set_session(sess)
-#   K.clear_session()
 
 from constants import CONFIG
 from classifications import calc_ensemble_accuracy
@@ -25,14 +16,13 @@ from data_processing import data_processing
 from callbacks import Histories
 from models import build_fsl_cnn, build_fsl_dnn
 from losses import center_loss
-from keras.optimizers import Adam, SGD, RMSprop, Nadam, Adamax
-from keras.models import Model, model_from_json, load_model
+from keras.optimizers import Adam
+from keras.models import Model
 from keras.layers import (
     Input
 )
 import numpy as np
-from multiprocessing import Pool, cpu_count, set_start_method
-from time import sleep
+from multiprocessing import Pool, set_start_method
 
 
 def train(args):
@@ -50,8 +40,6 @@ def train(args):
 
   index, x_train, x_support, x_test, y_train, y_support, _, y_train_value, y_support_value, y_test_value, input_shape = args
 
-  # sleep(5 * (index % CONFIG["num_process"]))
-
   print("Setting up Model " + str(index + 1) + "/" + str(CONFIG["num_models"]))
 
   input = Input(shape=input_shape)
@@ -60,11 +48,7 @@ def train(args):
   ) if CONFIG["model_type"] == "cnn" else build_fsl_dnn(input)
   model = Model(inputs=input, outputs=output)
   model.compile(
-      # optimizer=RMSprop(),
-      # optimizer=SGD(lr=0.1),
-      # optimizer=Nadam(),
       optimizer=Adam(),
-      # optimizer=Adamax(),
       loss=[
           center_loss(
               x_support,
@@ -111,22 +95,6 @@ def train(args):
   )
 
 
-def load_models(index):
-  print("Load Model " + str(index + 1) + "/" + str(CONFIG["num_models"]))
-
-  models = [
-      # load_model(
-      #     "./temp/model_" + str(index) + "_epoch_" + str(j) + ".h5",
-      #     compile=False
-      # )
-      np.load(
-        "./temp/model_" + str(index) + "_epoch_" + str(j) + ".npy"
-      )
-      for j in range(CONFIG["epochs"])
-  ]
-  return models
-
-
 def main():
   _, x_support, x_test, _, y_support, y_test, _, y_support_value, y_test_value, input_shape = data_processing()
   # x_train, x_support, x_test, y_train, y_support, y_test, y_train_value, y_support_value, y_test_value, input_shape = data_processing()
@@ -169,20 +137,10 @@ def main():
     )
   np.array(p.map(train, args))
 
-  print("-" * 200)
-
-  models = np.array(p.map(load_models, range(CONFIG["num_models"])))
-
-  # x_supports = results[:, 0]
-  # y_supports = results[:, 1]
-
   calc_ensemble_accuracy(
-    x_test,
-    y_test_value,
-    x_support,
-    y_support_value,
-    models,
-    p,
+      x_test,
+      y_test_value,
+      p,
   )
 
 
