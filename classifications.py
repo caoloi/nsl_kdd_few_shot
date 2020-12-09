@@ -5,6 +5,7 @@ import datetime
 import pathlib
 import matplotlib.pyplot as plt
 from io import StringIO
+import os
 
 
 def calc_centers(x, y, model):
@@ -290,7 +291,10 @@ def calc_ensemble_accuracy(x, y, p):
   plt.ylabel("Accuracy")
   plt.grid(True)
   plt.legend(bbox_to_anchor=(1, 1), loc="upper left", fontsize=10)
-  plt.savefig("result.jpg")
+  file_name = "result.jpg"
+  if os.path.isfile(file_name):
+    os.remove(file_name)
+  plt.savefig(file_name)
   plt.show()
 
 

@@ -143,7 +143,11 @@ def main():
       p,
   )
 
+  p.close()
+  p.terminate()
+  p.join()
+
 
 if __name__ == "__main__":
-  set_start_method("spawn", True)
-  main()
+  for _ in range(CONFIG["experiment_count"]):
+    main()
