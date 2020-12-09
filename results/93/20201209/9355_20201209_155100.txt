@@ -1,0 +1,26 @@
+Last 10 Ensemble
+20201209_155100
+Accuracy: 0.9355039034776437
+Classification Report:
+              precision    recall  f1-score   support
+
+           0       0.99      0.91      0.95      9711
+           1       0.90      0.86      0.88      2421
+           2       0.95      0.99      0.97      7458
+           3       0.38      0.93      0.54       200
+           4       0.85      0.94      0.89      2754
+
+    accuracy                           0.94     22544
+   macro avg       0.81      0.93      0.85     22544
+weighted avg       0.95      0.94      0.94     22544
+
+Confusion Matrix:
+[[8868  188  176  112  367]
+ [   3 2078  227   43   70]
+ [  29   31 7368   30    0]
+ [   2    2    0  185   11]
+ [  32    5   10  116 2591]]
+CONFIG:
+{'epochs': 200, 'batch_size': 16, 'num_classes': 5, 'num_models': 16, 'dataset': 'kdd', 'train_data': 'train+', 'img_rows': 11, 'img_cols': 11, 'output_dim': 121, 'num_process': 4, 'smote_rate': 1, 'model_type': 'cnn', 'support_rate': 3000}
+SAMPLE_NUM_PER_LABEL:
+{'normal.': {'train': 192, 'test': 20}, 'ipsweep.': {'train': 141, 'test': 3}, 'nmap.': {'train': 126, 'test': 3}, 'portsweep.': {'train': 138, 'test': 3}, 'satan.': {'train': 141, 'test': 4}, 'saint.': {'train': 0, 'test': 3}, 'mscan.': {'train': 0, 'test': 4}, 'back.': {'train': 118, 'test': 2}, 'land.': {'train': 51, 'test': 1}, 'neptune.': {'train': 183, 'test': 3}, 'pod.': {'train': 91, 'test': 2}, 'smurf.': {'train': 136, 'test': 3}, 'teardrop.': {'train': 117, 'test': 1}, 'apache2.': {'train': 0, 'test': 3}, 'udpstorm.': {'train': 0, 'test': 0}, 'processtable.': {'train': 0, 'test': 3}, 'mailbomb.': {'train': 0, 'test': 2}, 'buffer_overflow.': {'train': 59, 'test': 3}, 'loadmodule.': {'train': 40, 'test': 1}, 'perl.': {'train': 24, 'test': 1}, 'rootkit.': {'train': 41, 'test': 3}, 'xterm.': {'train': 0, 'test': 3}, 'ps.': {'train': 0, 'test': 3}, 'sqlattack.': {'train': 0, 'test': 1}, 'httptunnel.': {'train': 0, 'test': 5}, 'ftp_write.': {'train': 38, 'test': 1}, 'guess_passwd.': {'train': 69, 'test': 4}, 'imap.': {'train': 43, 'test': 0}, 'multihop.': {'train': 36, 'test': 1}, 'phf.': {'train': 28, 'test': 1}, 'spy.': {'train': 19, 'test': 0}, 'warezclient.': {'train': 117, 'test': 0}, 'warezmaster.': {'train': 52, 'test': 3}, 'snmpgetattack.': {'train': 0, 'test': 2}, 'named.': {'train': 0, 'test': 1}, 'xlock.': {'train': 0, 'test': 1}, 'xsnoop.': {'train': 0, 'test': 1}, 'sendmail.': {'train': 0, 'test': 1}, 'worm.': {'train': 0, 'test': 1}, 'snmpguess.': {'train': 0, 'test': 3}}
