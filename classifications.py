@@ -143,8 +143,8 @@ def accuracy_scores(args):
   return acc_list
 
 
-def calc_ensemble_accuracy(x, y, x_support, y_support, models):
-  p = Pool(CONFIG["num_process"])
+def calc_ensemble_accuracy(x, y, x_support, y_support, models, p):
+#   p = Pool(CONFIG["num_process"])
 
   print("-" * 200)
 
@@ -158,7 +158,8 @@ def calc_ensemble_accuracy(x, y, x_support, y_support, models):
       ]
       for i in range(CONFIG["num_models"])
   ]
-  distances = np.array(p.map(calc_distances, args))
+#   distances = np.array(p.map(calc_distances, args))
+  distances = models
 
   print("-" * 200)
 
@@ -230,7 +231,7 @@ def calc_ensemble_accuracy(x, y, x_support, y_support, models):
       print(report)
       c_mat = confusion_matrix(y, pred)
       print(c_mat)
-      save_report(acc, report, c_mat, "Last Ensemble", models[0][0])
+      save_report(acc, report, c_mat, "Last Ensemble") # models[0][0])
 
   print("-" * 200)
 
@@ -256,7 +257,7 @@ def calc_ensemble_accuracy(x, y, x_support, y_support, models):
   print(report)
   c_mat = confusion_matrix(y, pred)
   print(c_mat)
-  save_report(acc, report, c_mat, "Last 10 Ensemble", models[0][0])
+  save_report(acc, report, c_mat, "Last 10 Ensemble") # models[0][0])
 
   print("-" * 200)
 
@@ -282,7 +283,7 @@ def calc_ensemble_accuracy(x, y, x_support, y_support, models):
   print(report)
   c_mat = confusion_matrix(y, pred)
   print(c_mat)
-  save_report(acc, report, c_mat, "All Ensemble", models[0][0])
+  save_report(acc, report, c_mat, "All Ensemble") # models[0][0])
 
   x = list(range(1, CONFIG["epochs"] + 1))
   for i in range(CONFIG["num_models"]):
@@ -293,6 +294,7 @@ def calc_ensemble_accuracy(x, y, x_support, y_support, models):
   plt.ylabel("Accuracy")
   plt.grid(True)
   plt.legend(bbox_to_anchor=(1, 1), loc="upper left", fontsize=10)
+  plt.savefig("result.jpg")
   plt.show()
 
 

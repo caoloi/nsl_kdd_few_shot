@@ -1,8 +1,9 @@
 import keras
 from sklearn.metrics import classification_report, accuracy_score, confusion_matrix
-from classifications import calc_pred, save_report
+from classifications import calc_pred, save_report, calc_distance
 from constants import CONFIG
 import matplotlib.pyplot as plt
+import numpy as np
 
 
 class Histories(keras.callbacks.Callback):
@@ -34,7 +35,8 @@ class Histories(keras.callbacks.Callback):
     # print(train_acc)
 
     # print("========= test =========")
-    pred = calc_pred(self.x_test, self.x_support, self.y_support, self.model)
+    d_list = calc_distance(self.x_test, self.x_support, self.y_support, self.model)
+    pred = np.argmin(d_list, axis=1)
     acc = accuracy_score(self.y_test, pred)
     # print(acc)
     print(
@@ -67,9 +69,13 @@ class Histories(keras.callbacks.Callback):
 
     # print("=========")
 
-    self.model.save(
-        "./temp/model_" + str(self.index) + "_epoch_" + str(epoch) + ".h5",
-        include_optimizer=False,
+    # self.model.save(
+    #     "./temp/model_" + str(self.index) + "_epoch_" + str(epoch) + ".h5",
+    #     include_optimizer=False,
+    # )
+    np.save(
+      "./temp/model_" + str(self.index) + "_epoch_" + str(epoch),
+      d_list,
     )
 
     return

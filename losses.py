@@ -63,7 +63,7 @@ def center_loss(x_support, y_support, y_support_value, model):
     )
     tmp_loss4 = K.variable(0.0)
     for center in centers:
-      tmp_loss4 += K.exp(
+      tmp_loss4 = tmp_loss4 + K.exp(
           -__cosine(
               y_pred,
               K.dot(
@@ -80,7 +80,7 @@ def center_loss(x_support, y_support, y_support_value, model):
               )
           )
       )
-    loss4 += K.log(tmp_loss4)
+    loss4 = loss4 + K.log(tmp_loss4)
 
     # support_pred = model.predict(x_support)
 

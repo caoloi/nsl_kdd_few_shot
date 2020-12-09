@@ -8,14 +8,16 @@ if pf == 'Darwin':
   os.environ["PLAIDML_EXPERIMENTAL"] = "1"
   # os.environ["PLAIDML_DEVICE_IDS"] = "opencl_amd_gfx1010.0"
 else:
-  from keras import backend as K
-  import tensorflow as tf
-  config = tf.ConfigProto()
-  config.gpu_options.per_process_gpu_memory_fraction = 0.2
-  config.gpu_options.allow_growth = True
-  sess = tf.compat.v1.Session(config=config)
-  K.set_session(sess)
-  K.clear_session ()
+  import os
+  os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
+#   from keras import backend as K
+#   import tensorflow as tf
+#   config = tf.compat.v1.ConfigProto()
+#   config.gpu_options.per_process_gpu_memory_fraction = 0.1
+#   config.gpu_options.allow_growth = True
+#   sess = tf.compat.v1.Session(config=config)
+#   K.set_session(sess)
+#   K.clear_session()
 
 from constants import CONFIG
 from classifications import calc_ensemble_accuracy
@@ -34,13 +36,28 @@ from time import sleep
 
 
 def train(args):
+  import platform
+  pf = platform.system()
+  if pf != 'Darwin':
+    from keras import backend as K
+    import tensorflow as tf
+    config = tf.compat.v1.ConfigProto()
+    config.gpu_options.per_process_gpu_memory_fraction = 0.07
+    # config.gpu_options.allow_growth = True
+    sess = tf.compat.v1.Session(config=config)
+    K.set_session(sess)
+    K.clear_session()
+
   index, x_train, x_support, x_test, y_train, y_support, _, y_train_value, y_support_value, y_test_value, input_shape = args
+
+  # sleep(5 * (index % CONFIG["num_process"]))
 
   print("Setting up Model " + str(index + 1) + "/" + str(CONFIG["num_models"]))
 
   input = Input(shape=input_shape)
   output = build_fsl_cnn(
-      input) if CONFIG["model_type"] == "cnn" else build_fsl_dnn(input)
+      input
+  ) if CONFIG["model_type"] == "cnn" else build_fsl_dnn(input)
   model = Model(inputs=input, outputs=output)
   model.compile(
       # optimizer=RMSprop(),
@@ -98,9 +115,12 @@ def load_models(index):
   print("Load Model " + str(index + 1) + "/" + str(CONFIG["num_models"]))
 
   models = [
-      load_model(
-          "./temp/model_" + str(index) + "_epoch_" + str(j) + ".h5",
-          compile=False
+      # load_model(
+      #     "./temp/model_" + str(index) + "_epoch_" + str(j) + ".h5",
+      #     compile=False
+      # )
+      np.load(
+        "./temp/model_" + str(index) + "_epoch_" + str(j) + ".npy"
       )
       for j in range(CONFIG["epochs"])
   ]
@@ -152,15 +172,18 @@ def main():
   print("-" * 200)
 
   models = np.array(p.map(load_models, range(CONFIG["num_models"])))
-  p.close()
-  p.terminate()
-  p.join()
 
   # x_supports = results[:, 0]
   # y_supports = results[:, 1]
 
-  calc_ensemble_accuracy(x_test, y_test_value, x_support,
-                         y_support_value, models)
+  calc_ensemble_accuracy(
+    x_test,
+    y_test_value,
+    x_support,
+    y_support_value,
+    models,
+    p,
+  )
 
 
 if __name__ == "__main__":
