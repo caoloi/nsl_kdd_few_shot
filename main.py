@@ -96,10 +96,10 @@ def train(args):
   )
 
 
-def main():
+def main(p):
   _, x_support, x_test, _, y_support, y_test, _, y_support_value, y_test_value, input_shape = data_processing()
   # x_train, x_support, x_test, y_train, y_support, y_test, y_train_value, y_support_value, y_test_value, input_shape = data_processing()
-  p = Pool(CONFIG["num_process"])
+
   datasets = p.map(data_processing, range(CONFIG["num_models"]))
 
   args = []
@@ -144,11 +144,15 @@ def main():
       p,
   )
 
-  p.close()
-  p.terminate()
-  p.join()
-
 
 if __name__ == "__main__":
-  for _ in range(CONFIG["experiment_count"]):
-    main()
+  p = Pool(CONFIG["num_process"])
+  for i in range(CONFIG["experiment_count"]):
+    print("-" * 200)
+    print(
+        "Experiment "
+        + str(i + 1)
+        + "/"
+        + str(CONFIG["experiment_count"])
+    )
+    main(p)

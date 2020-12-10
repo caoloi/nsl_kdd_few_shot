@@ -282,6 +282,7 @@ def calc_ensemble_accuracy(x, y, p):
   print(c_mat)
   save_report(acc, report, c_mat, "All Ensemble")  # models[0][0])
 
+  plt.figure(figsize=(12, 8))
   x = list(range(1, CONFIG["epochs"] + 1))
   for i in range(CONFIG["num_models"]):
     plt.plot(x, acc_list[i], label="Model %s" % (i + 1))
