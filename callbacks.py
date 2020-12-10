@@ -35,7 +35,8 @@ class Histories(keras.callbacks.Callback):
     # print(train_acc)
 
     # print("========= test =========")
-    d_list = calc_distance(self.x_test, self.x_support, self.y_support, self.model)
+    d_list = calc_distance(self.x_test, self.x_support,
+                           self.y_support, self.model)
     pred = np.argmin(d_list, axis=1)
     acc = accuracy_score(self.y_test, pred)
     # print(acc)
@@ -43,8 +44,12 @@ class Histories(keras.callbacks.Callback):
         "Epoch: " + str(epoch + 1) + "/" + str(CONFIG["epochs"])
         + "\tModel: " + str(self.index + 1) + "/" + str(CONFIG["num_models"])
         # + "\tTrain Accuracy: " + "|  " * self.index + "{:.07f}".format(train_acc) + "|  " * (CONFIG["num_models"] - self.index - 1)
-        + "\tTest Accuracy: " + "|  " * self.index + "{:.07f}".format(acc) + "|  " * (CONFIG["num_models"] - self.index - 1)
-        + "\t\tLoss: " + "|  " * self.index + "{:.07f}".format(logs["loss"]) + "|  " * (CONFIG["num_models"] - self.index - 1)
+        + "\tTest Accuracy: " + "|  " * self.index + \
+          "{:.07f}".format(acc) + "|  " * \
+        (CONFIG["num_models"] - self.index - 1)
+        + "\t\tLoss: " + "|  " * self.index + \
+          "{:.07f}".format(logs["loss"]) + "|  " * \
+        (CONFIG["num_models"] - self.index - 1)
     )
     # if self.index == 0:
     if False:
@@ -54,15 +59,17 @@ class Histories(keras.callbacks.Callback):
       # plt.figure(figsize=(8, 8))
       for i in range(CONFIG["num_classes"]):
         output = self.model.predict(self.x_test)
-        plt.scatter(output[self.y_test == i, 0], output[self.y_test == i, 1], color=cmp(i), marker=f"${i}$")
+        plt.scatter(output[self.y_test == i, 0],
+                    output[self.y_test == i, 1], color=cmp(i), marker=f"${i}$")
       plt.title(
-          "Model: " + str(self.index + 1) + "/" + str(CONFIG["num_models"]) + ", "
+          "Model: " + str(self.index + 1) + "/" +
+          str(CONFIG["num_models"]) + ", "
           + "Epoch: " + str(epoch + 1) + "/" + str(CONFIG["epochs"]) + ", "
           + "Accuracy: " + "{:.02f}".format(acc * 100)
       )
       plt.draw()
       plt.pause(0.001)
-    if acc >= 0.95: # or epoch == CONFIG["epochs"] - 1:
+    if acc >= 0.94:  # or epoch == CONFIG["epochs"] - 1:
       report = classification_report(self.y_test, pred)
       c_mat = confusion_matrix(self.y_test, pred)
       save_report(acc, report, c_mat, "Epoch: " + str(epoch), self.model)
@@ -74,8 +81,8 @@ class Histories(keras.callbacks.Callback):
     #     include_optimizer=False,
     # )
     np.save(
-      "./temp/model_" + str(self.index) + "_epoch_" + str(epoch),
-      d_list,
+        "./temp/model_" + str(self.index) + "_epoch_" + str(epoch),
+        d_list,
     )
 
     return

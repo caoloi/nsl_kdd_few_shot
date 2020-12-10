@@ -289,6 +289,7 @@ def calc_ensemble_accuracy(x, y, p):
   plt.xlim(0, CONFIG["epochs"])
   plt.xticks(np.arange(0, CONFIG["epochs"] + 1, 50))
   plt.ylabel("Accuracy")
+  plt.ylim(0.80, 1.00)
   plt.grid(True)
   plt.legend(bbox_to_anchor=(1, 1), loc="upper left", fontsize=10)
   file_name = "result.jpg"

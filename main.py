@@ -32,7 +32,7 @@ def train(args):
     from keras import backend as K
     import tensorflow as tf
     config = tf.compat.v1.ConfigProto()
-    config.gpu_options.per_process_gpu_memory_fraction = 0.07
+    config.gpu_options.per_process_gpu_memory_fraction = 0.065
     # config.gpu_options.allow_growth = True
     sess = tf.compat.v1.Session(config=config)
     K.set_session(sess)
@@ -91,7 +91,8 @@ def train(args):
       verbose=False,
       callbacks=[
           histories
-      ]
+      ],
+      shuffle=CONFIG["shuffle"],
   )
 
 

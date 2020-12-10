@@ -15,6 +15,7 @@ CONFIG = {
     "model_type": "cnn",
     "support_rate": 3000,
     "experiment_count": 10,
+    "shuffle": False,
 }
 
 LABEL_TO_NUM = {
