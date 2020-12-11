@@ -103,6 +103,28 @@ def train(args):
   )
 
 
+def create_summary(results):
+  summary = {}
+
+  for result in results:
+    for type in result:
+      for label in result[type]:
+        if label == "accuracy":
+          if label not in summary[type]:
+            summary[type][label] = []
+          summary[type][label].append(result[type][label])
+        else:
+          for metric in result[type][label]:
+            if metric != "support":
+              if type not in summary:
+                summary[type] = {}
+              if label not in summary[type]:
+                summary[type][label] = {}
+              if metric not in summary[type][label]:
+                summary[type][label][metric] = []
+              summary[type][label][metric].append(result[type][label][metric])
+
+
 def print_summary(summary, f=sys.stdout):
   for type in summary:
     print(type, file=f)
@@ -139,7 +161,29 @@ def print_summary(summary, f=sys.stdout):
     print("", file=f)
 
 
-def main(p):
+def save_summary(summary):
+  if CONFIG["save_report"]:
+    now = datetime.datetime.now()
+    acc = np.mean(summary["last_10"]["accuracy"])
+    dir = "./summaries/" + \
+        "{:.07f}".format(acc)[2:4] + "/" + now.strftime("%Y%m%d")
+    if not pathlib.Path(dir).exists():
+      pathlib.Path(dir).mkdir(parents=True)
+    file = pathlib.Path(
+        dir + "/" + "{:.07f}".format(acc)[2:6] +
+        "_" + now.strftime("%Y%m%d_%H%M%S.txt")
+    )
+    with file.open(mode="w") as f:
+      print(now.strftime("%Y%m%d_%H%M%S"), file=f)
+      print("Summary", file=f)
+      print("CONFIG:", file=f)
+      print(CONFIG, file=f)
+      print("SAMPLE_NUM_PER_LABEL:", file=f)
+      print(SAMPLE_NUM_PER_LABEL, file=f)
+      print_summary(summary, f)
+
+
+def train_and_create_result(p):
   _, x_support, x_test, _, y_support, y_test, _, y_support_value, y_test_value, input_shape = data_processing()
   # x_train, x_support, x_test, y_train, y_support, y_test, y_train_value, y_support_value, y_test_value, input_shape = data_processing()
 
@@ -190,7 +234,7 @@ def main(p):
   return result
 
 
-if __name__ == "__main__":
+def main():
   p = Pool(CONFIG["num_process"])
   results = []
 
@@ -202,49 +246,12 @@ if __name__ == "__main__":
         + "/"
         + str(CONFIG["experiment_count"])
     )
-    result = main(p)
+    result = train_and_create_result(p)
     results.append(result)
 
-  summary = {}
-
-  for result in results:
-    for type in result:
-      for label in result[type]:
-        if label == "accuracy":
-          if label not in summary[type]:
-            summary[type][label] = []
-          summary[type][label].append(result[type][label])
-        else:
-          for metric in result[type][label]:
-            if metric != "support":
-              if type not in summary:
-                summary[type] = {}
-              if label not in summary[type]:
-                summary[type][label] = {}
-              if metric not in summary[type][label]:
-                summary[type][label][metric] = []
-              summary[type][label][metric].append(result[type][label][metric])
-
+  summary = create_summary(results)
   print_summary(summary)
+  save_summary(summary)
 
-  if CONFIG["save_report"]:
-    now = datetime.datetime.now()
-    acc = np.mean(summary["last_10"]["accuracy"])
-    acc_std = np.std(summary["last_10"]["accuracy"])
-    dir = "./summaries/" + \
-        "{:.07f}".format(acc)[2:4] + "/" + now.strftime("%Y%m%d")
-    if not pathlib.Path(dir).exists():
-      pathlib.Path(dir).mkdir(parents=True)
-    file = pathlib.Path(
-        dir + "/" + "{:.07f}".format(acc)[2:6] +
-        "_" + now.strftime("%Y%m%d_%H%M%S.txt")
-    )
-    with file.open(mode="w") as f:
-      print(now.strftime("%Y%m%d_%H%M%S"), file=f)
-      print("Summary", file=f)
-      print("CONFIG:", file=f)
-      print(CONFIG, file=f)
-      print("SAMPLE_NUM_PER_LABEL:", file=f)
-      print(SAMPLE_NUM_PER_LABEL, file=f)
-      print_summary(summary, f)
-      
+if __name__ == "__main__":
+  main()

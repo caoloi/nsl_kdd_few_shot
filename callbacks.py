@@ -73,7 +73,7 @@ class Histories(keras.callbacks.Callback):
       )
       plt.draw()
       plt.pause(0.001)
-    if acc >= 0.94:  # or epoch == CONFIG["epochs"] - 1:
+    if acc >= 0.95:  # or epoch == CONFIG["epochs"] - 1:
       report = classification_report(self.y_test, pred, target_names=LABELS)
       c_mat = confusion_matrix(self.y_test, pred)
       save_report(acc, report, c_mat, "Epoch: " + str(epoch), self.model)
