@@ -1,5 +1,5 @@
 import numpy as np
-from constants import CONFIG, SAMPLE_NUM_PER_LABEL
+from constants import CONFIG, SAMPLE_NUM_PER_LABEL, LABELS
 from sklearn.metrics import classification_report, accuracy_score, confusion_matrix
 import datetime
 import pathlib
@@ -208,6 +208,8 @@ def calc_ensemble_accuracy(x, y, p):
 
   print("-" * 200)
 
+  result = {}
+
   for i in range(CONFIG["epochs"]):
     pred = [
         np.argmin(
@@ -224,11 +226,13 @@ def calc_ensemble_accuracy(x, y, p):
         + "\tEnsemble Accuracy: " + "{:.07f}".format(acc)
     )
     if i == CONFIG["epochs"] - 1:
-      report = classification_report(y, pred)
+      report = classification_report(y, pred, target_names=LABELS)
       print(report)
       c_mat = confusion_matrix(y, pred)
       print(c_mat)
       save_report(acc, report, c_mat, "Last Ensemble")  # models[0][0])
+      result["last"] = classification_report(
+          y, pred, output_dict=True, target_names=LABELS)
 
   print("-" * 200)
 
@@ -250,11 +254,13 @@ def calc_ensemble_accuracy(x, y, p):
   ]
   acc = accuracy_score(y, pred)
   print("Last 10 Ensemble Accuracy:\t" + "{:.07f}".format(acc))
-  report = classification_report(y, pred)
+  report = classification_report(y, pred, target_names=LABELS)
   print(report)
   c_mat = confusion_matrix(y, pred)
   print(c_mat)
   save_report(acc, report, c_mat, "Last 10 Ensemble")  # models[0][0])
+  result["last_10"] = classification_report(
+      y, pred, output_dict=True, target_names=LABELS)
 
   print("-" * 200)
 
@@ -276,11 +282,13 @@ def calc_ensemble_accuracy(x, y, p):
   ]
   acc = accuracy_score(y, pred)
   print("All Ensemble Accuracy:\t" + "{:.07f}".format(acc))
-  report = classification_report(y, pred)
+  report = classification_report(y, pred, target_names=LABELS)
   print(report)
   c_mat = confusion_matrix(y, pred)
   print(c_mat)
   save_report(acc, report, c_mat, "All Ensemble")  # models[0][0])
+  result["all"] = classification_report(
+      y, pred, output_dict=True, target_names=LABELS)
 
   plt.figure(figsize=(12, 8))
   x = list(range(1, CONFIG["epochs"] + 1))
@@ -297,37 +305,40 @@ def calc_ensemble_accuracy(x, y, p):
   if os.path.isfile(file_name):
     os.remove(file_name)
   plt.savefig(file_name)
-  plt.show()
+  # plt.show()
+
+  return result
 
 
 def save_report(acc, report, c_mat, title="", model=None):
-  now = datetime.datetime.now()
-  dir = "./results/" + \
-      "{:.07f}".format(acc)[2:4] + "/" + now.strftime("%Y%m%d")
-  if not pathlib.Path(dir).exists():
-    pathlib.Path(dir).mkdir(parents=True)
-  file = pathlib.Path(
-      dir + "/" + "{:.07f}".format(acc)[2:6] +
-      "_" + now.strftime("%Y%m%d_%H%M%S.txt")
-  )
-  with file.open(mode="w") as f:
-    print(title, file=f)
-    print(now.strftime("%Y%m%d_%H%M%S"), file=f)
-    print("Accuracy: " + str(acc), file=f)
-    print("Classification Report:", file=f)
-    print(report, file=f)
-    print("Confusion Matrix:", file=f)
-    print(c_mat, file=f)
-    print("CONFIG:", file=f)
-    print(CONFIG, file=f)
-    print("SAMPLE_NUM_PER_LABEL:", file=f)
-    print(SAMPLE_NUM_PER_LABEL, file=f)
-    if model is not None:
-      print("Model Summary:", file=f)
-      with StringIO() as buf:
-        # StringIOに書き込む
-        model.summary(print_fn=lambda x: buf.write(x + "\n"))
-        # StringIOから取得
-        text = buf.getvalue()
+  if CONFIG["save_report"]:
+    now = datetime.datetime.now()
+    dir = "./results/" + \
+        "{:.07f}".format(acc)[2:4] + "/" + now.strftime("%Y%m%d")
+    if not pathlib.Path(dir).exists():
+      pathlib.Path(dir).mkdir(parents=True)
+    file = pathlib.Path(
+        dir + "/" + "{:.07f}".format(acc)[2:6] +
+        "_" + now.strftime("%Y%m%d_%H%M%S.txt")
+    )
+    with file.open(mode="w") as f:
+      print(now.strftime("%Y%m%d_%H%M%S"), file=f)
+      print(title, file=f)
+      print("CONFIG:", file=f)
+      print(CONFIG, file=f)
+      print("SAMPLE_NUM_PER_LABEL:", file=f)
+      print(SAMPLE_NUM_PER_LABEL, file=f)
+      print("Accuracy: " + str(acc), file=f)
+      print("Classification Report:", file=f)
+      print(report, file=f)
+      print("Confusion Matrix:", file=f)
+      print(c_mat, file=f)
+      if model is not None:
+        print("Model Summary:", file=f)
+        with StringIO() as buf:
+          # StringIOに書き込む
+          model.summary(print_fn=lambda x: buf.write(x + "\n"))
+          # StringIOから取得
+          text = buf.getvalue()
 
-      print(text, file=f)
+        print(text, file=f)

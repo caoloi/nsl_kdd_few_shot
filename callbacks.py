@@ -1,7 +1,7 @@
 import keras
 from sklearn.metrics import classification_report, accuracy_score, confusion_matrix
 from classifications import calc_pred, save_report, calc_distance
-from constants import CONFIG
+from constants import CONFIG, LABELS
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -35,8 +35,12 @@ class Histories(keras.callbacks.Callback):
     # print(train_acc)
 
     # print("========= test =========")
-    d_list = calc_distance(self.x_test, self.x_support,
-                           self.y_support, self.model)
+    d_list = calc_distance(
+        self.x_test,
+        self.x_support,
+        self.y_support,
+        self.model,
+    )
     pred = np.argmin(d_list, axis=1)
     acc = accuracy_score(self.y_test, pred)
     # print(acc)
@@ -44,12 +48,12 @@ class Histories(keras.callbacks.Callback):
         "Epoch: " + str(epoch + 1) + "/" + str(CONFIG["epochs"])
         + "\tModel: " + str(self.index + 1) + "/" + str(CONFIG["num_models"])
         # + "\tTrain Accuracy: " + "|  " * self.index + "{:.07f}".format(train_acc) + "|  " * (CONFIG["num_models"] - self.index - 1)
-        + "\tTest Accuracy: " + "|  " * self.index + \
-          "{:.07f}".format(acc) + "|  " * \
-        (CONFIG["num_models"] - self.index - 1)
-        + "\t\tLoss: " + "|  " * self.index + \
-          "{:.07f}".format(logs["loss"]) + "|  " * \
-        (CONFIG["num_models"] - self.index - 1)
+        + "\tTest Accuracy: " + "|  " * self.index
+        + "{:.07f}".format(acc) + "|  "
+        * (CONFIG["num_models"] - self.index - 1)
+        + "\t\tLoss: " + "|  " * self.index
+        + "{:.07f}".format(logs["loss"]) + "|  "
+        * (CONFIG["num_models"] - self.index - 1)
     )
     # if self.index == 0:
     if False:
@@ -70,7 +74,7 @@ class Histories(keras.callbacks.Callback):
       plt.draw()
       plt.pause(0.001)
     if acc >= 0.94:  # or epoch == CONFIG["epochs"] - 1:
-      report = classification_report(self.y_test, pred)
+      report = classification_report(self.y_test, pred, target_names=LABELS)
       c_mat = confusion_matrix(self.y_test, pred)
       save_report(acc, report, c_mat, "Epoch: " + str(epoch), self.model)
 

@@ -10,7 +10,7 @@ else:
   import os
   os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
 
-from constants import CONFIG
+from constants import CONFIG, SAMPLE_NUM_PER_LABEL
 from classifications import calc_ensemble_accuracy
 from data_processing import data_processing
 from callbacks import Histories
@@ -18,11 +18,13 @@ from models import build_fsl_cnn, build_fsl_dnn
 from losses import center_loss
 from keras.optimizers import Adam
 from keras.models import Model
-from keras.layers import (
-    Input
-)
+from keras.layers import Input
 import numpy as np
-from multiprocessing import Pool, set_start_method
+from multiprocessing import Pool
+from collections import defaultdict
+import datetime
+import pathlib
+import sys
 
 
 def train(args):
@@ -32,7 +34,12 @@ def train(args):
     from keras import backend as K
     import tensorflow as tf
     config = tf.compat.v1.ConfigProto()
-    config.gpu_options.per_process_gpu_memory_fraction = 0.065
+    config.gpu_options.per_process_gpu_memory_fraction = [
+        0.7,
+        0.35,
+        0.1,
+        0.065,
+    ][CONFIG["num_process"] - 1]
     # config.gpu_options.allow_growth = True
     sess = tf.compat.v1.Session(config=config)
     K.set_session(sess)
@@ -96,6 +103,42 @@ def train(args):
   )
 
 
+def print_summary(summary, f=sys.stdout):
+  for type in summary:
+    print(type, file=f)
+    for label in summary[type]:
+      print("\t" + label, end="", file=f)
+      if label == "accuracy":
+        mean = np.mean(summary[type][label])
+        std = np.std(summary[type][label])
+        min = np.min(summary[type][label])
+        max = np.max(summary[type][label])
+        print(
+            "\t\t"
+            + "{:.07f}".format(mean) + " ± " + "{:.07f}".format(std)
+            + " min: " + "{:.07f}".format(min)
+            + " max: " + "{:.07f}".format(max),
+            end="",
+            file=f,
+        )
+      else:
+        for metric in summary[type][label]:
+          mean = np.mean(summary[type][label][metric])
+          std = np.std(summary[type][label][metric])
+          min = np.min(summary[type][label][metric])
+          max = np.max(summary[type][label][metric])
+          print(
+              "\t\t" + metric + ": "
+              + "{:.07f}".format(mean) + " ± " + "{:.07f}".format(std)
+              + " min: " + "{:.07f}".format(min)
+              + " max: " + "{:.07f}".format(max),
+              end="",
+              file=f,
+          )
+      print("", file=f)
+    print("", file=f)
+
+
 def main(p):
   _, x_support, x_test, _, y_support, y_test, _, y_support_value, y_test_value, input_shape = data_processing()
   # x_train, x_support, x_test, y_train, y_support, y_test, y_train_value, y_support_value, y_test_value, input_shape = data_processing()
@@ -138,15 +181,19 @@ def main(p):
     )
   np.array(p.map(train, args))
 
-  calc_ensemble_accuracy(
+  result = calc_ensemble_accuracy(
       x_test,
       y_test_value,
       p,
   )
 
+  return result
+
 
 if __name__ == "__main__":
   p = Pool(CONFIG["num_process"])
+  results = []
+
   for i in range(CONFIG["experiment_count"]):
     print("-" * 200)
     print(
@@ -155,4 +202,49 @@ if __name__ == "__main__":
         + "/"
         + str(CONFIG["experiment_count"])
     )
-    main(p)
+    result = main(p)
+    results.append(result)
+
+  summary = {}
+
+  for result in results:
+    for type in result:
+      for label in result[type]:
+        if label == "accuracy":
+          if label not in summary[type]:
+            summary[type][label] = []
+          summary[type][label].append(result[type][label])
+        else:
+          for metric in result[type][label]:
+            if metric != "support":
+              if type not in summary:
+                summary[type] = {}
+              if label not in summary[type]:
+                summary[type][label] = {}
+              if metric not in summary[type][label]:
+                summary[type][label][metric] = []
+              summary[type][label][metric].append(result[type][label][metric])
+
+  print_summary(summary)
+
+  if CONFIG["save_report"]:
+    now = datetime.datetime.now()
+    acc = np.mean(summary["last_10"]["accuracy"])
+    acc_std = np.std(summary["last_10"]["accuracy"])
+    dir = "./summaries/" + \
+        "{:.07f}".format(acc)[2:4] + "/" + now.strftime("%Y%m%d")
+    if not pathlib.Path(dir).exists():
+      pathlib.Path(dir).mkdir(parents=True)
+    file = pathlib.Path(
+        dir + "/" + "{:.07f}".format(acc)[2:6] +
+        "_" + now.strftime("%Y%m%d_%H%M%S.txt")
+    )
+    with file.open(mode="w") as f:
+      print(now.strftime("%Y%m%d_%H%M%S"), file=f)
+      print("Summary", file=f)
+      print("CONFIG:", file=f)
+      print(CONFIG, file=f)
+      print("SAMPLE_NUM_PER_LABEL:", file=f)
+      print(SAMPLE_NUM_PER_LABEL, file=f)
+      print_summary(summary, f)
+      
