@@ -1,6 +1,5 @@
 from keras import backend as K
 import numpy as np
-from constants import CONFIG
 from classifications import calc_centers, calc_centers_2
 
 
@@ -33,7 +32,7 @@ def center_loss(x_support, y_support, y_support_value, model):
     # )
     # tmp_loss3 = K.variable(0.0)
     # for center in centers:
-    #   tmp_loss3 += K.exp(
+    #   tmp_loss3 = tmp_loss3 + K.exp(
     #       -__euclidean(
     #           y_pred,
     #           K.dot(
@@ -50,7 +49,7 @@ def center_loss(x_support, y_support, y_support_value, model):
     #           )
     #       )
     #   )
-    # loss3 += K.log(tmp_loss3)
+    # loss3 = loss3 + K.log(tmp_loss3)
 
     loss4 = __cosine(
         y_pred,

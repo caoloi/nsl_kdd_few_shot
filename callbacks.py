@@ -7,7 +7,7 @@ import numpy as np
 
 
 class Histories(keras.callbacks.Callback):
-  def __init__(self, x_train, y_train, x_test, y_test, x_support, y_support, index):
+  def __init__(self, x_train, y_train, x_test, y_test, x_support, y_support, index, j):
     self.x_train = x_train
     self.y_train = y_train
     self.x_test = x_test
@@ -15,6 +15,7 @@ class Histories(keras.callbacks.Callback):
     self.x_support = x_support
     self.y_support = y_support
     self.index = index
+    self.j = j
 
   def on_train_begin(self, logs={}):
     self.aucs = []
@@ -45,8 +46,10 @@ class Histories(keras.callbacks.Callback):
     acc = accuracy_score(self.y_test, pred)
     # print(acc)
     print(
-        "Epoch: " + str(epoch + 1) + "/" + str(CONFIG["epochs"])
+        "Epoch: " + str(epoch + 1 + self.j * CONFIG["epochs"]) 
+        + "/" + str(CONFIG["epochs"] * CONFIG["repeat"])
         + "\tModel: " + str(self.index + 1) + "/" + str(CONFIG["num_models"])
+        + "(" + str(self.j + 1) + ")"
         # + "\tTrain Accuracy: " + "|  " * self.index + "{:.07f}".format(train_acc) + "|  " * (CONFIG["num_models"] - self.index - 1)
         + "\tTest Accuracy: " + "|  " * self.index
         + "{:.07f}".format(acc) + "|  "
@@ -73,7 +76,7 @@ class Histories(keras.callbacks.Callback):
       )
       plt.draw()
       plt.pause(0.001)
-    if acc >= 0.95:  # or epoch == CONFIG["epochs"] - 1:
+    if acc >= 0.96:  # or epoch == CONFIG["epochs"] - 1:
       report = classification_report(self.y_test, pred, target_names=LABELS)
       c_mat = confusion_matrix(self.y_test, pred)
       save_report(acc, report, c_mat, "Epoch: " + str(epoch), self.model)
@@ -85,7 +88,8 @@ class Histories(keras.callbacks.Callback):
     #     include_optimizer=False,
     # )
     np.save(
-        "./temp/model_" + str(self.index) + "_epoch_" + str(epoch),
+        "./temp/model_" + str(self.index) + "_epoch_"
+        + str(epoch + self.j * CONFIG["epochs"]),
         d_list,
     )
 

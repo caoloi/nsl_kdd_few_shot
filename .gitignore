@@ -1,5 +1,5 @@
 /temp
 /__pycache__
 /.vscode
-result.jpg
+result*.jpg
 ngrok_ssh.sh

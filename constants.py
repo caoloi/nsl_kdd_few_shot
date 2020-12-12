@@ -1,10 +1,10 @@
 # REFERENCES PARAMETERS
 CONFIG = {
-    "epochs": 200,
+    "epochs": 25,
     "batch_size": 16,
     "num_classes": 5,
     # "num_models": 1,
-    "num_models": 16,
+    "num_models": 8,
     "dataset": "kdd",
     "train_data": "train+",
     "img_rows": 11,
@@ -17,6 +17,7 @@ CONFIG = {
     "experiment_count": 10,
     "shuffle": True,
     "save_report": True,
+    "repeat": 8,
 }
 
 LABEL_TO_NUM = {

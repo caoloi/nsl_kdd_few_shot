@@ -96,7 +96,7 @@ def load_distances(index):
       np.load(
           "./temp/model_" + str(index) + "_epoch_" + str(j) + ".npy"
       )
-      for j in range(CONFIG["epochs"])
+      for j in range(CONFIG["epochs"] * CONFIG["repeat"])
   ]
   return distance
 
@@ -146,7 +146,7 @@ def accuracy_scores(args):
               y,
               preds[j],
           )
-          for j in range(CONFIG["epochs"])
+          for j in range(CONFIG["epochs"] * CONFIG["repeat"])
       ]
   )
 
@@ -210,7 +210,7 @@ def calc_ensemble_accuracy(x, y, p):
 
   result = {}
 
-  for i in range(CONFIG["epochs"]):
+  for i in range(CONFIG["epochs"] * CONFIG["repeat"]):
     pred = [
         np.argmin(
             np.sum(
@@ -222,10 +222,10 @@ def calc_ensemble_accuracy(x, y, p):
     ]
     acc = accuracy_score(y, pred)
     print(
-        "Epoch: " + str(i + 1) + "/" + str(CONFIG["epochs"])
+        "Epoch: " + str(i + 1) + "/" + str(CONFIG["epochs"] * CONFIG["repeat"])
         + "\tEnsemble Accuracy: " + "{:.07f}".format(acc)
     )
-    if i == CONFIG["epochs"] - 1:
+    if i == CONFIG["epochs"] * CONFIG["repeat"] - 1:
       report = classification_report(y, pred, target_names=LABELS)
       print(report)
       c_mat = confusion_matrix(y, pred)
@@ -239,7 +239,7 @@ def calc_ensemble_accuracy(x, y, p):
   last_10_distances = np.array(
       [
           distances[i][j]
-          for j in range(np.max([0, CONFIG["epochs"] - 10]), CONFIG["epochs"])
+          for j in range(np.max([0, CONFIG["epochs"] * CONFIG["repeat"] - 10]), CONFIG["epochs"] * CONFIG["repeat"])
           for i in range(CONFIG["num_models"])
       ]
   )
@@ -267,7 +267,7 @@ def calc_ensemble_accuracy(x, y, p):
   all_distances = np.array(
       [
           distances[i][j]
-          for j in range(CONFIG["epochs"])
+          for j in range(CONFIG["epochs"] * CONFIG["repeat"])
           for i in range(CONFIG["num_models"])
       ]
   )
@@ -291,12 +291,12 @@ def calc_ensemble_accuracy(x, y, p):
       y, pred, output_dict=True, target_names=LABELS)
 
   plt.figure(figsize=(12, 8))
-  x = list(range(1, CONFIG["epochs"] + 1))
+  x = list(range(1, CONFIG["epochs"] * CONFIG["repeat"] + 1))
   for i in range(CONFIG["num_models"]):
     plt.plot(x, acc_list[i], label="Model %s" % (i + 1))
   plt.xlabel("Epoch")
-  plt.xlim(0, CONFIG["epochs"])
-  plt.xticks(np.arange(0, CONFIG["epochs"] + 1, 50))
+  plt.xlim(0, CONFIG["epochs"] * CONFIG["repeat"])
+  plt.xticks(np.arange(0, CONFIG["epochs"] * CONFIG["repeat"] + 1, CONFIG["epochs"]))
   plt.ylabel("Accuracy")
   plt.ylim(0.80, 1.00)
   plt.grid(True)

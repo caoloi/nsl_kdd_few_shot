@@ -17,7 +17,7 @@ from callbacks import Histories
 from models import build_fsl_cnn, build_fsl_dnn
 from losses import center_loss
 from keras.optimizers import Adam
-from keras.models import Model
+from keras.models import Model, load_model
 from keras.layers import Input
 import numpy as np
 from multiprocessing import Pool
@@ -33,27 +33,36 @@ def train(args):
   if pf != 'Darwin':
     from keras import backend as K
     import tensorflow as tf
-    config = tf.compat.v1.ConfigProto()
+    config = tf.compat.v1.ConfigProto(
+        # allow_soft_placement=True
+    )
     config.gpu_options.per_process_gpu_memory_fraction = [
-        0.7,
-        0.35,
-        0.1,
-        0.065,
+        0.8,
+        0.3,
+        0.15,
+        0.075,
     ][CONFIG["num_process"] - 1]
     # config.gpu_options.allow_growth = True
     sess = tf.compat.v1.Session(config=config)
     K.set_session(sess)
-    K.clear_session()
+    # K.clear_session()
 
-  index, x_train, x_support, x_test, y_train, y_support, _, y_train_value, y_support_value, y_test_value, input_shape = args
+  index, j, x_train, x_support, x_test, y_train, y_support, _, y_train_value, y_support_value, y_test_value, input_shape = args
 
-  print("Setting up Model " + str(index + 1) + "/" + str(CONFIG["num_models"]))
+  print(
+      "Setting up Model "
+      + str(index + 1) + "/" + str(CONFIG["num_models"])
+      + "(" + str(j + 1) + ")"
+  )
 
   input = Input(shape=input_shape)
   output = build_fsl_cnn(
       input
   ) if CONFIG["model_type"] == "cnn" else build_fsl_dnn(input)
   model = Model(inputs=input, outputs=output)
+
+  if j > 0:
+    model.load_weights("./temp/model_" + str(index) + "_" + str(j - 1) + ".h5")
   model.compile(
       optimizer=Adam(),
       loss=[
@@ -87,7 +96,8 @@ def train(args):
       y_test_value,
       x_support,
       y_support_value,
-      index
+      index,
+      j,
   )
 
   model.fit(
@@ -101,6 +111,8 @@ def train(args):
       ],
       shuffle=CONFIG["shuffle"],
   )
+
+  model.save_weights("./temp/model_" + str(index) + "_" + str(j) + ".h5")
 
 
 def create_summary(results):
@@ -124,6 +136,8 @@ def create_summary(results):
                 summary[type][label][metric] = []
               summary[type][label][metric].append(result[type][label][metric])
 
+  return summary
+
 
 def print_summary(summary, f=sys.stdout):
   for type in summary:
@@ -137,9 +151,9 @@ def print_summary(summary, f=sys.stdout):
         max = np.max(summary[type][label])
         print(
             "\t\t"
-            + "{:.07f}".format(mean) + " ± " + "{:.07f}".format(std)
-            + " min: " + "{:.07f}".format(min)
-            + " max: " + "{:.07f}".format(max),
+            + "{:.04f}".format(mean) + " ± " + "{:.04f}".format(std)
+            + " min: " + "{:.04f}".format(min)
+            + " max: " + "{:.04f}".format(max),
             end="",
             file=f,
         )
@@ -151,9 +165,9 @@ def print_summary(summary, f=sys.stdout):
           max = np.max(summary[type][label][metric])
           print(
               "\t\t" + metric + ": "
-              + "{:.07f}".format(mean) + " ± " + "{:.07f}".format(std)
-              + " min: " + "{:.07f}".format(min)
-              + " max: " + "{:.07f}".format(max),
+              + "{:.04f}".format(mean) + " ± " + "{:.04f}".format(std)
+              + " min: " + "{:.04f}".format(min)
+              + " max: " + "{:.04f}".format(max),
               end="",
               file=f,
           )
@@ -166,11 +180,11 @@ def save_summary(summary):
     now = datetime.datetime.now()
     acc = np.mean(summary["last_10"]["accuracy"])
     dir = "./summaries/" + \
-        "{:.07f}".format(acc)[2:4] + "/" + now.strftime("%Y%m%d")
+        "{:.04f}".format(acc)[2:4] + "/" + now.strftime("%Y%m%d")
     if not pathlib.Path(dir).exists():
       pathlib.Path(dir).mkdir(parents=True)
     file = pathlib.Path(
-        dir + "/" + "{:.07f}".format(acc)[2:6] +
+        dir + "/" + "{:.04f}".format(acc)[2:6] +
         "_" + now.strftime("%Y%m%d_%H%M%S.txt")
     )
     with file.open(mode="w") as f:
@@ -189,41 +203,46 @@ def train_and_create_result(p):
 
   datasets = p.map(data_processing, range(CONFIG["num_models"]))
 
-  args = []
-  for i in range(CONFIG["num_models"]):
-    x_train, _, _, y_train, _, _, y_train_value, _, _, _ = datasets[i]
-    ids = np.random.permutation(x_support.shape[0])
-    ids = np.random.choice(ids, CONFIG["support_rate"])
-    # ids = [
-    #     i % x_support.shape[0]
-    #     for i in range(
-    #         int(
-    #             x_train.shape[0] * CONFIG["support_rate"]
-    #         )
-    #     )
-    # ]
-    random_x_support = x_support[ids]
-    random_y_support = y_support[ids]
-    random_y_support_value = y_support_value[ids]
-    x_train = np.vstack((x_train, random_x_support))
-    y_train = np.vstack((y_train, random_y_support))
-    y_train_value = np.hstack((y_train_value, random_y_support_value))
-    args.append(
-        [
-            i,
-            x_train,
-            x_support,
-            x_test,
-            y_train,
-            y_support,
-            y_test,
-            y_train_value,
-            y_support_value,
-            y_test_value,
-            input_shape
-        ]
-    )
-  np.array(p.map(train, args))
+  # args = []
+  # for i in range(CONFIG["num_models"]):
+  #   args.append(
+  #     [
+  #       i,
+  #       input_shape,
+  #     ]
+  #   )
+
+  # p.map(build_model, args)
+
+  for j in range(CONFIG["repeat"]):
+    args = []
+    for i in range(CONFIG["num_models"]):
+      x_train, _, _, y_train, _, _, y_train_value, _, _, _ = datasets[i]
+      ids = np.random.permutation(x_support.shape[0])
+      ids = np.random.choice(ids, CONFIG["support_rate"])
+      random_x_support = x_support[ids]
+      random_y_support = y_support[ids]
+      random_y_support_value = y_support_value[ids]
+      x_train = np.vstack((x_train, random_x_support))
+      y_train = np.vstack((y_train, random_y_support))
+      y_train_value = np.hstack((y_train_value, random_y_support_value))
+      args.append(
+          [
+              i,
+              j,
+              x_train,
+              x_support,
+              x_test,
+              y_train,
+              y_support,
+              y_test,
+              y_train_value,
+              y_support_value,
+              y_test_value,
+              input_shape,
+          ]
+      )
+    np.array(p.map(train, args))
 
   result = calc_ensemble_accuracy(
       x_test,
@@ -252,6 +271,7 @@ def main():
   summary = create_summary(results)
   print_summary(summary)
   save_summary(summary)
+
 
 if __name__ == "__main__":
   main()
