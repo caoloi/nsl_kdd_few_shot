@@ -88,7 +88,7 @@ class Histories(keras.callbacks.Callback):
         + str(epoch + self.j * CONFIG["epochs"]),
         d_list,
     )
-    if epoch == 0:
+    if epoch == 0 and self.j == 0:
       losses = np.array([logs["loss"]])
     else:
       losses = np.load(
