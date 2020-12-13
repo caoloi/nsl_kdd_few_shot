@@ -16,6 +16,7 @@ from data_processing import data_processing
 from callbacks import Histories
 from models import build_fsl_cnn, build_fsl_dnn
 from losses import center_loss
+from keras import backend as K
 from keras.optimizers import Adam
 from keras.models import Model, load_model
 from keras.layers import Input
@@ -31,7 +32,6 @@ def train(args):
   import platform
   pf = platform.system()
   if pf != 'Darwin':
-    from keras import backend as K
     import tensorflow as tf
     config = tf.compat.v1.ConfigProto(
         # allow_soft_placement=True
@@ -40,12 +40,11 @@ def train(args):
         0.8,
         0.3,
         0.15,
-        0.075,
+        0.1,
     ][CONFIG["num_process"] - 1]
     # config.gpu_options.allow_growth = True
     sess = tf.compat.v1.Session(config=config)
     K.set_session(sess)
-    # K.clear_session()
 
   index, j, x_train, x_support, x_test, y_train, y_support, _, y_train_value, y_support_value, y_test_value, input_shape = args
 
@@ -113,6 +112,8 @@ def train(args):
   )
 
   model.save_weights("./temp/model_" + str(index) + "_" + str(j) + ".h5")
+
+  K.clear_session()
 
 
 def create_summary(results):
@@ -202,17 +203,6 @@ def train_and_create_result(p):
   # x_train, x_support, x_test, y_train, y_support, y_test, y_train_value, y_support_value, y_test_value, input_shape = data_processing()
 
   datasets = p.map(data_processing, range(CONFIG["num_models"]))
-
-  # args = []
-  # for i in range(CONFIG["num_models"]):
-  #   args.append(
-  #     [
-  #       i,
-  #       input_shape,
-  #     ]
-  #   )
-
-  # p.map(build_model, args)
 
   for j in range(CONFIG["repeat"]):
     args = []
