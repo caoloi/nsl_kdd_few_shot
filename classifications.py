@@ -101,6 +101,15 @@ def load_distances(index):
   return distance
 
 
+def load_losses(index):
+  print("Load Loss " + str(index + 1) + "/" + str(CONFIG["num_models"]))
+
+  losses = np.load(
+      "./temp/model_" + str(index) + "_losses" + ".npy"
+  )
+  return losses
+
+
 def calc_pred(x, x_support, y_support, model):
   d_list = calc_distance(x, x_support, y_support, model)
 
@@ -296,7 +305,12 @@ def calc_ensemble_accuracy(x, y, p):
     plt.plot(x, acc_list[i], label="Model %s" % (i + 1))
   plt.xlabel("Epoch")
   plt.xlim(0, CONFIG["epochs"] * CONFIG["repeat"])
-  plt.xticks(np.arange(0, CONFIG["epochs"] * CONFIG["repeat"] + 1, CONFIG["epochs"]))
+  plt.xticks(
+      np.arange(
+          0,
+          CONFIG["epochs"] * CONFIG["repeat"] + 1, CONFIG["epochs"]
+      )
+  )
   plt.ylabel("Accuracy")
   plt.ylim(0.80, 1.00)
   plt.grid(True)
@@ -305,7 +319,32 @@ def calc_ensemble_accuracy(x, y, p):
   if os.path.isfile(file_name):
     os.remove(file_name)
   plt.savefig(file_name)
-  # plt.show()
+
+  plt.clf()
+
+  losses = np.array(p.map(load_losses, range(CONFIG["num_models"])))
+
+  plt.figure(figsize=(12, 8))
+  x = list(range(1, CONFIG["epochs"] * CONFIG["repeat"] + 1))
+  for i in range(CONFIG["num_models"]):
+    plt.plot(x, losses[i], label="Model %s" % (i + 1))
+  plt.xlabel("Epoch")
+  plt.xlim(0, CONFIG["epochs"] * CONFIG["repeat"])
+  plt.xticks(
+      np.arange(
+          0,
+          CONFIG["epochs"] * CONFIG["repeat"] + 1, CONFIG["epochs"]
+      )
+  )
+  plt.ylabel("Loss")
+  plt.grid(True)
+  plt.legend(bbox_to_anchor=(1, 1), loc="upper left", fontsize=10)
+  file_name = "loss_result.jpg"
+  if os.path.isfile(file_name):
+    os.remove(file_name)
+  plt.savefig(file_name)
+
+  plt.clf()
 
   return result
 

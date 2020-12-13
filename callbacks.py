@@ -83,14 +83,20 @@ class Histories(keras.callbacks.Callback):
 
     # print("=========")
 
-    # self.model.save(
-    #     "./temp/model_" + str(self.index) + "_epoch_" + str(epoch) + ".h5",
-    #     include_optimizer=False,
-    # )
     np.save(
         "./temp/model_" + str(self.index) + "_epoch_"
         + str(epoch + self.j * CONFIG["epochs"]),
         d_list,
+    )
+    if epoch == 0:
+      losses = np.array([logs["loss"]])
+    else:
+      losses = np.load(
+          "./temp/model_" + str(self.index) + "_losses" + ".npy"
+      )
+    np.save(
+        "./temp/model_" + str(self.index) + "_losses",
+        np.append(losses, logs["loss"]),
     )
 
     return
