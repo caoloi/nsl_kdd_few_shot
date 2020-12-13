@@ -46,7 +46,7 @@ class Histories(keras.callbacks.Callback):
     acc = accuracy_score(self.y_test, pred)
     # print(acc)
     print(
-        "Epoch: " + str(epoch + 1 + self.j * CONFIG["epochs"]) 
+        "Epoch: " + str(epoch + 1 + self.j * CONFIG["epochs"])
         + "/" + str(CONFIG["epochs"] * CONFIG["repeat"])
         + "\tModel: " + str(self.index + 1) + "/" + str(CONFIG["num_models"])
         + "(" + str(self.j + 1) + ")"
@@ -94,9 +94,10 @@ class Histories(keras.callbacks.Callback):
       losses = np.load(
           "./temp/model_" + str(self.index) + "_losses" + ".npy"
       )
+      losses = np.append(losses, logs["loss"])
     np.save(
         "./temp/model_" + str(self.index) + "_losses",
-        np.append(losses, logs["loss"]),
+        losses,
     )
 
     return
