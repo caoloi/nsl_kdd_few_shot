@@ -1,0 +1,18 @@
+version: "2.4"
+services:
+  tensorflow:
+    build: .
+    tty: true
+    stdin_open: true
+    container_name: few-shot
+    image: tensorflow/tensorflow:latest-gpu-py3-jupyter
+    volumes:
+      - ./:/workspace/fsl
+    runtime: nvidia
+    # command:
+    #   - "sh"
+    #   - "exec.sh"
+    ports:
+      - 8889:8889
+    mem_limit: 32g
+    cpus: 16
