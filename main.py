@@ -244,19 +244,26 @@ def train_and_create_result(p):
   # y_train = np.vstack((y_train, random_y_support))
   # y_train_value = np.hstack((y_train_value, random_y_support_value))
 
+  datasets = p.map(data_processing, range(CONFIG["num_models"]))
+
   for j in range(CONFIG["repeat"]):
     args = []
-    datasets = p.map(data_processing, range(CONFIG["num_models"]))
     for i in range(CONFIG["num_models"]):
       x_train, _, _, y_train, _, _, y_train_value, _, _, _ = datasets[i]
-      ids = np.random.permutation(x_support.shape[0])
-      ids = np.random.choice(ids, CONFIG["support_rate"])
-      random_x_support = x_support[ids]
-      random_y_support = y_support[ids]
-      random_y_support_value = y_support_value[ids]
-      x_train = np.vstack((x_train, random_x_support))
-      y_train = np.vstack((y_train, random_y_support))
-      y_train_value = np.hstack((y_train_value, random_y_support_value))
+      support_ids = np.random.permutation(x_support.shape[0])
+      support_ids = np.random.choice(support_ids, CONFIG["support_rate"])
+      random_x_support = x_support[support_ids]
+      random_y_support = y_support[support_ids]
+      random_y_support_value = y_support_value[support_ids]
+
+      train_ids = np.random.permutation(x_train.shape[0])
+      random_x_train = x_train[train_ids]
+      random_y_train = y_train[train_ids]
+      random_y_train_value = y_train_value[train_ids]
+
+      x_train = np.vstack((random_x_train, random_x_support))
+      y_train = np.vstack((random_y_train, random_y_support))
+      y_train_value = np.hstack((random_y_train_value, random_y_support_value))
       args.append(
           [
               i,
