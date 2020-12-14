@@ -163,7 +163,7 @@ def accuracy_scores(args):
   return acc_list
 
 
-def calc_ensemble_accuracy(x, y, p):
+def calc_ensemble_accuracy(x, y, p, e_i):
   print("-" * 200)
 
   distances = np.array(p.map(load_distances, range(CONFIG["num_models"])))
@@ -316,7 +316,7 @@ def calc_ensemble_accuracy(x, y, p):
   plt.ylim(0.80, 1.00)
   plt.grid(True)
   plt.legend(bbox_to_anchor=(1, 1), loc="upper left", fontsize=10)
-  file_name = "result.jpg"
+  file_name = "result_" + str(e_i) + ".jpg"
   if os.path.isfile(file_name):
     os.remove(file_name)
   plt.savefig(file_name)
@@ -340,7 +340,7 @@ def calc_ensemble_accuracy(x, y, p):
   plt.ylabel("Loss")
   plt.grid(True)
   plt.legend(bbox_to_anchor=(1, 1), loc="upper left", fontsize=10)
-  file_name = "loss_result.jpg"
+  file_name = "loss_result_" + str(e_i) + ".jpg"
   if os.path.isfile(file_name):
     os.remove(file_name)
   plt.savefig(file_name)

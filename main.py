@@ -203,7 +203,7 @@ def save_summary(summary):
       print_summary(summary, f)
 
 
-def train_and_create_result(p):
+def train_and_create_result(p, e_i):
   _, x_support, x_test, _, y_support, y_test, _, y_support_value, y_test_value, input_shape = data_processing()
   # x_train, x_support, x_test, y_train, y_support, y_test, y_train_value, y_support_value, y_test_value, input_shape = data_processing()
   # ids = np.random.permutation(x_support.shape[0])
@@ -261,6 +261,7 @@ def train_and_create_result(p):
       x_test,
       y_test_value,
       p,
+      e_i,
   )
 
   return result
@@ -278,7 +279,7 @@ def main():
         + "/"
         + str(CONFIG["experiment_count"])
     )
-    result = train_and_create_result(p)
+    result = train_and_create_result(p, i)
     results.append(result)
 
   summary = create_summary(results)
