@@ -62,7 +62,7 @@ def train(args):
   ) if CONFIG["model_type"] == "cnn" else build_fsl_dnn(input)
   model = Model(inputs=input, outputs=output)
 
-  if j > 0:
+  if j >= 0:
     model.load_weights("./temp/model_" + str(index) + "_" + str(j - 1) + ".h5")
   model.compile(
       optimizer=Adam(),
