@@ -18,6 +18,8 @@ CONFIG = {
     "shuffle": False,
     "save_report": True,
     "repeat": 8,
+    "epsilon": 1e-10,
+    "floatx": "float32",
 }
 
 LABEL_TO_NUM = {

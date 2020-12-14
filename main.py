@@ -22,8 +22,8 @@ from keras.models import Model, load_model
 from keras.layers import Input
 import numpy as np
 from multiprocessing import Pool
-from collections import defaultdict
 import datetime
+import pytz
 import pathlib
 import sys
 
@@ -45,8 +45,8 @@ def train(args):
     # config.gpu_options.allow_growth = True
     sess = tf.compat.v1.Session(config=config)
     K.set_session(sess)
-  K.set_epsilon(1e-09)
-  K.set_floatx('float64')
+  K.set_epsilon(CONFIG["epsilon"])
+  K.set_floatx(CONFIG["floatx"])
 
   index, j, x_train, x_support, x_test, y_train, y_support, _, y_train_value, y_support_value, y_test_value, input_shape = args
 
@@ -180,7 +180,7 @@ def print_summary(summary, f=sys.stdout):
 
 def save_summary(summary):
   if CONFIG["save_report"]:
-    now = datetime.datetime.now()
+    now = datetime.datetime.now(pytz.timezone('Asia/Tokyo'))
     acc = np.mean(summary["last_10"]["accuracy"])
     dir = "./summaries/" + \
         "{:.04f}".format(acc)[2:4] + "/" + now.strftime("%Y%m%d")

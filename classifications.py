@@ -2,6 +2,7 @@ import numpy as np
 from constants import CONFIG, SAMPLE_NUM_PER_LABEL, LABELS
 from sklearn.metrics import classification_report, accuracy_score, confusion_matrix
 import datetime
+import pytz
 import pathlib
 import matplotlib.pyplot as plt
 from io import StringIO
@@ -351,7 +352,7 @@ def calc_ensemble_accuracy(x, y, p):
 
 def save_report(acc, report, c_mat, title="", model=None):
   if CONFIG["save_report"]:
-    now = datetime.datetime.now()
+    now = datetime.datetime.now(pytz.timezone('Asia/Tokyo'))
     dir = "./results/" + \
         "{:.07f}".format(acc)[2:4] + "/" + now.strftime("%Y%m%d")
     if not pathlib.Path(dir).exists():
