@@ -1,6 +1,6 @@
 exec:
 	# docker-compose up
-	docker-compose run tensorflow bash -c "cd fsl && python main.py"
+	docker-compose run tensorflow bash -c "cd fsl && rm -r temp && mkdir temp && python main.py"
 	# docker run \
 	# 	-m 32g \
 	# 	--cpus 16 \
