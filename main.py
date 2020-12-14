@@ -105,7 +105,7 @@ def train(args):
       x_train,
       expanded_y_train,
       batch_size=CONFIG["batch_size"] + index * 10 if j >= 0 else 64,
-      epochs=CONFIG["epochs"] if j >= 0 else 10,
+      epochs=CONFIG["epochs"] if j >= 0 else 1,
       verbose=False,
       callbacks=[
           histories
