@@ -104,8 +104,8 @@ def train(args):
   model.fit(
       x_train,
       expanded_y_train,
-      batch_size=CONFIG["batch_size"] + index * 10 if j >= 0 else 64,
-      epochs=CONFIG["epochs"] if j >= 0 else 1,
+      batch_size=CONFIG["batch_size"] if j >= 0 else 64,
+      epochs=CONFIG["epochs"] if j >= 0 else 5,
       verbose=False,
       callbacks=[
           histories
@@ -214,13 +214,16 @@ def train_and_create_result(p):
             i,
             -1,
             x_train,
-            x_train,
+            x_support,
+            # x_train,
             x_test,
             y_train,
-            y_train,
+            y_support,
+            # y_train,
             y_test,
             y_train_value,
-            y_train_value,
+            y_support_value,
+            # y_train_value,
             y_test_value,
             input_shape,
         ]
