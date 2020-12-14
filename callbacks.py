@@ -4,6 +4,7 @@ from classifications import calc_pred, save_report, calc_distance
 from constants import CONFIG, LABELS
 import matplotlib.pyplot as plt
 import numpy as np
+import os
 
 
 class Histories(keras.callbacks.Callback):
@@ -83,9 +84,15 @@ class Histories(keras.callbacks.Callback):
 
     # print("=========")
 
+    file_name = "./temp/model_" + str(
+        self.index
+    ) + "_epoch_" + str(
+        epoch + self.j * CONFIG["epochs"]
+    )
+    if os.path.isfile(file_name):
+      os.remove(file_name)
     np.save(
-        "./temp/model_" + str(self.index) + "_epoch_"
-        + str(epoch + self.j * CONFIG["epochs"]),
+        file_name,
         d_list,
     )
     if epoch == 0 and self.j <= 0:
@@ -95,8 +102,11 @@ class Histories(keras.callbacks.Callback):
           "./temp/model_" + str(self.index) + "_losses" + ".npy"
       )
       losses = np.append(losses, logs["loss"])
+    file_name = "./temp/model_" + str(self.index) + "_losses"
+    if os.path.isfile(file_name):
+      os.remove(file_name)
     np.save(
-        "./temp/model_" + str(self.index) + "_losses",
+        file_name,
         losses,
     )
 

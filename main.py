@@ -113,7 +113,10 @@ def train(args):
       shuffle=CONFIG["shuffle"],
   )
 
-  model.save_weights("./temp/model_" + str(index) + "_" + str(j) + ".h5")
+  file_name = "./temp/model_" + str(index) + "_" + str(j) + ".h5"
+  if os.path.isfile(file_name):
+    os.remove(file_name)
+  model.save_weights(file_name)
 
   K.clear_session()
 
