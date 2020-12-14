@@ -45,7 +45,7 @@ def train(args):
     # config.gpu_options.allow_growth = True
     sess = tf.compat.v1.Session(config=config)
     K.set_session(sess)
-  K.set_epsilon(CONFIG["epsilon"])
+    K.set_epsilon(CONFIG["epsilon"])
   K.set_floatx(CONFIG["floatx"])
 
   index, j, x_train, x_support, x_test, y_train, y_support, _, y_train_value, y_support_value, y_test_value, input_shape = args
@@ -62,7 +62,7 @@ def train(args):
   ) if CONFIG["model_type"] == "cnn" else build_fsl_dnn(input)
   model = Model(inputs=input, outputs=output)
 
-  if j > 0:
+  if j >= 0:
     model.load_weights("./temp/model_" + str(index) + "_" + str(j - 1) + ".h5")
   model.compile(
       optimizer=Adam(),
@@ -201,8 +201,45 @@ def save_summary(summary):
 
 
 def train_and_create_result(p):
+  batch_size = CONFIG["batch_size"]
+  CONFIG["batch_size"] = 256
+  epochs = CONFIG["epochs"]
+  CONFIG["epochs"] = 2
+
+  for i in range(CONFIG["num_models"]):
+    x_train, x_support, x_test, y_train, y_support, y_test, y_train_value, y_support_value, y_test_value, input_shape = data_processing(
+        pre_learn=True
+    )
+    train(
+        [
+            i,
+            -1,
+            x_train,
+            x_support,
+            x_test,
+            y_train,
+            y_support,
+            y_test,
+            y_train_value,
+            y_support_value,
+            y_test_value,
+            input_shape,
+        ]
+    )
+
+  CONFIG["batch_size"] = batch_size
+  CONFIG["epochs"] = epochs
+
   _, x_support, x_test, _, y_support, y_test, _, y_support_value, y_test_value, input_shape = data_processing()
   # x_train, x_support, x_test, y_train, y_support, y_test, y_train_value, y_support_value, y_test_value, input_shape = data_processing()
+  # ids = np.random.permutation(x_support.shape[0])
+  # ids = np.random.choice(ids, CONFIG["support_rate"])
+  # random_x_support = x_support[ids]
+  # random_y_support = y_support[ids]
+  # random_y_support_value = y_support_value[ids]
+  # x_train = np.vstack((x_train, random_x_support))
+  # y_train = np.vstack((y_train, random_y_support))
+  # y_train_value = np.hstack((y_train_value, random_y_support_value))
 
   datasets = p.map(data_processing, range(CONFIG["num_models"]))
 
