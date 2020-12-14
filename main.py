@@ -104,8 +104,8 @@ def train(args):
   model.fit(
       x_train,
       expanded_y_train,
-      batch_size=CONFIG["batch_size"] + index * 10 if j >= 0 else 256,
-      epochs=CONFIG["epochs"] if j >= 0 else 3,
+      batch_size=CONFIG["batch_size"] + index * 10 if j >= 0 else 64,
+      epochs=CONFIG["epochs"] if j >= 0 else 10,
       verbose=False,
       callbacks=[
           histories
@@ -201,24 +201,26 @@ def save_summary(summary):
 
 
 def train_and_create_result(p):
+  _, x_support, x_test, _, y_support, y_test, _, y_support_value, y_test_value, input_shape = data_processing()
+
+  datasets = p.map(data_processing, range(CONFIG["num_models"]))
+
   args = []
 
   for i in range(CONFIG["num_models"]):
-    x_train, x_support, x_test, y_train, y_support, y_test, y_train_value, y_support_value, y_test_value, input_shape = data_processing(
-        pre_learn=True
-    )
+    x_train, _, _, y_train, _, _, y_train_value, _, _, _ = datasets[i]
     args.append(
         [
             i,
             -1,
             x_train,
-            x_support,
+            x_train,
             x_test,
             y_train,
-            y_support,
+            y_train,
             y_test,
             y_train_value,
-            y_support_value,
+            y_train_value,
             y_test_value,
             input_shape,
         ]
@@ -226,7 +228,6 @@ def train_and_create_result(p):
 
   p.map(train, args)
 
-  _, x_support, x_test, _, y_support, y_test, _, y_support_value, y_test_value, input_shape = data_processing()
   # x_train, x_support, x_test, y_train, y_support, y_test, y_train_value, y_support_value, y_test_value, input_shape = data_processing()
   # ids = np.random.permutation(x_support.shape[0])
   # ids = np.random.choice(ids, CONFIG["support_rate"])

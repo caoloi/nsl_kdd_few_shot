@@ -20,11 +20,11 @@ from scipy.stats import boxcox
 pd.options.mode.chained_assignment = None  # default="warn" | Disable warnings
 
 
-def data_processing(index=None, pre_learn=False):
+def data_processing(index=None):
   if index is not None:
     print("Load Dataset " + str(index + 1) + "/" + str(CONFIG["num_models"]))
 
-  x_train, x_support, x_test, y_train, y_support, y_test = __load_data(pre_learn)
+  x_train, x_support, x_test, y_train, y_support, y_test = __load_data()
 
   if image_data_format() == "channels_first" and CONFIG["model_type"] == "cnn":
     x_train = x_train.reshape(
@@ -122,11 +122,11 @@ def t_sne_data_processing():
   return x_train, x_support, x_test, y_train, y_support, y_test
 
 
-def __load_data(pre_learn=False):
+def __load_data():
   if CONFIG["dataset"] == "kdd":
-    x_train, x_support, x_test, y_train, y_support, y_test = __kdd_encoding(pre_learn)
+    x_train, x_support, x_test, y_train, y_support, y_test = __kdd_encoding()
   else:
-    x_train, x_support, x_test, y_train, y_support, y_test = __kdd_encoding(pre_learn)
+    x_train, x_support, x_test, y_train, y_support, y_test = __kdd_encoding()
 
   return x_train, x_support, x_test, y_train, y_support, y_test
 
@@ -162,36 +162,28 @@ def __load_kdd_dataset():
   return train_df, test_df
 
 
-def __kdd_encoding(pre_learn):
+def __kdd_encoding():
   train_df, test_df = __load_kdd_dataset()
 
   train_df, test_df = __numerical_processing(train_df, test_df)
 
-  if pre_learn:
-    train_df = __resample_processing(
-        train_df,
-        balanced=True,
-    )
-    x_support, y_support = __label_to_num_processing(train_df)
-    x_train, y_train = __label_to_num_processing(train_df)
-  else:
-    # train_df = __smote_processing(train_df)
-    train_df = __resample_processing(
-        train_df,
-        balanced=True,
-    )
-    x_train, y_train = __label_to_num_processing(train_df)
-    support_df = __resample_processing(
-        test_df,
-        balanced=True,
-        type="test",
-    )
-    # support_df = __smote_processing(
-    #     support_df,
-    #     r=CONFIG["smote_rate"],
-    #     type="test",
-    # )
-    x_support, y_support = __label_to_num_processing(support_df)
+  # train_df = __smote_processing(train_df)
+  train_df = __resample_processing(
+      train_df,
+      balanced=True,
+  )
+  x_train, y_train = __label_to_num_processing(train_df)
+  support_df = __resample_processing(
+      test_df,
+      balanced=True,
+      type="test",
+  )
+  # support_df = __smote_processing(
+  #     support_df,
+  #     r=CONFIG["smote_rate"],
+  #     type="test",
+  # )
+  x_support, y_support = __label_to_num_processing(support_df)
 
   test_df = __resample_processing(
       test_df,
