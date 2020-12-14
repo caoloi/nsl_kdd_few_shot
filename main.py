@@ -62,7 +62,7 @@ def train(args):
   ) if CONFIG["model_type"] == "cnn" else build_fsl_dnn(input)
   model = Model(inputs=input, outputs=output)
 
-  if j >= 0:
+  if j > 0:
     model.load_weights("./temp/model_" + str(index) + "_" + str(j - 1) + ".h5")
   model.compile(
       optimizer=Adam(),
@@ -205,35 +205,6 @@ def save_summary(summary):
 
 def train_and_create_result(p):
   _, x_support, x_test, _, y_support, y_test, _, y_support_value, y_test_value, input_shape = data_processing()
-
-  datasets = p.map(data_processing, range(CONFIG["num_models"]))
-
-  args = []
-
-  for i in range(CONFIG["num_models"]):
-    x_train, _, _, y_train, _, _, y_train_value, _, _, _ = datasets[i]
-    args.append(
-        [
-            i,
-            -1,
-            x_train,
-            # x_support,
-            x_train,
-            x_test,
-            y_train,
-            # y_support,
-            y_train,
-            y_test,
-            y_train_value,
-            # y_support_value,
-            y_train_value,
-            y_test_value,
-            input_shape,
-        ]
-    )
-
-  p.map(train, args)
-
   # x_train, x_support, x_test, y_train, y_support, y_test, y_train_value, y_support_value, y_test_value, input_shape = data_processing()
   # ids = np.random.permutation(x_support.shape[0])
   # ids = np.random.choice(ids, CONFIG["support_rate"])
