@@ -105,7 +105,7 @@ def train(args):
       x_train,
       expanded_y_train,
       batch_size=CONFIG["batch_size"] * ((j == -1) + 1),
-      epochs=CONFIG["epochs"],  # if j >= 0 else 5,
+      epochs=CONFIG["epochs"] if j >= 0 else 5,
       verbose=False,
       callbacks=[
           histories
@@ -241,10 +241,9 @@ def train_and_create_result(p):
   # y_train = np.vstack((y_train, random_y_support))
   # y_train_value = np.hstack((y_train_value, random_y_support_value))
 
-  datasets = p.map(data_processing, range(CONFIG["num_models"]))
-
   for j in range(CONFIG["repeat"]):
     args = []
+    datasets = p.map(data_processing, range(CONFIG["num_models"]))
     for i in range(CONFIG["num_models"]):
       x_train, _, _, y_train, _, _, y_train_value, _, _, _ = datasets[i]
       ids = np.random.permutation(x_support.shape[0])
