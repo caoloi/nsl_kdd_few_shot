@@ -104,8 +104,8 @@ def train(args):
   model.fit(
       x_train,
       expanded_y_train,
-      batch_size=CONFIG["batch_size"] if j >= 0 else 64,
-      epochs=CONFIG["epochs"] if j >= 0 else 5,
+      batch_size=CONFIG["batch_size"] * (j == -1 + 1),
+      epochs=CONFIG["epochs"],  # if j >= 0 else 5,
       verbose=False,
       callbacks=[
           histories
