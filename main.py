@@ -104,7 +104,7 @@ def train(args):
   model.fit(
       x_train,
       expanded_y_train,
-      batch_size=CONFIG["batch_size"],
+      batch_size=CONFIG["batch_size"],  # + index * 5,
       epochs=CONFIG["epochs"] if j >= 0 else 1,
       verbose=False,
       callbacks=[
@@ -235,6 +235,10 @@ def train_and_create_result(p):
       x_train = np.vstack((random_x_train, random_x_support))
       y_train = np.vstack((random_y_train, random_y_support))
       y_train_value = np.hstack((random_y_train_value, random_y_support_value))
+
+      # x_train = np.vstack((x_train, random_x_support))
+      # y_train = np.vstack((y_train, random_y_support))
+      # y_train_value = np.hstack((y_train_value, random_y_support_value))
       args.append(
           [
               i,
