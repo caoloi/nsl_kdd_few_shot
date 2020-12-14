@@ -168,13 +168,12 @@ def __kdd_encoding(pre_learn):
   train_df, test_df = __numerical_processing(train_df, test_df)
 
   if pre_learn:
-    # support_df = __resample_processing(
-    #     train_df,
-    #     balanced=True,
-    # )
-    # x_support, y_support = __label_to_num_processing(support_df)
-    x_train, y_train = __label_to_num_processing(train_df)
+    train_df = __resample_processing(
+        train_df,
+        balanced=True,
+    )
     x_support, y_support = __label_to_num_processing(train_df)
+    x_train, y_train = __label_to_num_processing(train_df)
   else:
     # train_df = __smote_processing(train_df)
     train_df = __resample_processing(

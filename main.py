@@ -104,8 +104,8 @@ def train(args):
   model.fit(
       x_train,
       expanded_y_train,
-      batch_size=CONFIG["batch_size"] + index * 10,
-      epochs=CONFIG["epochs"],
+      batch_size=CONFIG["batch_size"] + index * 10 if j >= 0 else 256,
+      epochs=CONFIG["epochs"] if j >= 0 else 3,
       verbose=False,
       callbacks=[
           histories
@@ -201,16 +201,13 @@ def save_summary(summary):
 
 
 def train_and_create_result(p):
-  batch_size = CONFIG["batch_size"]
-  CONFIG["batch_size"] = 256
-  epochs = CONFIG["epochs"]
-  CONFIG["epochs"] = 2
+  args = []
 
   for i in range(CONFIG["num_models"]):
     x_train, x_support, x_test, y_train, y_support, y_test, y_train_value, y_support_value, y_test_value, input_shape = data_processing(
         pre_learn=True
     )
-    train(
+    args.append(
         [
             i,
             -1,
@@ -227,8 +224,7 @@ def train_and_create_result(p):
         ]
     )
 
-  CONFIG["batch_size"] = batch_size
-  CONFIG["epochs"] = epochs
+  p.map(train, args)
 
   _, x_support, x_test, _, y_support, y_test, _, y_support_value, y_test_value, input_shape = data_processing()
   # x_train, x_support, x_test, y_train, y_support, y_test, y_train_value, y_support_value, y_test_value, input_shape = data_processing()
@@ -271,7 +267,7 @@ def train_and_create_result(p):
               input_shape,
           ]
       )
-    np.array(p.map(train, args))
+    p.map(train, args)
 
   result = calc_ensemble_accuracy(
       x_test,
