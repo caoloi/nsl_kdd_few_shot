@@ -54,7 +54,6 @@ def train(args):
       "Setting up Model "
       + str(index + 1) + "/" + str(CONFIG["num_models"])
       + "(" + str(j + 1) + ")"
-      + str(np.unique(y_support_value, return_counts=True))
   )
 
   input = Input(shape=input_shape)
@@ -226,6 +225,8 @@ def train_and_create_result(p, e_i):
       random_x_support = x_support[support_ids]
       random_y_support = y_support[support_ids]
       random_y_support_value = y_support_value[support_ids]
+
+      print(str(np.unique(random_y_support_value, return_counts=True)))
 
       train_ids = np.random.permutation(x_train.shape[0])
       random_x_train = x_train[train_ids]
