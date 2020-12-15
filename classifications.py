@@ -354,11 +354,11 @@ def save_report(acc, report, c_mat, title="", model=None):
   if CONFIG["save_report"]:
     now = datetime.datetime.now(pytz.timezone('Asia/Tokyo'))
     dir = "./results/" + \
-        "{:.07f}".format(acc)[2:6] + "/" + now.strftime("%Y%m%d")
+        "{:.07f}".format(acc)[2:4] + "/" + now.strftime("%Y%m%d")
     if not pathlib.Path(dir).exists():
       pathlib.Path(dir).mkdir(parents=True)
     file = pathlib.Path(
-        dir + "/" + "{:.07f}".format(acc)[2:6] +
+        dir + "/" + "{:.07f}".format(acc)[2:8] +
         "_" + now.strftime("%Y%m%d_%H%M%S.txt")
     )
     with file.open(mode="w") as f:
@@ -376,9 +376,7 @@ def save_report(acc, report, c_mat, title="", model=None):
       if model is not None:
         print("Model Summary:", file=f)
         with StringIO() as buf:
-          # StringIOに書き込む
           model.summary(print_fn=lambda x: buf.write(x + "\n"))
-          # StringIOから取得
           text = buf.getvalue()
 
         print(text, file=f)

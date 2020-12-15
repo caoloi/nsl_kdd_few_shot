@@ -54,6 +54,7 @@ def train(args):
       "Setting up Model "
       + str(index + 1) + "/" + str(CONFIG["num_models"])
       + "(" + str(j + 1) + ")"
+      + str(np.unique(y_support_value, return_counts=True))
   )
 
   input = Input(shape=input_shape)
