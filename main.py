@@ -45,8 +45,8 @@ def train(args):
     # config.gpu_options.allow_growth = True
     sess = tf.compat.v1.Session(config=config)
     K.set_session(sess)
-  #   K.set_epsilon(CONFIG["epsilon"])
-  # K.set_floatx(CONFIG["floatx"])
+    K.set_epsilon(CONFIG["epsilon"])
+  K.set_floatx(CONFIG["floatx"])
 
   index, j, x_train, x_support, x_test, y_train, y_support, _, y_train_value, y_support_value, y_test_value, input_shape = args
 

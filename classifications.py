@@ -313,7 +313,9 @@ def calc_ensemble_accuracy(x, y, p, e_i):
   plt.xticks(
       np.arange(
           0,
-          CONFIG["epochs"] * CONFIG["repeat"] + 1, CONFIG["epochs"]
+          CONFIG["epochs"] * CONFIG["repeat"] + 1,
+          # CONFIG["epochs"],
+          25,
       )
   )
   plt.ylabel("Accuracy")
@@ -338,7 +340,9 @@ def calc_ensemble_accuracy(x, y, p, e_i):
   plt.xticks(
       np.arange(
           0,
-          CONFIG["epochs"] * CONFIG["repeat"] + 1, CONFIG["epochs"]
+          CONFIG["epochs"] * CONFIG["repeat"] + 1,
+          # CONFIG["epochs"],
+          25,
       )
   )
   plt.ylabel("Loss")
