@@ -220,6 +220,8 @@ def calc_ensemble_accuracy(x, y, p, e_i):
 
   result = {}
 
+  ensemble_acc_list = np.array([])
+
   for i in range(CONFIG["epochs"] * CONFIG["repeat"]):
     pred = [
         np.argmin(
@@ -231,6 +233,7 @@ def calc_ensemble_accuracy(x, y, p, e_i):
         for j in range(distances.shape[2])
     ]
     acc = accuracy_score(y, pred)
+    ensemble_acc_list = np.append(ensemble_acc_list, acc)
     print(
         "Epoch: " + str(i + 1) + "/" + str(CONFIG["epochs"] * CONFIG["repeat"])
         + "\tEnsemble Accuracy: " + "{:.07f}".format(acc)
@@ -304,6 +307,7 @@ def calc_ensemble_accuracy(x, y, p, e_i):
   x = list(range(1, CONFIG["epochs"] * CONFIG["repeat"] + 1))
   for i in range(CONFIG["num_models"]):
     plt.plot(x, acc_list[i], label="Model %s" % (i + 1))
+  plt.plot(x, ensemble_acc_list, label="Ensemble")
   plt.xlabel("Epoch")
   plt.xlim(0, CONFIG["epochs"] * CONFIG["repeat"])
   plt.xticks(
