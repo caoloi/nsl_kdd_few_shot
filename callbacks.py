@@ -50,7 +50,7 @@ class Histories(keras.callbacks.Callback):
         "Epoch: " + str(epoch + 1 + self.j * CONFIG["epochs"])
         + "/" + str(CONFIG["epochs"] * CONFIG["repeat"])
         + "\tModel: " + str(self.index + 1) + "/" + str(CONFIG["num_models"])
-        + "(" + str(self.j + 1) + ")"
+        # + "(" + str(self.j + 1) + ")"
         # + "\tTrain Accuracy: " + "|  " * self.index + "{:.07f}".format(train_acc) + "|  " * (CONFIG["num_models"] - self.index - 1)
         + "\tTest Accuracy: " + "|  " * self.index
         + "{:.07f}".format(acc) + "|  "

@@ -15,7 +15,7 @@ CONFIG = {
     "model_type": "cnn",
     "support_rate": 3000,
     "experiment_count": 10,
-    "shuffle": False,
+    "shuffle": True,
     "save_report": True,
     "repeat": 8,
     "epsilon": 1e-10,
