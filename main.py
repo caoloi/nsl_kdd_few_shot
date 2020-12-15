@@ -282,6 +282,13 @@ def main():
     result = train_and_create_result(p, i)
     results.append(result)
 
+    pf = platform.system()
+    if pf == 'Darwin':
+      p.close()
+      p.join()
+
+      p = Pool(CONFIG["num_process"])
+
   summary = create_summary(results)
   print_summary(summary)
   save_summary(summary)
