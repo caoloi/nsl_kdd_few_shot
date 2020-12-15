@@ -354,7 +354,7 @@ def save_report(acc, report, c_mat, title="", model=None):
   if CONFIG["save_report"]:
     now = datetime.datetime.now(pytz.timezone('Asia/Tokyo'))
     dir = "./results/" + \
-        "{:.07f}".format(acc)[2:4] + "/" + now.strftime("%Y%m%d")
+        "{:.07f}".format(acc)[2:6] + "/" + now.strftime("%Y%m%d")
     if not pathlib.Path(dir).exists():
       pathlib.Path(dir).mkdir(parents=True)
     file = pathlib.Path(
