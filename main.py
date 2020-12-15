@@ -221,12 +221,11 @@ def train_and_create_result(p, e_i):
     for i in range(CONFIG["num_models"]):
       x_train, _, _, y_train, _, _, y_train_value, _, _, _ = datasets[i]
       support_ids = np.random.permutation(x_support.shape[0])
-      support_ids = np.random.choice(support_ids, CONFIG["support_rate"])
+      # support_ids = np.random.choice(support_ids, CONFIG["support_rate"])
+      support_ids = np.tile(support_ids, CONFIG["support_rate"] // len(x_support))  
       random_x_support = x_support[support_ids]
       random_y_support = y_support[support_ids]
       random_y_support_value = y_support_value[support_ids]
-
-      print(str(np.unique(random_y_support_value, return_counts=True)))
 
       train_ids = np.random.permutation(x_train.shape[0])
       random_x_train = x_train[train_ids]
