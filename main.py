@@ -184,7 +184,7 @@ def print_summary(summary, f=sys.stdout):
 def save_summary(summary):
   if CONFIG["save_report"]:
     now = datetime.datetime.now(pytz.timezone('Asia/Tokyo'))
-    acc = np.mean(summary["last_10"]["accuracy"])
+    acc = np.mean(summary["last_25"]["accuracy"])
     dir = "./summaries/" + now.strftime("%Y%m%d")
     if not pathlib.Path(dir).exists():
       pathlib.Path(dir).mkdir(parents=True)

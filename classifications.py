@@ -245,25 +245,29 @@ def calc_ensemble_accuracy(x, y, p, e_i):
       print(c_mat)
       save_report(acc, report, c_mat, "Last Ensemble")  # models[0][0])
       result["last"] = classification_report(
-          y, pred, output_dict=True, target_names=LABELS)
+          y,
+          pred,
+          output_dict=True,
+          target_names=LABELS
+      )
 
   print("-" * 200)
 
-  last_10_distances = np.array(
+  last_25_distances = np.array(
       [
           distances[i][j]
-          for j in range(np.max([0, CONFIG["epochs"] * CONFIG["repeat"] - 10]), CONFIG["epochs"] * CONFIG["repeat"])
+          for j in range(np.max([0, CONFIG["epochs"] * CONFIG["repeat"] - 25]), CONFIG["epochs"] * CONFIG["repeat"])
           for i in range(CONFIG["num_models"])
       ]
   )
   pred = [
       np.argmin(
           np.sum(
-              last_10_distances[:, i],
+              last_25_distances[:, i],
               axis=0
           )
       )
-      for i in range(last_10_distances.shape[1])
+      for i in range(last_25_distances.shape[1])
   ]
   acc = accuracy_score(y, pred)
   print("Last 10 Ensemble Accuracy:\t" + "{:.07f}".format(acc))
@@ -271,9 +275,13 @@ def calc_ensemble_accuracy(x, y, p, e_i):
   print(report)
   c_mat = confusion_matrix(y, pred)
   print(c_mat)
-  save_report(acc, report, c_mat, "Last 10 Ensemble")  # models[0][0])
-  result["last_10"] = classification_report(
-      y, pred, output_dict=True, target_names=LABELS)
+  save_report(acc, report, c_mat, "Last 25 Ensemble")  # models[0][0])
+  result["last_25"] = classification_report(
+      y,
+      pred,
+      output_dict=True,
+      target_names=LABELS
+  )
 
   print("-" * 200)
 
