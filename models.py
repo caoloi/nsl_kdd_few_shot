@@ -90,7 +90,7 @@ def build_fsl_cnn(inputs):
   x = __pool_block(x)
   # x = __se_block(x, 36)
 
-  x = __conv_block(x, 121)
+  x = __conv_block(x, CONFIG["output_dim"])
   # x = __se_block(x, 108)
 
   x = Flatten()(x)
