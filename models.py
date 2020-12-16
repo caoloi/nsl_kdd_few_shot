@@ -110,7 +110,7 @@ def build_fsl_cnn(inputs):
 
 def __conv_block(inputs, channels):
   x = Conv2D(channels, 3, strides=1, padding="same")(inputs)
-  # x = Conv2D(channels, 3, strides=1, padding="same")(x)
+  x = Conv2D(channels, 3, strides=1, padding="same")(x)
   # x = Conv2D(channels, 3, strides=1, padding="same")(x)
   # x = Conv2D(channels, 3, strides=1, padding="same")(x)
   return x
