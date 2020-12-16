@@ -270,7 +270,7 @@ def calc_ensemble_accuracy(x, y, p, e_i):
       for i in range(last_25_distances.shape[1])
   ]
   acc = accuracy_score(y, pred)
-  print("Last 10 Ensemble Accuracy:\t" + "{:.07f}".format(acc))
+  print("Last 25 Ensemble Accuracy:\t" + "{:.07f}".format(acc))
   report = classification_report(y, pred, target_names=LABELS)
   print(report)
   c_mat = confusion_matrix(y, pred)
