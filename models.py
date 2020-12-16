@@ -94,7 +94,7 @@ def build_fsl_cnn(inputs):
   # x = __se_block(x, 108)
 
   x = Flatten()(x)
-  # x = Activation("sigmoid")(x)
+  x = Activation("sigmoid")(x)
   # x = Activation("tanh")(x)
   # x = Activation("softsign")(x)
   # x = Dense(121)(x)
