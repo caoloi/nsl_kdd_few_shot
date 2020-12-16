@@ -17,6 +17,7 @@ from keras.layers import (
     Concatenate,
     Reshape,
     BatchNormalization,
+    Activation,
 )
 
 from constants import CONFIG
@@ -93,15 +94,18 @@ def build_fsl_cnn(inputs):
   # x = __se_block(x, 108)
 
   x = Flatten()(x)
+  # x = Activation("sigmoid")(x)
+  # x = Activation("tanh")(x)
+  # x = Activation("softsign")(x)
   # x = Dense(121)(x)
 
-  x_in = Flatten()(inputs)
-  x = Add()(
-      [
-          x,
-          x_in
-      ]
-  )
+  # x_in = Flatten()(inputs)
+  # x = Add()(
+  #     [
+  #         x,
+  #         x_in
+  #     ]
+  # )
 
   # x = Dense(CONFIG["output_dim"])(x)
 
