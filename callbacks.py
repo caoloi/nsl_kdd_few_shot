@@ -43,46 +43,45 @@ class Histories(keras.callbacks.Callback):
         self.y_support,
         self.model,
     )
-    pred = np.argmin(d_list, axis=1)
-    acc = accuracy_score(self.y_test, pred)
-    # print(acc)
-    print(
-        "Epoch: " + str(epoch + 1 + self.j * CONFIG["epochs"])
-        + "/" + str(CONFIG["epochs"] * CONFIG["repeat"])
-        + "\tModel: " + str(self.index + 1) + "/" + str(CONFIG["num_models"])
-        # + "(" + str(self.j + 1) + ")"
-        # + "\tTrain Accuracy: " + "|  " * self.index + "{:.07f}".format(train_acc) + "|  " * (CONFIG["num_models"] - self.index - 1)
-        + "\tTest Accuracy: " + "|  " * self.index
-        + "{:.07f}".format(acc) + "|  "
-        * (CONFIG["num_models"] - self.index - 1)
-        + "\t\tLoss: " + "|  " * self.index
-        + "{:.07f}".format(logs["loss"]) + "|  "
-        * (CONFIG["num_models"] - self.index - 1)
-    )
-    # if self.index == 0:
-    if False:
-      plt.ion()
-      plt.clf()
-      cmp = plt.get_cmap("jet", CONFIG["num_classes"])
-      # plt.figure(figsize=(8, 8))
-      for i in range(CONFIG["num_classes"]):
-        output = self.model.predict(self.x_test)
-        plt.scatter(output[self.y_test == i, 0],
-                    output[self.y_test == i, 1], color=cmp(i), marker=f"${i}$")
-      plt.title(
-          "Model: " + str(self.index + 1) + "/" +
-          str(CONFIG["num_models"]) + ", "
-          + "Epoch: " + str(epoch + 1) + "/" + str(CONFIG["epochs"]) + ", "
-          + "Accuracy: " + "{:.02f}".format(acc * 100)
+    if (epoch + 1) % 10 == 0:
+      pred = np.argmin(d_list, axis=1)
+      acc = accuracy_score(self.y_test, pred)
+      # print(acc)
+      print(
+          "Epoch: " + str(epoch + 1 + self.j * CONFIG["epochs"])
+          + "/" + str(CONFIG["epochs"] * CONFIG["repeat"])
+          + "\tModel: " + str(self.index + 1) + "/" + str(CONFIG["num_models"])
+          # + "(" + str(self.j + 1) + ")"
+          # + "\tTrain Accuracy: " + "|  " * self.index + "{:.07f}".format(train_acc) + "|  " * (CONFIG["num_models"] - self.index - 1)
+          + "\tTest Accuracy: " + "|  " * self.index
+          + "{:.07f}".format(acc) + "|  "
+          * (CONFIG["num_models"] - self.index - 1)
+          + "\t\tLoss: " + "|  " * self.index
+          + "{:.07f}".format(logs["loss"]) + "|  "
+          * (CONFIG["num_models"] - self.index - 1)
       )
-      plt.draw()
-      plt.pause(0.001)
-    # if acc >= 0.96:  # or epoch == CONFIG["epochs"] - 1:
-    #   report = classification_report(self.y_test, pred, target_names=LABELS)
-    #   c_mat = confusion_matrix(self.y_test, pred)
-    #   save_report(acc, report, c_mat, "Epoch: " + str(epoch), self.model)
-
-    # print("=========")
+      # if self.index == 0:
+      if False:
+        plt.ion()
+        plt.clf()
+        cmp = plt.get_cmap("jet", CONFIG["num_classes"])
+        # plt.figure(figsize=(8, 8))
+        for i in range(CONFIG["num_classes"]):
+          output = self.model.predict(self.x_test)
+          plt.scatter(output[self.y_test == i, 0],
+                      output[self.y_test == i, 1], color=cmp(i), marker=f"${i}$")
+        plt.title(
+            "Model: " + str(self.index + 1) + "/" +
+            str(CONFIG["num_models"]) + ", "
+            + "Epoch: " + str(epoch + 1) + "/" + str(CONFIG["epochs"]) + ", "
+            + "Accuracy: " + "{:.02f}".format(acc * 100)
+        )
+        plt.draw()
+        plt.pause(0.001)
+      # if acc >= 0.96:  # or epoch == CONFIG["epochs"] - 1:
+      #   report = classification_report(self.y_test, pred, target_names=LABELS)
+      #   c_mat = confusion_matrix(self.y_test, pred)
+      #   save_report(acc, report, c_mat, "Epoch: " + str(epoch), self.model)
 
     file_name = "./temp/model_" + str(
         self.index

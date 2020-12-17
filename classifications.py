@@ -243,7 +243,7 @@ def calc_ensemble_accuracy(x, y, p, e_i):
       print(report)
       c_mat = confusion_matrix(y, pred)
       print(c_mat)
-      save_report(acc, report, c_mat, "Last Ensemble")  # models[0][0])
+      # save_report(acc, report, c_mat, "Last Ensemble")  # models[0][0])
       result["last"] = classification_report(
           y,
           pred,
@@ -307,7 +307,7 @@ def calc_ensemble_accuracy(x, y, p, e_i):
   print(report)
   c_mat = confusion_matrix(y, pred)
   print(c_mat)
-  save_report(acc, report, c_mat, "All Ensemble")  # models[0][0])
+  # save_report(acc, report, c_mat, "All Ensemble")  # models[0][0])
   result["all"] = classification_report(
       y, pred, output_dict=True, target_names=LABELS)
 
