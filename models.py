@@ -1,4 +1,4 @@
-from keras import backend as K
+from keras import initializers
 from keras.layers import (
     Add,
     Dropout,
@@ -22,6 +22,7 @@ from keras.layers import (
 
 from constants import CONFIG
 
+
 def build_fsl_dnn(inputs):
   x = Dense(121)(inputs)
   # x = Dense(242)(x)
@@ -31,6 +32,7 @@ def build_fsl_dnn(inputs):
   x = Dense(121, activation="softmax")(x)
 
   return x
+
 
 def __build_fsl_cnn(inputs):
   x = Reshape((121, 1))(inputs)
@@ -113,10 +115,20 @@ def build_fsl_cnn(inputs):
 
 
 def __conv_block(inputs, channels):
-  x = Conv2D(channels, 3, strides=1, padding="same")(inputs)
-  x = Conv2D(channels, 3, strides=1, padding="same")(x)
-  # x = Conv2D(channels, 3, strides=1, padding="same")(x)
-  # x = Conv2D(channels, 3, strides=1, padding="same")(x)
+  x = Conv2D(
+      channels,
+      3,
+      strides=1,
+      padding="same",
+      kernel_initializer="he_uniform"
+  )(inputs)
+  x = Conv2D(
+      channels,
+      3,
+      strides=1,
+      padding="same",
+      kernel_initializer="he_uniform"
+  )(x)
   return x
 
 
