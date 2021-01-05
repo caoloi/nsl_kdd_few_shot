@@ -253,30 +253,30 @@ def calc_ensemble_accuracy(x, y, p, e_i):
 
   print("-" * 200)
 
-  last_25_distances = np.array(
+  last_10_distances = np.array(
       [
           distances[i][j]
-          for j in range(np.max([0, CONFIG["epochs"] * CONFIG["repeat"] - 25]), CONFIG["epochs"] * CONFIG["repeat"])
+          for j in range(np.max([0, CONFIG["epochs"] * CONFIG["repeat"] - 10]), CONFIG["epochs"] * CONFIG["repeat"])
           for i in range(CONFIG["num_models"])
       ]
   )
   pred = [
       np.argmin(
           np.sum(
-              last_25_distances[:, i],
+              last_10_distances[:, i],
               axis=0
           )
       )
-      for i in range(last_25_distances.shape[1])
+      for i in range(last_10_distances.shape[1])
   ]
   acc = accuracy_score(y, pred)
-  print("Last 25 Ensemble Accuracy:\t" + "{:.07f}".format(acc))
+  print("Last 10 Ensemble Accuracy:\t" + "{:.07f}".format(acc))
   report = classification_report(y, pred, target_names=LABELS)
   print(report)
   c_mat = confusion_matrix(y, pred)
   print(c_mat)
-  save_report(acc, report, c_mat, "Last 25 Ensemble")  # models[0][0])
-  result["last_25"] = classification_report(
+  save_report(acc, report, c_mat, "Last 10 Ensemble")  # models[0][0])
+  result["last_10"] = classification_report(
       y,
       pred,
       output_dict=True,
@@ -311,11 +311,13 @@ def calc_ensemble_accuracy(x, y, p, e_i):
   result["all"] = classification_report(
       y, pred, output_dict=True, target_names=LABELS)
 
+  cm = plt.get_cmap("jet", CONFIG["num_models"] + 1)
+
   plt.figure(figsize=(12, 8))
   x = list(range(1, CONFIG["epochs"] * CONFIG["repeat"] + 1))
   for i in range(CONFIG["num_models"]):
-    plt.plot(x, acc_list[i], label="Model %s" % (i + 1))
-  plt.plot(x, ensemble_acc_list, label="Ensemble")
+    plt.plot(x, acc_list[i], label="Model %s" % (i + 1), c=cm(i))
+  plt.plot(x, ensemble_acc_list, label="Ensemble", c=cm(CONFIG["num_models"]))
   plt.xlabel("Epoch")
   plt.xlim(0, CONFIG["epochs"] * CONFIG["repeat"])
   plt.xticks(
@@ -342,7 +344,7 @@ def calc_ensemble_accuracy(x, y, p, e_i):
   plt.figure(figsize=(12, 8))
   x = list(range(1, CONFIG["epochs"] * CONFIG["repeat"] + 1))
   for i in range(CONFIG["num_models"]):
-    plt.plot(x, losses[i], label="Model %s" % (i + 1))
+    plt.plot(x, losses[i], label="Model %s" % (i + 1), c=cm(i))
   plt.xlabel("Epoch")
   plt.xlim(0, CONFIG["epochs"] * CONFIG["repeat"])
   plt.xticks(

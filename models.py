@@ -120,14 +120,15 @@ def __conv_block(inputs, channels):
       3,
       strides=1,
       padding="same",
-      kernel_initializer="he_uniform"
+      kernel_initializer="he_uniform",
   )(inputs)
   x = Conv2D(
       channels,
       3,
       strides=1,
       padding="same",
-      kernel_initializer="he_uniform"
+      # kernel_initializer="glorot_uniform",
+      kernel_initializer="he_normal",
   )(x)
   return x
 

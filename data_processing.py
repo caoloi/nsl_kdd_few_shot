@@ -24,7 +24,7 @@ def data_processing(index=None):
   if index is not None:
     print("Load Dataset " + str(index + 1) + "/" + str(CONFIG["num_models"]))
 
-  x_train, x_support, x_test, y_train, y_support, y_test = __load_data()
+  x_train, x_support, x_test, y_train, y_support, y_test = __load_data(index)
 
   if image_data_format() == "channels_first" and CONFIG["model_type"] == "cnn":
     x_train = x_train.reshape(
@@ -122,11 +122,11 @@ def t_sne_data_processing():
   return x_train, x_support, x_test, y_train, y_support, y_test
 
 
-def __load_data():
+def __load_data(index):
   if CONFIG["dataset"] == "kdd":
-    x_train, x_support, x_test, y_train, y_support, y_test = __kdd_encoding()
+    x_train, x_support, x_test, y_train, y_support, y_test = __kdd_encoding(index)
   else:
-    x_train, x_support, x_test, y_train, y_support, y_test = __kdd_encoding()
+    x_train, x_support, x_test, y_train, y_support, y_test = __kdd_encoding(index)
 
   return x_train, x_support, x_test, y_train, y_support, y_test
 
@@ -162,7 +162,7 @@ def __load_kdd_dataset():
   return train_df, test_df
 
 
-def __kdd_encoding():
+def __kdd_encoding(index):
   train_df, test_df = __load_kdd_dataset()
 
   train_df, test_df = __numerical_processing(train_df, test_df)
@@ -170,11 +170,13 @@ def __kdd_encoding():
   # train_df = __smote_processing(train_df)
   train_df = __resample_processing(
       train_df,
+      index,
       balanced=True,
   )
   x_train, y_train = __label_to_num_processing(train_df)
   support_df = __resample_processing(
       test_df,
+      index,
       balanced=True,
       type="test",
   )
@@ -187,6 +189,7 @@ def __kdd_encoding():
 
   test_df = __resample_processing(
       test_df,
+      index,
       balanced=False,
   )
   x_test, y_test = __label_to_num_processing(test_df)
@@ -297,7 +300,13 @@ def __column_processing(df):
   return df
 
 
-def __resample_processing(df, balanced, type="train"):
+def __resample_processing(df, index, balanced, type="train"):
+  if index is None or type == "test":
+    index = 1
+  else:
+    # index = index % 3 + 1
+    index = 1
+
   if balanced:
     df_per_category = {}
     for label in ENTRY_TYPE:
@@ -340,8 +349,8 @@ def __resample_processing(df, balanced, type="train"):
           # print(len(temp_df))
           temp_df = df_per_category[label]
           samples = temp_df.sample(
-              n=SAMPLE_NUM_PER_LABEL[label][type],
-              replace=SAMPLE_NUM_PER_LABEL[label][type] > len(
+              n=index * SAMPLE_NUM_PER_LABEL[label][type],
+              replace=index * SAMPLE_NUM_PER_LABEL[label][type] > len(
                   temp_df
               )
           )

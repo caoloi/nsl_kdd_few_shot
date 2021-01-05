@@ -184,7 +184,7 @@ def print_summary(summary, f=sys.stdout):
 def save_summary(summary):
   if CONFIG["save_report"]:
     now = datetime.datetime.now(pytz.timezone('Asia/Tokyo'))
-    acc = np.mean(summary["last_25"]["accuracy"])
+    acc = np.mean(summary["last_10"]["accuracy"])
     dir = "./summaries/" + now.strftime("%Y%m%d")
     if not pathlib.Path(dir).exists():
       pathlib.Path(dir).mkdir(parents=True)
@@ -222,7 +222,10 @@ def train_and_create_result(p, e_i):
       x_train, _, _, y_train, _, _, y_train_value, _, _, _ = datasets[i]
       support_ids = np.random.permutation(x_support.shape[0])
       # support_ids = np.random.choice(support_ids, CONFIG["support_rate"])
-      support_ids = np.tile(support_ids, CONFIG["support_rate"] // len(x_support))  
+      support_ids = np.tile(
+          support_ids,
+          (CONFIG["support_rate"] // len(x_support)) * int(i / 1 + 1)
+      )
       random_x_support = x_support[support_ids]
       random_y_support = y_support[support_ids]
       random_y_support_value = y_support_value[support_ids]
