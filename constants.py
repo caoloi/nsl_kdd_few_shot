@@ -339,7 +339,7 @@ SERVICE_VALUES = [
     "tftp_u",
     "tim_i",
     "red_i",
-    "icmp",
+    # "icmp",
     "http_2784",
     "harvest",
     "aol",
@@ -386,73 +386,73 @@ BASE_COLUMNS = [
     "duration",  # 0
     "tcp",  # 1 PROTOCOL
     "udp",  # 2 PROTOCOL
-    "http",  # 3 SERVICE
-    "smtp",  # 4 SERVICE
-    "finger",  # 5 SERVICE
-    "domain_u",  # 6 SERVICE
-    "auth",  # 7 SERVICE
-    "telnet",  # 8 SERVICE
-    "ftp",  # 9 SERVICE
-    "eco_i",  # 10 SERVICE
-    "ntp_u",  # 11 SERVICE
-    "ecr_i",  # 12 SERVICE
-    "other",  # 13 SERVICE
-    "private",  # 14 SERVICE
-    "pop_3",  # 15 SERVICE
-    "ftp_data",  # 16 SERVICE
-    "rje",  # 17 SERVICE
-    "time",  # 18 SERVICE
-    "mtp",  # 19 SERVICE
-    "link",  # 20 SERVICE
-    "remote_job",  # 21 SERVICE
-    "gopher",  # 22 SERVICE
-    "ssh",  # 23 SERVICE
-    "name",  # 24 SERVICE
-    "whois",  # 25 SERVICE
-    "domain",  # 26 SERVICE
-    "login",  # 27 SERVICE
-    "imap4",  # 28 SERVICE
-    "daytime",  # 29 SERVICE
-    "ctf",  # 30 SERVICE
-    "nntp",  # 31 SERVICE
-    "shell",  # 32 SERVICE
-    "IRC",  # 33 SERVICE
-    "nnsp",  # 34 SERVICE
-    "http_443",  # 35 SERVICE
-    "exec",  # 36 SERVICE
-    "printer",  # 37 SERVICE
-    "efs",  # 38 SERVICE
-    "courier",  # 39 SERVICE
-    "uucp",  # 40 SERVICE
-    "klogin",  # 41 SERVICE
-    "kshell",  # 42 SERVICE
-    "echo",  # 43 SERVICE
-    "discard",  # 44 SERVICE
-    "systat",  # 45 SERVICE
-    "supdup",  # 46 SERVICE
-    "iso_tsap",  # 47 SERVICE
-    "hostnames",  # 48 SERVICE
-    "csnet_ns",  # 49 SERVICE
-    "pop_2",  # 50 SERVICE
-    "sunrpc",  # 51 SERVICE
-    "uucp_path",  # 52 SERVICE
-    "netbios_ns",  # 53 SERVICE
-    "netbios_ssn",  # 54 SERVICE
-    "netbios_dgm",  # 55 SERVICE
-    "sql_net",  # 56 SERVICE
-    "vmnet",  # 57 SERVICE
-    "bgp",  # 58 SERVICE
-    "Z39_50",  # 59 SERVICE
-    "ldap",  # 60 SERVICE
-    "netstat",  # 61 SERVICE
-    "urh_i",  # 62 SERVICE
-    "X11",  # 63 SERVICE
-    "urp_i",  # 64 SERVICE
-    "pm_dump",  # 65 SERVICE
-    "tftp_u",  # 66 SERVICE
-    "tim_i",  # 67 SERVICE
-    "red_i",  # 68 SERVICE
-    "icmp",  # 69 SERVICE
+    "icmp",  # 3 PROTOCOL
+    "http",  # 4 SERVICE
+    "smtp",  # 5 SERVICE
+    "finger",  # 6 SERVICE
+    "domain_u",  # 7 SERVICE
+    "auth",  # 8 SERVICE
+    "telnet",  # 9 SERVICE
+    "ftp",  # 10 SERVICE
+    "eco_i",  # 11 SERVICE
+    "ntp_u",  # 12 SERVICE
+    "ecr_i",  # 13 SERVICE
+    "other",  # 14 SERVICE
+    "private",  # 15 SERVICE
+    "pop_3",  # 16 SERVICE
+    "ftp_data",  # 17 SERVICE
+    "rje",  # 18 SERVICE
+    "time",  # 19 SERVICE
+    "mtp",  # 20 SERVICE
+    "link",  # 21 SERVICE
+    "remote_job",  # 22 SERVICE
+    "gopher",  # 23 SERVICE
+    "ssh",  # 24 SERVICE
+    "name",  # 25 SERVICE
+    "whois",  # 26 SERVICE
+    "domain",  # 27 SERVICE
+    "login",  # 28 SERVICE
+    "imap4",  # 29 SERVICE
+    "daytime",  # 30 SERVICE
+    "ctf",  # 31 SERVICE
+    "nntp",  # 32 SERVICE
+    "shell",  # 33 SERVICE
+    "IRC",  # 34 SERVICE
+    "nnsp",  # 35 SERVICE
+    "http_443",  # 36 SERVICE
+    "exec",  # 37 SERVICE
+    "printer",  # 38 SERVICE
+    "efs",  # 39 SERVICE
+    "courier",  # 40 SERVICE
+    "uucp",  # 41 SERVICE
+    "klogin",  # 42 SERVICE
+    "kshell",  # 43 SERVICE
+    "echo",  # 44 SERVICE
+    "discard",  # 45 SERVICE
+    "systat",  # 46 SERVICE
+    "supdup",  # 47 SERVICE
+    "iso_tsap",  # 48 SERVICE
+    "hostnames",  # 49 SERVICE
+    "csnet_ns",  # 50 SERVICE
+    "pop_2",  # 51 SERVICE
+    "sunrpc",  # 52 SERVICE
+    "uucp_path",  # 53 SERVICE
+    "netbios_ns",  # 54 SERVICE
+    "netbios_ssn",  # 55 SERVICE
+    "netbios_dgm",  # 56 SERVICE
+    "sql_net",  # 57 SERVICE
+    "vmnet",  # 58 SERVICE
+    "bgp",  # 59 SERVICE
+    "Z39_50",  # 60 SERVICE
+    "ldap",  # 61 SERVICE
+    "netstat",  # 62 SERVICE
+    "urh_i",  # 63 SERVICE
+    "X11",  # 64 SERVICE
+    "urp_i",  # 65 SERVICE
+    "pm_dump",  # 66 SERVICE
+    "tftp_u",  # 67 SERVICE
+    "tim_i",  # 68 SERVICE
+    "red_i",  # 69 SERVICE
     "http_2784",  # 70 SERVICE
     "harvest",  # 71 SERVICE
     "aol",  # 72 SERVICE
