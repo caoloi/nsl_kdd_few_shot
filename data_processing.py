@@ -234,31 +234,11 @@ def __numerical_processing(train_df, test_df):
       train_df[c] = train_df[c].astype(float)
       test_df[c] = test_df[c].astype(float)
 
-      # if train_df[c].max() >= 100:
-      #   print(
-      #       c,
-      #       train_df[c].min(),
-      #       train_df[c].max(),
-      #       test_df[c].min(),
-      #       test_df[c].max()
-      #   )
-
-      if c in [
-          "duration",
-          "src_bytes",
-          "dst_bytes",
-          "num_compromised",
-          "num_root",
-          "count",
-          "srv_count",
-          "dst_host_count",
-          "dst_host_srv_count",
-      ]:
-        # x = log(x + 1)
-        if train_df[c].min() != train_df[c].max():
-          train_df[c] = np.log(train_df[c] + 1)
-        if test_df[c].min() != test_df[c].max():
-          test_df[c] = np.log(test_df[c] + 1)
+      # x = log(x + 1)
+      if train_df[c].min() != train_df[c].max():
+        train_df[c] = np.log(train_df[c] + 1)
+      if test_df[c].min() != test_df[c].max():
+        test_df[c] = np.log(test_df[c] + 1)
 
       # boxcox
       # if train_df[c].min() != train_df[c].max():
