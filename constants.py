@@ -1,10 +1,10 @@
 # REFERENCES PARAMETERS
 CONFIG = {
     "epochs": 200,
-    "batch_size": 32,
+    "batch_size": 50,
     "num_classes": 5,
     # "num_models": 1,
-    "num_models": 8,
+    "num_models": 12,
     "dataset": "kdd",
     "train_data": "train+",
     "img_rows": 11,
@@ -18,7 +18,7 @@ CONFIG = {
     "shuffle": True,
     "save_report": True,
     "repeat": 1,
-    "epsilon": 1e-03,
+    "epsilon": 1e-04,
     "floatx": "float32",
 }
 
