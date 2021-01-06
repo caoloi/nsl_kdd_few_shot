@@ -1,0 +1,36 @@
+20210106_171342
+Summary
+CONFIG:
+{'epochs': 200, 'batch_size': 50, 'num_classes': 5, 'num_models': 12, 'dataset': 'kdd', 'train_data': 'train+', 'img_rows': 11, 'img_cols': 11, 'output_dim': 121, 'num_process': 4, 'smote_rate': 1, 'model_type': 'cnn', 'support_rate': 100, 'experiment_count': 10, 'shuffle': True, 'save_report': True, 'repeat': 1, 'epsilon': 0.0001, 'floatx': 'float32'}
+SAMPLE_NUM_PER_LABEL:
+{'normal.': {'train': 267, 'test': 27}, 'ipsweep.': {'train': 58, 'test': 3}, 'nmap.': {'train': 52, 'test': 3}, 'portsweep.': {'train': 56, 'test': 3}, 'satan.': {'train': 58, 'test': 4}, 'saint.': {'train': 0, 'test': 4}, 'mscan.': {'train': 0, 'test': 4}, 'back.': {'train': 43, 'test': 3}, 'land.': {'train': 18, 'test': 1}, 'neptune.': {'train': 67, 'test': 4}, 'pod.': {'train': 33, 'test': 2}, 'smurf.': {'train': 50, 'test': 3}, 'teardrop.': {'train': 43, 'test': 1}, 'apache2.': {'train': 0, 'test': 3}, 'udpstorm.': {'train': 0, 'test': 0}, 'processtable.': {'train': 0, 'test': 3}, 'mailbomb.': {'train': 0, 'test': 3}, 'buffer_overflow.': {'train': 34, 'test': 2}, 'loadmodule.': {'train': 23, 'test': 0}, 'perl.': {'train': 13, 'test': 0}, 'rootkit.': {'train': 24, 'test': 2}, 'xterm.': {'train': 0, 'test': 2}, 'ps.': {'train': 0, 'test': 2}, 'sqlattack.': {'train': 0, 'test': 0}, 'httptunnel.': {'train': 0, 'test': 4}, 'ftp_write.': {'train': 15, 'test': 0}, 'guess_passwd.': {'train': 28, 'test': 4}, 'imap.': {'train': 17, 'test': 0}, 'multihop.': {'train': 14, 'test': 1}, 'phf.': {'train': 11, 'test': 0}, 'spy.': {'train': 7, 'test': 0}, 'warezclient.': {'train': 48, 'test': 0}, 'warezmaster.': {'train': 21, 'test': 3}, 'snmpgetattack.': {'train': 0, 'test': 3}, 'named.': {'train': 0, 'test': 1}, 'xlock.': {'train': 0, 'test': 1}, 'xsnoop.': {'train': 0, 'test': 0}, 'sendmail.': {'train': 0, 'test': 1}, 'worm.': {'train': 0, 'test': 0}, 'snmpguess.': {'train': 0, 'test': 3}}
+last
+	normal		precision: 0.9772 ± 0.0075 min: 0.9647 max: 0.9886		recall: 0.9271 ± 0.0179 min: 0.8754 max: 0.9417		f1-score: 0.9514 ± 0.0115 min: 0.9187 max: 0.9607
+	probe		precision: 0.8787 ± 0.0473 min: 0.7413 max: 0.9199		recall: 0.7717 ± 0.0491 min: 0.7051 max: 0.8496		f1-score: 0.8203 ± 0.0360 min: 0.7552 max: 0.8729
+	dos		precision: 0.9193 ± 0.0124 min: 0.9016 max: 0.9393		recall: 0.9729 ± 0.0107 min: 0.9560 max: 0.9863		f1-score: 0.9452 ± 0.0074 min: 0.9341 max: 0.9567
+	u2r		precision: 0.5158 ± 0.0747 min: 0.3760 max: 0.6043		recall: 0.8990 ± 0.0369 min: 0.8300 max: 0.9550		f1-score: 0.6509 ± 0.0597 min: 0.5395 max: 0.7093
+	r2l		precision: 0.8558 ± 0.0277 min: 0.8113 max: 0.8972		recall: 0.9138 ± 0.0220 min: 0.8627 max: 0.9354		f1-score: 0.8834 ± 0.0148 min: 0.8587 max: 0.9047
+	accuracy		0.9237 ± 0.0099 min: 0.8995 max: 0.9367
+	macro avg		precision: 0.8293 ± 0.0215 min: 0.7763 max: 0.8512		recall: 0.8969 ± 0.0138 min: 0.8790 max: 0.9178		f1-score: 0.8502 ± 0.0179 min: 0.8089 max: 0.8725
+	weighted avg		precision: 0.9285 ± 0.0087 min: 0.9089 max: 0.9404		recall: 0.9237 ± 0.0099 min: 0.8995 max: 0.9367		f1-score: 0.9243 ± 0.0097 min: 0.9019 max: 0.9375
+
+last_10
+	normal		precision: 0.9777 ± 0.0069 min: 0.9658 max: 0.9885		recall: 0.9270 ± 0.0174 min: 0.8761 max: 0.9398		f1-score: 0.9516 ± 0.0114 min: 0.9188 max: 0.9601
+	probe		precision: 0.8790 ± 0.0470 min: 0.7427 max: 0.9189		recall: 0.7706 ± 0.0488 min: 0.6997 max: 0.8443		f1-score: 0.8199 ± 0.0362 min: 0.7557 max: 0.8700
+	dos		precision: 0.9199 ± 0.0126 min: 0.8999 max: 0.9406		recall: 0.9730 ± 0.0107 min: 0.9574 max: 0.9882		f1-score: 0.9456 ± 0.0076 min: 0.9341 max: 0.9562
+	u2r		precision: 0.5170 ± 0.0733 min: 0.3810 max: 0.6176		recall: 0.8970 ± 0.0378 min: 0.8300 max: 0.9600		f1-score: 0.6515 ± 0.0578 min: 0.5455 max: 0.7119
+	r2l		precision: 0.8537 ± 0.0322 min: 0.8006 max: 0.8977		recall: 0.9162 ± 0.0191 min: 0.8747 max: 0.9346		f1-score: 0.8833 ± 0.0157 min: 0.8616 max: 0.9049
+	accuracy		0.9238 ± 0.0099 min: 0.9001 max: 0.9368
+	macro avg		precision: 0.8295 ± 0.0211 min: 0.7787 max: 0.8508		recall: 0.8968 ± 0.0137 min: 0.8785 max: 0.9169		f1-score: 0.8504 ± 0.0175 min: 0.8113 max: 0.8743
+	weighted avg		precision: 0.9287 ± 0.0088 min: 0.9089 max: 0.9402		recall: 0.9238 ± 0.0099 min: 0.9001 max: 0.9368		f1-score: 0.9245 ± 0.0096 min: 0.9023 max: 0.9374
+
+all
+	normal		precision: 0.9814 ± 0.0065 min: 0.9671 max: 0.9888		recall: 0.9218 ± 0.0166 min: 0.8741 max: 0.9338		f1-score: 0.9506 ± 0.0113 min: 0.9182 max: 0.9588
+	probe		precision: 0.8794 ± 0.0437 min: 0.7527 max: 0.9102		recall: 0.7742 ± 0.0454 min: 0.6906 max: 0.8484		f1-score: 0.8224 ± 0.0353 min: 0.7628 max: 0.8746
+	dos		precision: 0.9219 ± 0.0099 min: 0.9038 max: 0.9392		recall: 0.9715 ± 0.0096 min: 0.9552 max: 0.9853		f1-score: 0.9460 ± 0.0069 min: 0.9345 max: 0.9563
+	u2r		precision: 0.4936 ± 0.0753 min: 0.3357 max: 0.5972		recall: 0.9105 ± 0.0270 min: 0.8600 max: 0.9600		f1-score: 0.6354 ± 0.0626 min: 0.4974 max: 0.7049
+	r2l		precision: 0.8419 ± 0.0329 min: 0.7892 max: 0.8834		recall: 0.9292 ± 0.0163 min: 0.8893 max: 0.9481		f1-score: 0.8828 ± 0.0163 min: 0.8575 max: 0.9063
+	accuracy		0.9232 ± 0.0097 min: 0.8992 max: 0.9356
+	macro avg		precision: 0.8236 ± 0.0205 min: 0.7761 max: 0.8472		recall: 0.9014 ± 0.0110 min: 0.8832 max: 0.9173		f1-score: 0.8474 ± 0.0176 min: 0.8088 max: 0.8660
+	weighted avg		precision: 0.9294 ± 0.0085 min: 0.9089 max: 0.9405		recall: 0.9232 ± 0.0097 min: 0.8992 max: 0.9356		f1-score: 0.9242 ± 0.0094 min: 0.9016 max: 0.9367
+
