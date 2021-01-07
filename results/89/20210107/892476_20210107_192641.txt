@@ -1,0 +1,26 @@
+20210107_192641
+Last 10 Ensemble
+CONFIG:
+{'epochs': 200, 'batch_size': 50, 'num_classes': 5, 'num_models': 12, 'dataset': 'kdd', 'train_data': 'train+', 'img_rows': 11, 'img_cols': 11, 'output_dim': 121, 'num_process': 4, 'smote_rate': 1, 'model_type': 'cnn', 'support_rate': 50, 'experiment_count': 10, 'shuffle': True, 'save_report': True, 'repeat': 1, 'epsilon': 0.0001, 'floatx': 'float32'}
+SAMPLE_NUM_PER_LABEL:
+{'normal.': {'train': 94, 'test': 10}, 'ipsweep.': {'train': 71, 'test': 1}, 'nmap.': {'train': 63, 'test': 1}, 'portsweep.': {'train': 69, 'test': 2}, 'satan.': {'train': 71, 'test': 2}, 'saint.': {'train': 0, 'test': 2}, 'mscan.': {'train': 0, 'test': 2}, 'back.': {'train': 59, 'test': 1}, 'land.': {'train': 25, 'test': 0}, 'neptune.': {'train': 92, 'test': 2}, 'pod.': {'train': 46, 'test': 1}, 'smurf.': {'train': 68, 'test': 1}, 'teardrop.': {'train': 59, 'test': 1}, 'apache2.': {'train': 0, 'test': 2}, 'udpstorm.': {'train': 0, 'test': 0}, 'processtable.': {'train': 0, 'test': 1}, 'mailbomb.': {'train': 0, 'test': 1}, 'buffer_overflow.': {'train': 30, 'test': 2}, 'loadmodule.': {'train': 20, 'test': 1}, 'perl.': {'train': 12, 'test': 1}, 'rootkit.': {'train': 21, 'test': 1}, 'xterm.': {'train': 0, 'test': 1}, 'ps.': {'train': 0, 'test': 1}, 'sqlattack.': {'train': 0, 'test': 0}, 'httptunnel.': {'train': 0, 'test': 3}, 'ftp_write.': {'train': 19, 'test': 0}, 'guess_passwd.': {'train': 34, 'test': 2}, 'imap.': {'train': 21, 'test': 0}, 'multihop.': {'train': 18, 'test': 1}, 'phf.': {'train': 14, 'test': 0}, 'spy.': {'train': 9, 'test': 0}, 'warezclient.': {'train': 59, 'test': 0}, 'warezmaster.': {'train': 26, 'test': 2}, 'snmpgetattack.': {'train': 0, 'test': 1}, 'named.': {'train': 0, 'test': 1}, 'xlock.': {'train': 0, 'test': 1}, 'xsnoop.': {'train': 0, 'test': 0}, 'sendmail.': {'train': 0, 'test': 1}, 'worm.': {'train': 0, 'test': 0}, 'snmpguess.': {'train': 0, 'test': 1}}
+Accuracy: 0.8924769339957417
+Classification Report:
+              precision    recall  f1-score   support
+
+      normal       0.98      0.87      0.92      9711
+       probe       0.75      0.81      0.78      2421
+         dos       0.95      0.93      0.94      7458
+         u2r       0.46      0.94      0.62       200
+         r2l       0.72      0.94      0.82      2754
+
+    accuracy                           0.89     22544
+   macro avg       0.77      0.90      0.81     22544
+weighted avg       0.91      0.89      0.90     22544
+
+Confusion Matrix:
+[[8480  631  162   65  373]
+ [   9 1967  226   28  191]
+ [  97   10 6899   20  432]
+ [   2    2    0  187    9]
+ [  53    3    5  106 2587]]
