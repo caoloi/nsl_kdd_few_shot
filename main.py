@@ -10,11 +10,12 @@ else:
   import os
   os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
 
-from constants import CONFIG, SAMPLE_NUM_PER_LABEL
-from classifications import calc_ensemble_accuracy
+from constants import CONFIG, LABELS
+from classifications import calc_ensemble_accuracy, calc_distance, load_distances
 from data_processing import data_processing
 from callbacks import Histories
 from models import build_fsl_cnn, build_fsl_dnn
+from summary import create_summary, print_summary, save_summary
 from losses import center_loss
 from keras import backend as K
 from keras.optimizers import Adam
@@ -22,10 +23,7 @@ from keras.models import Model, load_model
 from keras.layers import Input
 import numpy as np
 from multiprocessing import Pool
-import datetime
-import pytz
-import pathlib
-import sys
+from sklearn.metrics import classification_report, accuracy_score, confusion_matrix
 
 
 def train(args):
@@ -119,87 +117,6 @@ def train(args):
   model.save_weights(file_name)
 
   K.clear_session()
-
-
-def create_summary(results):
-  summary = {}
-
-  for result in results:
-    for type in result:
-      for label in result[type]:
-        if label == "accuracy":
-          if label not in summary[type]:
-            summary[type][label] = []
-          summary[type][label].append(result[type][label])
-        else:
-          for metric in result[type][label]:
-            if metric != "support":
-              if type not in summary:
-                summary[type] = {}
-              if label not in summary[type]:
-                summary[type][label] = {}
-              if metric not in summary[type][label]:
-                summary[type][label][metric] = []
-              summary[type][label][metric].append(result[type][label][metric])
-
-  return summary
-
-
-def print_summary(summary, f=sys.stdout):
-  for type in summary:
-    print(type, file=f)
-    for label in summary[type]:
-      print("\t" + label, end="", file=f)
-      if label == "accuracy":
-        mean = np.mean(summary[type][label])
-        std = np.std(summary[type][label])
-        min = np.min(summary[type][label])
-        max = np.max(summary[type][label])
-        print(
-            "\t\t"
-            + "{:.04f}".format(mean) + " ± " + "{:.04f}".format(std)
-            + " min: " + "{:.04f}".format(min)
-            + " max: " + "{:.04f}".format(max),
-            end="",
-            file=f,
-        )
-      else:
-        for metric in summary[type][label]:
-          mean = np.mean(summary[type][label][metric])
-          std = np.std(summary[type][label][metric])
-          min = np.min(summary[type][label][metric])
-          max = np.max(summary[type][label][metric])
-          print(
-              "\t\t" + metric + ": "
-              + "{:.04f}".format(mean) + " ± " + "{:.04f}".format(std)
-              + " min: " + "{:.04f}".format(min)
-              + " max: " + "{:.04f}".format(max),
-              end="",
-              file=f,
-          )
-      print("", file=f)
-    print("", file=f)
-
-
-def save_summary(summary):
-  if CONFIG["save_report"]:
-    now = datetime.datetime.now(pytz.timezone('Asia/Tokyo'))
-    acc = np.mean(summary["last_10"]["accuracy"])
-    dir = "./summaries/" + now.strftime("%Y%m%d")
-    if not pathlib.Path(dir).exists():
-      pathlib.Path(dir).mkdir(parents=True)
-    file = pathlib.Path(
-        dir + "/" + "{:.04f}".format(acc)[2:6] +
-        "_" + now.strftime("%Y%m%d_%H%M%S.txt")
-    )
-    with file.open(mode="w") as f:
-      print(now.strftime("%Y%m%d_%H%M%S"), file=f)
-      print("Summary", file=f)
-      print("CONFIG:", file=f)
-      print(CONFIG, file=f)
-      print("SAMPLE_NUM_PER_LABEL:", file=f)
-      print(SAMPLE_NUM_PER_LABEL, file=f)
-      print_summary(summary, f)
 
 
 def train_and_create_result(p, e_i):
@@ -297,5 +214,95 @@ def main():
   save_summary(summary)
 
 
+def comparison_dataset():
+  p = Pool(CONFIG["num_process"])
+  results = {
+      "accuracy": [],
+  }
+  for label in LABELS:
+    results[label] = []
+
+  datasets = p.map(data_processing, range(CONFIG["experiment_count"]))
+
+  for i in range(CONFIG["experiment_count"]):
+    print("-" * 200)
+    print(
+        "Experiment "
+        + str(i + 1)
+        + "/"
+        + str(CONFIG["experiment_count"])
+    )
+    _, x_support, x_test, _, y_support, y_test, _, y_support_value, y_test_value, input_shape = datasets[
+        i
+    ]
+    args = []
+    for j in range(CONFIG["experiment_count"]):
+      x_train, _, _, y_train, _, _, y_train_value, _, _, _ = datasets[j]
+      support_ids = np.random.permutation(x_support.shape[0])
+      support_ids = np.tile(
+          support_ids,
+          5,
+      )
+      random_x_support = x_support[support_ids]
+      random_y_support = y_support[support_ids]
+      random_y_support_value = y_support_value[support_ids]
+
+      train_ids = np.random.permutation(x_train.shape[0])
+      random_x_train = x_train[train_ids]
+      random_y_train = y_train[train_ids]
+      random_y_train_value = y_train_value[train_ids]
+
+      x_train = np.vstack((random_x_train, random_x_support))
+      y_train = np.vstack((random_y_train, random_y_support))
+      y_train_value = np.hstack((random_y_train_value, random_y_support_value))
+
+      args.append(
+          [
+              j,
+              0,
+              x_train,
+              x_support,
+              x_test,
+              y_train,
+              y_support,
+              y_test,
+              y_train_value,
+              y_support_value,
+              y_test_value,
+              input_shape,
+          ]
+      )
+    p.map(train, args)
+    distances = np.array(p.map(load_distances, range(CONFIG["experiment_count"])))
+    for distance in distances:
+      pred = np.argmin(distance[-1], axis=1)
+      report = classification_report(
+          y_test_value,
+          pred,
+          output_dict=True,
+          target_names=LABELS
+      )
+      for type in report:
+        if type == "accuracy":
+          results[type].append(report[type])
+        elif type in LABELS:
+          results[type].append(report[type]["recall"])
+
+  for type in results:
+    mean = np.mean(results[type]) * 100
+    std = np.std(results[type]) * 100
+    min = np.min(results[type]) * 100
+    max = np.max(results[type]) * 100
+    print(
+        type
+        + "\t\t"
+        + "{:.02f}".format(mean) + " ± " + "{:.02f}".format(std)
+        + " min: " + "{:.02f}".format(min)
+        + " max: " + "{:.02f}".format(max),
+    )
+  return
+
+
 if __name__ == "__main__":
-  main()
+  # main()
+  comparison_dataset()
