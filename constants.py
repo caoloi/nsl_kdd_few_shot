@@ -7,6 +7,8 @@ CONFIG = {
     "num_models": 12,
     "dataset": "kdd",
     "train_data": "train+",
+    "train_sampling_method": "zero",
+    "test_sampling_method": "f",
     "img_rows": 11,
     "img_cols": 11,
     "output_dim": 121,
@@ -135,27 +137,14 @@ ENTRY_TYPE = {
     ]
 }
 
-__TRAIN_SAMLE_NUM_PER_LABEL = [
-    # (a)
-    537, 28, 11, 23, 29, 0, 0, 7, 0, 329, 1, 21, 7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 0,
-
-    # (b)
-    # 44, 44, 44, 44, 44, 0, 0, 44, 44, 44, 44, 44, 44, 0, 0, 0, 0, 43, 43, 43, 43, 0, 0, 0, 0, 43, 43, 43, 43, 43, 43, 43, 43, 0, 0, 0, 0, 0, 0, 0,
-
-    # (c)
-    # 200, 50, 50, 50, 50, 0, 0, 33, 33, 34, 33, 34, 33, 0, 0, 0, 0, 50, 50, 50, 50, 0, 0, 0, 0, 25, 25, 25, 25, 25, 25, 25, 25, 0, 0, 0, 0, 0, 0, 0,
-
-    # (d)
-    # 96, 71, 63, 69, 71, 0, 0, 59, 25, 92, 46, 68, 59, 0, 0, 0, 0, 29, 20, 12, 20, 0, 0, 0, 0, 19, 34, 21, 18, 14, 9, 59, 26, 0, 0, 0, 0, 0, 0, 0,
-
-    # (e)
-    # 200, 52, 46, 50, 52, 0, 0, 34, 14, 53, 26, 39, 34, 0, 0, 0, 0, 73, 48, 29, 50, 0, 0, 0, 0, 19, 34, 21, 18, 14, 9, 59, 26, 0, 0, 0, 0, 0, 0, 0,
-
-    # (f)
-    # 267, 58, 52, 56, 58, 0, 0, 43, 18, 67, 33, 50, 43, 0, 0, 0, 0, 34, 23, 13, 24, 0, 0, 0, 0, 15, 28, 17, 14, 11, 7, 48, 21, 0, 0, 0, 0, 0, 0, 0,
-
-    # 0
-    # 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+TRAIN_SAMLE_NUM_PER_LABEL = {
+    "a": [537, 28, 11, 23, 29, 0, 0, 7, 0, 329, 1, 21, 7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 0],
+    "b": [44, 44, 44, 44, 44, 0, 0, 44, 44, 44, 44, 44, 44, 0, 0, 0, 0, 43, 43, 43, 43, 0, 0, 0, 0, 43, 43, 43, 43, 43, 43, 43, 43, 0, 0, 0, 0, 0, 0, 0],
+    "c": [200, 50, 50, 50, 50, 0, 0, 33, 33, 34, 33, 34, 33, 0, 0, 0, 0, 50, 50, 50, 50, 0, 0, 0, 0, 25, 25, 25, 25, 25, 25, 25, 25, 0, 0, 0, 0, 0, 0, 0],
+    "d": [96, 71, 63, 69, 71, 0, 0, 59, 25, 92, 46, 68, 59, 0, 0, 0, 0, 29, 20, 12, 20, 0, 0, 0, 0, 19, 34, 21, 18, 14, 9, 59, 26, 0, 0, 0, 0, 0, 0, 0],
+    "e": [200, 52, 46, 50, 52, 0, 0, 34, 14, 53, 26, 39, 34, 0, 0, 0, 0, 73, 48, 29, 50, 0, 0, 0, 0, 19, 34, 21, 18, 14, 9, 59, 26, 0, 0, 0, 0, 0, 0, 0],
+    "f": [267, 58, 52, 56, 58, 0, 0, 43, 18, 67, 33, 50, 43, 0, 0, 0, 0, 34, 23, 13, 24, 0, 0, 0, 0, 15, 28, 17, 14, 11, 7, 48, 21, 0, 0, 0, 0, 0, 0, 0],
+    "zero": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
 
     # only normal
     # 10000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -195,26 +184,15 @@ __TRAIN_SAMLE_NUM_PER_LABEL = [
 
     # 5000 per major label
     # 1000, 258, 231, 252, 259, 0, 0, 170, 73, 263, 131, 195, 168, 0, 0, 0, 0, 360, 242, 146, 252, 0, 0, 0, 0, 94, 171, 107, 89, 69, 47, 292, 131, 0, 0, 0, 0, 0, 0, 0,
-]
+}
 
-__TEST_SAMLE_NUM_PER_LABEL = [
-    # (a)
-    # 47, 0, 0, 0, 3, 1, 4, 1, 0, 23, 0, 3, 0, 3, 0, 3, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 1,
-
-    # (b)
-    # 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 2, 2, 2, 2, 0, 0, 2, 2, 2, 2, 2, 2, 2, 2,
-
-    # (c)
-    # 20, 4, 4, 3, 3, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 2, 2, 1, 1, 1, 1, 1, 1,
-
-    # (d)
-    # 7, 3, 3, 3, 5, 4, 5, 4, 1, 6, 2, 5, 1, 5, 0, 5, 4, 2, 0, 0, 2, 2, 2, 0, 3, 1, 5, 0, 2, 0, 0, 0, 5, 3, 2, 1, 1, 2, 0, 4,
-
-    # (e)
-    # 20, 3, 2, 3, 4, 4, 4, 2, 1, 4, 1, 3, 1, 3, 0, 3, 2, 3, 1, 1, 3, 3, 3, 1, 5, 0, 4, 0, 2, 0, 0, 0, 4, 3, 1, 1, 1, 1, 0, 3,
-
-    # (f)
-    # 27, 3, 3, 3, 4, 4, 4, 3, 1, 4, 2, 3, 1, 3, 0, 3, 3, 2, 0, 0, 2, 2, 2, 0, 4, 0, 4, 0, 1, 0, 0, 0, 3, 3, 1, 1, 0, 1, 0, 3,
+TEST_SAMLE_NUM_PER_LABEL = {
+    "a":[47, 0, 0, 0, 3, 1, 4, 1, 0, 23, 0, 3, 0, 3, 0, 3, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 1],
+    "b":[3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 2, 2, 2, 2, 0, 0, 2, 2, 2, 2, 2, 2, 2, 2],
+    "c":[20, 4, 4, 3, 3, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 2, 2, 1, 1, 1, 1, 1, 1],
+    "d":[7, 3, 3, 3, 5, 4, 5, 4, 1, 6, 2, 5, 1, 5, 0, 5, 4, 2, 0, 0, 2, 2, 2, 0, 3, 1, 5, 0, 2, 0, 0, 0, 5, 3, 2, 1, 1, 2, 0, 4],
+    "e":[20, 3, 2, 3, 4, 4, 4, 2, 1, 4, 1, 3, 1, 3, 0, 3, 2, 3, 1, 1, 3, 3, 3, 1, 5, 0, 4, 0, 2, 0, 0, 0, 4, 3, 1, 1, 1, 1, 0, 3],
+    "f":[27, 3, 3, 3, 4, 4, 4, 3, 1, 4, 2, 3, 1, 3, 0, 3, 3, 2, 0, 0, 2, 2, 2, 0, 4, 0, 4, 0, 1, 0, 0, 0, 3, 3, 1, 1, 0, 1, 0, 3],
 
     # const
     # 20, 4, 0, 4, 4, 4, 4, 4, 0, 4, 0, 4, 0, 4, 0, 4, 0, 4, 0, 0, 4, 4, 4, 0, 4, 0, 4, 0, 4, 0, 0, 0, 4, 4, 0, 0, 0, 0, 0, 4,
@@ -250,7 +228,7 @@ __TEST_SAMLE_NUM_PER_LABEL = [
     # 20, 3, 3, 3, 4, 3, 4, 2, 1, 3, 2, 3, 1, 3, 0, 3, 2, 3, 1, 1, 3, 3, 3, 1, 5, 1, 4, 0, 1, 1, 0, 0, 3, 2, 1, 1, 1, 1, 1, 3,
 
     # 100 log per major and minor
-    27, 3, 3, 3, 4, 4, 4, 3, 1, 4, 2, 3, 1, 3, 0, 3, 3, 2, 0, 0, 2, 2, 2, 0, 4, 0, 4, 0, 1, 0, 0, 0, 3, 3, 1, 1, 0, 1, 0, 3,
+    # 27, 3, 3, 3, 4, 4, 4, 3, 1, 4, 2, 3, 1, 3, 0, 3, 3, 2, 0, 0, 2, 2, 2, 0, 4, 0, 4, 0, 1, 0, 0, 0, 3, 3, 1, 1, 0, 1, 0, 3,
 
     # 200
     # 12, 6, 6, 7, 9, 8, 9, 8, 3, 11, 5, 9, 3, 9, 1, 9, 7, 4, 1, 1, 3, 3, 4, 1, 6, 2, 9, 1, 4, 1, 0, 0, 9, 7, 4, 3, 2, 4, 1, 8,
@@ -260,54 +238,54 @@ __TEST_SAMLE_NUM_PER_LABEL = [
 
     # Full
     # 9711, 141, 73, 157, 735, 319, 996, 359, 7, 4657, 41, 665, 12, 737, 2, 685, 293, 20, 2, 2, 13, 13, 15, 2, 133, 3, 1231, 1, 18, 2, 0, 0, 944, 178, 17, 9, 4, 14, 2, 331
-]
+}
 
 SAMPLE_NUM_PER_LABEL = {
     # normal
-    "normal.": {"train": __TRAIN_SAMLE_NUM_PER_LABEL[0], "test": __TEST_SAMLE_NUM_PER_LABEL[0]},
+    "normal.": {"train": TRAIN_SAMLE_NUM_PER_LABEL[CONFIG["train_sampling_method"]][0], "test": TEST_SAMLE_NUM_PER_LABEL[CONFIG["test_sampling_method"]][0]},
     # probe
-    "ipsweep.": {"train": __TRAIN_SAMLE_NUM_PER_LABEL[1], "test": __TEST_SAMLE_NUM_PER_LABEL[1]},
-    "nmap.": {"train": __TRAIN_SAMLE_NUM_PER_LABEL[2], "test": __TEST_SAMLE_NUM_PER_LABEL[2]},
-    "portsweep.": {"train": __TRAIN_SAMLE_NUM_PER_LABEL[3], "test": __TEST_SAMLE_NUM_PER_LABEL[3]},
-    "satan.": {"train": __TRAIN_SAMLE_NUM_PER_LABEL[4], "test": __TEST_SAMLE_NUM_PER_LABEL[4]},
-    "saint.": {"train": __TRAIN_SAMLE_NUM_PER_LABEL[5], "test": __TEST_SAMLE_NUM_PER_LABEL[5]},
-    "mscan.": {"train": __TRAIN_SAMLE_NUM_PER_LABEL[6], "test": __TEST_SAMLE_NUM_PER_LABEL[6]},
+    "ipsweep.": {"train": TRAIN_SAMLE_NUM_PER_LABEL[CONFIG["train_sampling_method"]][1], "test": TEST_SAMLE_NUM_PER_LABEL[CONFIG["test_sampling_method"]][1]},
+    "nmap.": {"train": TRAIN_SAMLE_NUM_PER_LABEL[CONFIG["train_sampling_method"]][2], "test": TEST_SAMLE_NUM_PER_LABEL[CONFIG["test_sampling_method"]][2]},
+    "portsweep.": {"train": TRAIN_SAMLE_NUM_PER_LABEL[CONFIG["train_sampling_method"]][3], "test": TEST_SAMLE_NUM_PER_LABEL[CONFIG["test_sampling_method"]][3]},
+    "satan.": {"train": TRAIN_SAMLE_NUM_PER_LABEL[CONFIG["train_sampling_method"]][4], "test": TEST_SAMLE_NUM_PER_LABEL[CONFIG["test_sampling_method"]][4]},
+    "saint.": {"train": TRAIN_SAMLE_NUM_PER_LABEL[CONFIG["train_sampling_method"]][5], "test": TEST_SAMLE_NUM_PER_LABEL[CONFIG["test_sampling_method"]][5]},
+    "mscan.": {"train": TRAIN_SAMLE_NUM_PER_LABEL[CONFIG["train_sampling_method"]][6], "test": TEST_SAMLE_NUM_PER_LABEL[CONFIG["test_sampling_method"]][6]},
     # dos
-    "back.": {"train": __TRAIN_SAMLE_NUM_PER_LABEL[7], "test": __TEST_SAMLE_NUM_PER_LABEL[7]},
-    "land.": {"train": __TRAIN_SAMLE_NUM_PER_LABEL[8], "test": __TEST_SAMLE_NUM_PER_LABEL[8]},
-    "neptune.": {"train": __TRAIN_SAMLE_NUM_PER_LABEL[9], "test": __TEST_SAMLE_NUM_PER_LABEL[9]},
-    "pod.": {"train": __TRAIN_SAMLE_NUM_PER_LABEL[10], "test": __TEST_SAMLE_NUM_PER_LABEL[10]},
-    "smurf.": {"train": __TRAIN_SAMLE_NUM_PER_LABEL[11], "test": __TEST_SAMLE_NUM_PER_LABEL[11]},
-    "teardrop.": {"train": __TRAIN_SAMLE_NUM_PER_LABEL[12], "test": __TEST_SAMLE_NUM_PER_LABEL[12]},
-    "apache2.": {"train": __TRAIN_SAMLE_NUM_PER_LABEL[13], "test": __TEST_SAMLE_NUM_PER_LABEL[13]},
-    "udpstorm.": {"train": __TRAIN_SAMLE_NUM_PER_LABEL[14], "test": __TEST_SAMLE_NUM_PER_LABEL[14]},
-    "processtable.": {"train": __TRAIN_SAMLE_NUM_PER_LABEL[15], "test": __TEST_SAMLE_NUM_PER_LABEL[15]},
-    "mailbomb.": {"train": __TRAIN_SAMLE_NUM_PER_LABEL[16], "test": __TEST_SAMLE_NUM_PER_LABEL[16]},
+    "back.": {"train": TRAIN_SAMLE_NUM_PER_LABEL[CONFIG["train_sampling_method"]][7], "test": TEST_SAMLE_NUM_PER_LABEL[CONFIG["test_sampling_method"]][7]},
+    "land.": {"train": TRAIN_SAMLE_NUM_PER_LABEL[CONFIG["train_sampling_method"]][8], "test": TEST_SAMLE_NUM_PER_LABEL[CONFIG["test_sampling_method"]][8]},
+    "neptune.": {"train": TRAIN_SAMLE_NUM_PER_LABEL[CONFIG["train_sampling_method"]][9], "test": TEST_SAMLE_NUM_PER_LABEL[CONFIG["test_sampling_method"]][9]},
+    "pod.": {"train": TRAIN_SAMLE_NUM_PER_LABEL[CONFIG["train_sampling_method"]][10], "test": TEST_SAMLE_NUM_PER_LABEL[CONFIG["test_sampling_method"]][10]},
+    "smurf.": {"train": TRAIN_SAMLE_NUM_PER_LABEL[CONFIG["train_sampling_method"]][11], "test": TEST_SAMLE_NUM_PER_LABEL[CONFIG["test_sampling_method"]][11]},
+    "teardrop.": {"train": TRAIN_SAMLE_NUM_PER_LABEL[CONFIG["train_sampling_method"]][12], "test": TEST_SAMLE_NUM_PER_LABEL[CONFIG["test_sampling_method"]][12]},
+    "apache2.": {"train": TRAIN_SAMLE_NUM_PER_LABEL[CONFIG["train_sampling_method"]][13], "test": TEST_SAMLE_NUM_PER_LABEL[CONFIG["test_sampling_method"]][13]},
+    "udpstorm.": {"train": TRAIN_SAMLE_NUM_PER_LABEL[CONFIG["train_sampling_method"]][14], "test": TEST_SAMLE_NUM_PER_LABEL[CONFIG["test_sampling_method"]][14]},
+    "processtable.": {"train": TRAIN_SAMLE_NUM_PER_LABEL[CONFIG["train_sampling_method"]][15], "test": TEST_SAMLE_NUM_PER_LABEL[CONFIG["test_sampling_method"]][15]},
+    "mailbomb.": {"train": TRAIN_SAMLE_NUM_PER_LABEL[CONFIG["train_sampling_method"]][16], "test": TEST_SAMLE_NUM_PER_LABEL[CONFIG["test_sampling_method"]][16]},
     # u2r
-    "buffer_overflow.": {"train": __TRAIN_SAMLE_NUM_PER_LABEL[17], "test": __TEST_SAMLE_NUM_PER_LABEL[17]},
-    "loadmodule.": {"train": __TRAIN_SAMLE_NUM_PER_LABEL[18], "test": __TEST_SAMLE_NUM_PER_LABEL[18]},
-    "perl.": {"train": __TRAIN_SAMLE_NUM_PER_LABEL[19], "test": __TEST_SAMLE_NUM_PER_LABEL[19]},
-    "rootkit.": {"train": __TRAIN_SAMLE_NUM_PER_LABEL[20], "test": __TEST_SAMLE_NUM_PER_LABEL[20]},
-    "xterm.": {"train": __TRAIN_SAMLE_NUM_PER_LABEL[21], "test": __TEST_SAMLE_NUM_PER_LABEL[21]},
-    "ps.": {"train": __TRAIN_SAMLE_NUM_PER_LABEL[22], "test": __TEST_SAMLE_NUM_PER_LABEL[22]},
-    "sqlattack.": {"train": __TRAIN_SAMLE_NUM_PER_LABEL[23], "test": __TEST_SAMLE_NUM_PER_LABEL[23]},
-    "httptunnel.": {"train": __TRAIN_SAMLE_NUM_PER_LABEL[24], "test": __TEST_SAMLE_NUM_PER_LABEL[24]},
+    "buffer_overflow.": {"train": TRAIN_SAMLE_NUM_PER_LABEL[CONFIG["train_sampling_method"]][17], "test": TEST_SAMLE_NUM_PER_LABEL[CONFIG["test_sampling_method"]][17]},
+    "loadmodule.": {"train": TRAIN_SAMLE_NUM_PER_LABEL[CONFIG["train_sampling_method"]][18], "test": TEST_SAMLE_NUM_PER_LABEL[CONFIG["test_sampling_method"]][18]},
+    "perl.": {"train": TRAIN_SAMLE_NUM_PER_LABEL[CONFIG["train_sampling_method"]][19], "test": TEST_SAMLE_NUM_PER_LABEL[CONFIG["test_sampling_method"]][19]},
+    "rootkit.": {"train": TRAIN_SAMLE_NUM_PER_LABEL[CONFIG["train_sampling_method"]][20], "test": TEST_SAMLE_NUM_PER_LABEL[CONFIG["test_sampling_method"]][20]},
+    "xterm.": {"train": TRAIN_SAMLE_NUM_PER_LABEL[CONFIG["train_sampling_method"]][21], "test": TEST_SAMLE_NUM_PER_LABEL[CONFIG["test_sampling_method"]][21]},
+    "ps.": {"train": TRAIN_SAMLE_NUM_PER_LABEL[CONFIG["train_sampling_method"]][22], "test": TEST_SAMLE_NUM_PER_LABEL[CONFIG["test_sampling_method"]][22]},
+    "sqlattack.": {"train": TRAIN_SAMLE_NUM_PER_LABEL[CONFIG["train_sampling_method"]][23], "test": TEST_SAMLE_NUM_PER_LABEL[CONFIG["test_sampling_method"]][23]},
+    "httptunnel.": {"train": TRAIN_SAMLE_NUM_PER_LABEL[CONFIG["train_sampling_method"]][24], "test": TEST_SAMLE_NUM_PER_LABEL[CONFIG["test_sampling_method"]][24]},
     # r2l
-    "ftp_write.": {"train": __TRAIN_SAMLE_NUM_PER_LABEL[25], "test": __TEST_SAMLE_NUM_PER_LABEL[25]},
-    "guess_passwd.": {"train": __TRAIN_SAMLE_NUM_PER_LABEL[26], "test": __TEST_SAMLE_NUM_PER_LABEL[26]},
-    "imap.": {"train": __TRAIN_SAMLE_NUM_PER_LABEL[27], "test": __TEST_SAMLE_NUM_PER_LABEL[27]},
-    "multihop.": {"train": __TRAIN_SAMLE_NUM_PER_LABEL[28], "test": __TEST_SAMLE_NUM_PER_LABEL[28]},
-    "phf.": {"train": __TRAIN_SAMLE_NUM_PER_LABEL[29], "test": __TEST_SAMLE_NUM_PER_LABEL[29]},
-    "spy.": {"train": __TRAIN_SAMLE_NUM_PER_LABEL[30], "test": __TEST_SAMLE_NUM_PER_LABEL[30]},
-    "warezclient.": {"train": __TRAIN_SAMLE_NUM_PER_LABEL[31], "test": __TEST_SAMLE_NUM_PER_LABEL[31]},
-    "warezmaster.": {"train": __TRAIN_SAMLE_NUM_PER_LABEL[32], "test": __TEST_SAMLE_NUM_PER_LABEL[32]},
-    "snmpgetattack.": {"train": __TRAIN_SAMLE_NUM_PER_LABEL[33], "test": __TEST_SAMLE_NUM_PER_LABEL[33]},
-    "named.": {"train": __TRAIN_SAMLE_NUM_PER_LABEL[34], "test": __TEST_SAMLE_NUM_PER_LABEL[34]},
-    "xlock.": {"train": __TRAIN_SAMLE_NUM_PER_LABEL[35], "test": __TEST_SAMLE_NUM_PER_LABEL[35]},
-    "xsnoop.": {"train": __TRAIN_SAMLE_NUM_PER_LABEL[36], "test": __TEST_SAMLE_NUM_PER_LABEL[36]},
-    "sendmail.": {"train": __TRAIN_SAMLE_NUM_PER_LABEL[37], "test": __TEST_SAMLE_NUM_PER_LABEL[37]},
-    "worm.": {"train": __TRAIN_SAMLE_NUM_PER_LABEL[38], "test": __TEST_SAMLE_NUM_PER_LABEL[38]},
-    "snmpguess.": {"train": __TRAIN_SAMLE_NUM_PER_LABEL[39], "test": __TEST_SAMLE_NUM_PER_LABEL[39]},
+    "ftp_write.": {"train": TRAIN_SAMLE_NUM_PER_LABEL[CONFIG["train_sampling_method"]][25], "test": TEST_SAMLE_NUM_PER_LABEL[CONFIG["test_sampling_method"]][25]},
+    "guess_passwd.": {"train": TRAIN_SAMLE_NUM_PER_LABEL[CONFIG["train_sampling_method"]][26], "test": TEST_SAMLE_NUM_PER_LABEL[CONFIG["test_sampling_method"]][26]},
+    "imap.": {"train": TRAIN_SAMLE_NUM_PER_LABEL[CONFIG["train_sampling_method"]][27], "test": TEST_SAMLE_NUM_PER_LABEL[CONFIG["test_sampling_method"]][27]},
+    "multihop.": {"train": TRAIN_SAMLE_NUM_PER_LABEL[CONFIG["train_sampling_method"]][28], "test": TEST_SAMLE_NUM_PER_LABEL[CONFIG["test_sampling_method"]][28]},
+    "phf.": {"train": TRAIN_SAMLE_NUM_PER_LABEL[CONFIG["train_sampling_method"]][29], "test": TEST_SAMLE_NUM_PER_LABEL[CONFIG["test_sampling_method"]][29]},
+    "spy.": {"train": TRAIN_SAMLE_NUM_PER_LABEL[CONFIG["train_sampling_method"]][30], "test": TEST_SAMLE_NUM_PER_LABEL[CONFIG["test_sampling_method"]][30]},
+    "warezclient.": {"train": TRAIN_SAMLE_NUM_PER_LABEL[CONFIG["train_sampling_method"]][31], "test": TEST_SAMLE_NUM_PER_LABEL[CONFIG["test_sampling_method"]][31]},
+    "warezmaster.": {"train": TRAIN_SAMLE_NUM_PER_LABEL[CONFIG["train_sampling_method"]][32], "test": TEST_SAMLE_NUM_PER_LABEL[CONFIG["test_sampling_method"]][32]},
+    "snmpgetattack.": {"train": TRAIN_SAMLE_NUM_PER_LABEL[CONFIG["train_sampling_method"]][33], "test": TEST_SAMLE_NUM_PER_LABEL[CONFIG["test_sampling_method"]][33]},
+    "named.": {"train": TRAIN_SAMLE_NUM_PER_LABEL[CONFIG["train_sampling_method"]][34], "test": TEST_SAMLE_NUM_PER_LABEL[CONFIG["test_sampling_method"]][34]},
+    "xlock.": {"train": TRAIN_SAMLE_NUM_PER_LABEL[CONFIG["train_sampling_method"]][35], "test": TEST_SAMLE_NUM_PER_LABEL[CONFIG["test_sampling_method"]][35]},
+    "xsnoop.": {"train": TRAIN_SAMLE_NUM_PER_LABEL[CONFIG["train_sampling_method"]][36], "test": TEST_SAMLE_NUM_PER_LABEL[CONFIG["test_sampling_method"]][36]},
+    "sendmail.": {"train": TRAIN_SAMLE_NUM_PER_LABEL[CONFIG["train_sampling_method"]][37], "test": TEST_SAMLE_NUM_PER_LABEL[CONFIG["test_sampling_method"]][37]},
+    "worm.": {"train": TRAIN_SAMLE_NUM_PER_LABEL[CONFIG["train_sampling_method"]][38], "test": TEST_SAMLE_NUM_PER_LABEL[CONFIG["test_sampling_method"]][38]},
+    "snmpguess.": {"train": TRAIN_SAMLE_NUM_PER_LABEL[CONFIG["train_sampling_method"]][39], "test": TEST_SAMLE_NUM_PER_LABEL[CONFIG["test_sampling_method"]][39]},
 }
 
 # ***** KDD STRING FEATURES VALUES *****

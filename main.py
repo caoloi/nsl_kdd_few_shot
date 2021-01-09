@@ -131,7 +131,9 @@ def train_and_create_result(p, e_i):
   # y_train = np.vstack((y_train, random_y_support))
   # y_train_value = np.hstack((y_train_value, random_y_support_value))
 
-  datasets = p.map(data_processing, range(CONFIG["num_models"]))
+  args = [[i, None] for i in range(CONFIG["num_models"])]
+
+  datasets = p.map(data_processing, args)
 
   for j in range(CONFIG["repeat"]):
     args = []
@@ -216,91 +218,107 @@ def main():
 
 def comparison_dataset():
   p = Pool(CONFIG["num_process"])
-  results = {
-      "accuracy": [],
-  }
-  for label in LABELS:
-    results[label] = []
+  sampling_methods = ["a", "b", "c", "d", "e", "f"]
+  results = {}
+  args = [[i, "zero"] for i in range(CONFIG["experiment_count"])]
+  support_datasets = p.map(data_processing, args)
+  for sampling_method in sampling_methods:
+    results[sampling_method] = {
+        "accuracy": [],
+    }
+    for label in LABELS:
+      results[sampling_method][label] = []
 
-  datasets = p.map(data_processing, range(CONFIG["experiment_count"]))
-
-  for i in range(CONFIG["experiment_count"]):
-    print("-" * 200)
-    print(
-        "Experiment "
-        + str(i + 1)
-        + "/"
-        + str(CONFIG["experiment_count"])
-    )
-    _, x_support, x_test, _, y_support, y_test, _, y_support_value, y_test_value, input_shape = datasets[
-        i
-    ]
-    args = []
-    for j in range(CONFIG["experiment_count"]):
-      x_train, _, _, y_train, _, _, y_train_value, _, _, _ = datasets[j]
-      support_ids = np.random.permutation(x_support.shape[0])
-      support_ids = np.tile(
-          support_ids,
-          5,
+    for i in range(CONFIG["experiment_count"]):
+      print("-" * 200)
+      print(
+          "Experiment "
+          + str(i + 1)
+          + "/"
+          + str(CONFIG["experiment_count"])
+          + " " + sampling_method
       )
-      random_x_support = x_support[support_ids]
-      random_y_support = y_support[support_ids]
-      random_y_support_value = y_support_value[support_ids]
 
-      train_ids = np.random.permutation(x_train.shape[0])
-      random_x_train = x_train[train_ids]
-      random_y_train = y_train[train_ids]
-      random_y_train_value = y_train_value[train_ids]
-
-      x_train = np.vstack((random_x_train, random_x_support))
-      y_train = np.vstack((random_y_train, random_y_support))
-      y_train_value = np.hstack((random_y_train_value, random_y_support_value))
-
-      args.append(
+      args = [
           [
-              j,
-              0,
-              x_train,
-              x_support,
-              x_test,
-              y_train,
-              y_support,
-              y_test,
-              y_train_value,
-              y_support_value,
-              y_test_value,
-              input_shape,
-          ]
-      )
-    p.map(train, args)
-    distances = np.array(p.map(load_distances, range(CONFIG["experiment_count"])))
-    for distance in distances:
-      pred = np.argmin(distance[-1], axis=1)
-      report = classification_report(
-          y_test_value,
-          pred,
-          output_dict=True,
-          target_names=LABELS
-      )
-      for type in report:
-        if type == "accuracy":
-          results[type].append(report[type])
-        elif type in LABELS:
-          results[type].append(report[type]["recall"])
+              e_i,
+              sampling_method,
+          ] for e_i in range(CONFIG["experiment_count"])
+      ]
+      datasets = p.map(data_processing, args)
 
-  for type in results:
-    mean = np.mean(results[type]) * 100
-    std = np.std(results[type]) * 100
-    min = np.min(results[type]) * 100
-    max = np.max(results[type]) * 100
-    print(
-        type
-        + "\t\t"
-        + "{:.02f}".format(mean) + " ± " + "{:.02f}".format(std)
-        + " min: " + "{:.02f}".format(min)
-        + " max: " + "{:.02f}".format(max),
-    )
-  return
+      _, x_support, x_test, _, y_support, y_test, _, y_support_value, y_test_value, input_shape = support_datasets[
+          i
+      ]
+      args = []
+      for j in range(CONFIG["experiment_count"]):
+        x_train, _, _, y_train, _, _, y_train_value, _, _, _ = datasets[j]
+        support_ids = np.random.permutation(x_support.shape[0])
+        support_ids = np.tile(
+            support_ids,
+            5,
+        )
+        random_x_support = x_support[support_ids]
+        random_y_support = y_support[support_ids]
+        random_y_support_value = y_support_value[support_ids]
+
+        train_ids = np.random.permutation(x_train.shape[0])
+        random_x_train = x_train[train_ids]
+        random_y_train = y_train[train_ids]
+        random_y_train_value = y_train_value[train_ids]
+
+        x_train = np.vstack((random_x_train, random_x_support))
+        y_train = np.vstack((random_y_train, random_y_support))
+        y_train_value = np.hstack(
+            (random_y_train_value, random_y_support_value))
+
+        args.append(
+            [
+                j,
+                0,
+                x_train,
+                x_support,
+                x_test,
+                y_train,
+                y_support,
+                y_test,
+                y_train_value,
+                y_support_value,
+                y_test_value,
+                input_shape,
+            ]
+        )
+      p.map(train, args)
+      distances = np.array(
+          p.map(load_distances, range(CONFIG["experiment_count"])))
+      for distance in distances:
+        pred = np.argmin(distance[-1], axis=1)
+        report = classification_report(
+            y_test_value,
+            pred,
+            output_dict=True,
+            target_names=LABELS
+        )
+        for type in report:
+          if type == "accuracy":
+            results[sampling_method][type].append(report[type])
+          elif type in LABELS:
+            results[sampling_method][type].append(report[type]["recall"])
+
+  for sampling_method in sampling_methods:
+    print(sampling_method)
+    for type in results[sampling_method]:
+      mean = np.mean(results[sampling_method][type]) * 100
+      std = np.std(results[sampling_method][type]) * 100
+      min = np.min(results[sampling_method][type]) * 100
+      max = np.max(results[sampling_method][type]) * 100
+      print(
+          type
+          + "\t\t"
+          + "$" + "{:.02f}".format(mean) + "\pm" + "{:.02f}".format(std)+"$"
+          + " min: " + "{:.02f}".format(min)
+          + " max: " + "{:.02f}".format(max),
+      )
 
 
 if __name__ == "__main__":
