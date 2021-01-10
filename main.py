@@ -220,7 +220,7 @@ def comparison_train_dataset():
   p = Pool(CONFIG["num_process"])
   sampling_methods = ["a", "b", "c", "d", "e", "f"]
   results = {}
-  args = [[i, "zero"] for i in range(CONFIG["experiment_count"])]
+  args = [[i, "zero"] for i in range(CONFIG["experiment_count"] * CONFIG["experiment_count"])]
   support_datasets = p.map(data_processing, args)
   for sampling_method in sampling_methods:
     results[sampling_method] = {
@@ -247,12 +247,15 @@ def comparison_train_dataset():
       ]
       datasets = p.map(data_processing, args)
 
-      _, x_support, x_test, _, y_support, y_test, _, y_support_value, y_test_value, input_shape = support_datasets[
+      _, _, x_test, _, _, y_test, _, _, y_test_value, input_shape = support_datasets[
           i
       ]
       args = []
       for j in range(CONFIG["experiment_count"]):
         x_train, _, _, y_train, _, _, y_train_value, _, _, _ = datasets[j]
+        _, x_support, _, _, y_support, _, _, y_support_value, _, _ = support_datasets[
+            CONFIG["experiment_count"] * i + j
+        ]
         support_ids = np.random.permutation(x_support.shape[0])
         support_ids = np.tile(
             support_ids,
@@ -437,5 +440,5 @@ def comparison_test_dataset():
 
 if __name__ == "__main__":
   # main()
-  # comparison_train_dataset()
-  comparison_test_dataset()
+  comparison_train_dataset()
+  # comparison_test_dataset()
