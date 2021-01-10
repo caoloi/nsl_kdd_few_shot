@@ -347,18 +347,18 @@ def __resample_processing(df, index, method, balanced, type="train"):
           #     n=SAMPLE_NUM_PER_LABEL[label][type],
           #     replace=SAMPLE_NUM_PER_LABEL[label][type] > len(temp_df)
           # )
-          # samples = df_per_category[label].sample(
-          #     n=TEST_SAMLE_NUM_PER_LABEL[CONFIG["train_sampling_method"]][ii],
-          #     replace=TEST_SAMLE_NUM_PER_LABEL[CONFIG["train_sampling_method"]][ii] > len(
-          #         df_per_category[label]
-          #     )
-          # )
           samples = df_per_category[label].sample(
-              n=TEST_SAMLE_NUM_PER_LABEL[CONFIG["test_sampling_method"]][ii],
-              replace=TEST_SAMLE_NUM_PER_LABEL[CONFIG["test_sampling_method"]][ii] > len(
+              n=TEST_SAMLE_NUM_PER_LABEL[method][ii],
+              replace=TEST_SAMLE_NUM_PER_LABEL[method][ii] > len(
                   df_per_category[label]
               )
           )
+          # samples = df_per_category[label].sample(
+          #     n=TEST_SAMLE_NUM_PER_LABEL[CONFIG["test_sampling_method"]][ii],
+          #     replace=TEST_SAMLE_NUM_PER_LABEL[CONFIG["test_sampling_method"]][ii] > len(
+          #         df_per_category[label]
+          #     )
+          # )
         else:
           # print(label)
           # print(len(df_per_category[label]))
@@ -375,11 +375,17 @@ def __resample_processing(df, index, method, balanced, type="train"):
           # print(len(temp_df))
           temp_df = df_per_category[label]
           samples = temp_df.sample(
-              n=index * TRAIN_SAMLE_NUM_PER_LABEL[method][ii],
-              replace=index * TRAIN_SAMLE_NUM_PER_LABEL[method][ii] > len(
+              n=index * TRAIN_SAMLE_NUM_PER_LABEL[CONFIG["train_sampling_method"]][ii],
+              replace=index * TRAIN_SAMLE_NUM_PER_LABEL[CONFIG["train_sampling_method"]][ii] > len(
                   temp_df
               )
           )
+          # samples = temp_df.sample(
+          #     n=index * TRAIN_SAMLE_NUM_PER_LABEL[method][ii],
+          #     replace=index * TRAIN_SAMLE_NUM_PER_LABEL[method][ii] > len(
+          #         temp_df
+          #     )
+          # )
         df_list.append(samples)
       # samples = df_per_category[label].sample(n=int(np.log(len(df_per_category[label]) + 1)))
       # df_list.append(samples)
