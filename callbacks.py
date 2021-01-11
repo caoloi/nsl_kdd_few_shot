@@ -43,7 +43,7 @@ class Histories(keras.callbacks.Callback):
         self.y_support,
         self.model,
     )
-    if (epoch + 1) % 10 == 0:
+    if (epoch + 1) % np.min([50, CONFIG["epochs"]]) == 0:
       pred = np.argmin(d_list, axis=1)
       acc = accuracy_score(self.y_test, pred)
       # print(acc)
@@ -80,7 +80,7 @@ class Histories(keras.callbacks.Callback):
         plt.pause(0.001)
       if acc >= 0.955:  # or epoch == CONFIG["epochs"] - 1:
         report = classification_report(self.y_test, pred, target_names=LABELS)
-        c_mat = confusion_matrix(self.y_test, pred)
+        # c_mat = confusion_matrix(self.y_test, pred)
         print(report)
         # save_report(acc, report, c_mat, "Epoch: " + str(epoch), self.model)
 

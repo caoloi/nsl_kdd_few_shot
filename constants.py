@@ -4,7 +4,7 @@ CONFIG = {
     "batch_size": 50,
     "num_classes": 5,
     # "num_models": 1,
-    "num_models": 12,
+    "num_models": 24,
     "dataset": "kdd",
     "train_data": "train+",
     "train_sampling_method": "zero",
