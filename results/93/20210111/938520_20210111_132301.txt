@@ -1,0 +1,26 @@
+20210111_132301
+Last 10 Ensemble
+CONFIG:
+{'epochs': 200, 'batch_size': 50, 'num_classes': 5, 'num_models': 12, 'dataset': 'kdd', 'train_data': 'train+', 'train_sampling_method': 'zero', 'test_sampling_method': 'f', 'img_rows': 11, 'img_cols': 11, 'output_dim': 121, 'num_process': 4, 'smote_rate': 1, 'model_type': 'cnn', 'support_rate': 100, 'experiment_count': 10, 'shuffle': True, 'save_report': True, 'repeat': 1, 'epsilon': 0.0001, 'floatx': 'float32'}
+SAMPLE_NUM_PER_LABEL:
+{'normal.': {'train': 0, 'test': 27}, 'ipsweep.': {'train': 0, 'test': 3}, 'nmap.': {'train': 0, 'test': 3}, 'portsweep.': {'train': 0, 'test': 3}, 'satan.': {'train': 0, 'test': 4}, 'saint.': {'train': 0, 'test': 4}, 'mscan.': {'train': 0, 'test': 4}, 'back.': {'train': 0, 'test': 3}, 'land.': {'train': 0, 'test': 1}, 'neptune.': {'train': 0, 'test': 4}, 'pod.': {'train': 0, 'test': 2}, 'smurf.': {'train': 0, 'test': 3}, 'teardrop.': {'train': 0, 'test': 1}, 'apache2.': {'train': 0, 'test': 3}, 'udpstorm.': {'train': 0, 'test': 0}, 'processtable.': {'train': 0, 'test': 3}, 'mailbomb.': {'train': 0, 'test': 3}, 'buffer_overflow.': {'train': 0, 'test': 2}, 'loadmodule.': {'train': 0, 'test': 0}, 'perl.': {'train': 0, 'test': 0}, 'rootkit.': {'train': 0, 'test': 2}, 'xterm.': {'train': 0, 'test': 2}, 'ps.': {'train': 0, 'test': 2}, 'sqlattack.': {'train': 0, 'test': 0}, 'httptunnel.': {'train': 0, 'test': 4}, 'ftp_write.': {'train': 0, 'test': 0}, 'guess_passwd.': {'train': 0, 'test': 4}, 'imap.': {'train': 0, 'test': 0}, 'multihop.': {'train': 0, 'test': 1}, 'phf.': {'train': 0, 'test': 0}, 'spy.': {'train': 0, 'test': 0}, 'warezclient.': {'train': 0, 'test': 0}, 'warezmaster.': {'train': 0, 'test': 3}, 'snmpgetattack.': {'train': 0, 'test': 3}, 'named.': {'train': 0, 'test': 1}, 'xlock.': {'train': 0, 'test': 1}, 'xsnoop.': {'train': 0, 'test': 0}, 'sendmail.': {'train': 0, 'test': 1}, 'worm.': {'train': 0, 'test': 0}, 'snmpguess.': {'train': 0, 'test': 3}}
+Accuracy: 0.9385202271114266
+Classification Report:
+              precision    recall  f1-score   support
+
+      normal       0.98      0.92      0.95      9711
+       probe       0.90      0.89      0.90      2421
+         dos       0.94      0.98      0.96      7458
+         u2r       0.60      0.90      0.72       200
+         r2l       0.88      0.94      0.91      2754
+
+    accuracy                           0.94     22544
+   macro avg       0.86      0.93      0.89     22544
+weighted avg       0.94      0.94      0.94     22544
+
+Confusion Matrix:
+[[8952  183  213   43  320]
+ [   2 2159  249    6    5]
+ [ 135   43 7280    0    0]
+ [   3    2    0  180   15]
+ [  75    2   18   72 2587]]
