@@ -352,7 +352,7 @@ def __resample_processing(df, index, method, balanced, type="train"):
                 )
             )
         else:
-          if CONFIG["rain_sampling_method"] == "zero":
+          if CONFIG["train_sampling_method"] == "zero":
             samples = df_per_category[label].sample(
                 n=index * TRAIN_SAMLE_NUM_PER_LABEL[method][ii],
                 replace=index * TRAIN_SAMLE_NUM_PER_LABEL[method][ii] > len(
