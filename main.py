@@ -243,9 +243,9 @@ def comparison_train_dataset():
   results = {}
   args = [
       [
-          i,
+          e_i,
           "zero"
-      ] for i in range(CONFIG["experiment_count"] * CONFIG["experiment_count"])
+      ] for e_i in range(CONFIG["experiment_count"] * CONFIG["experiment_count"])
   ]
   support_datasets = p.map(data_processing, args)
   for sampling_method in sampling_methods:
@@ -254,6 +254,14 @@ def comparison_train_dataset():
     }
     for label in LABELS:
       results[sampling_method][label] = []
+
+    args = [
+        [
+            e_i,
+            sampling_method,
+        ] for e_i in range(CONFIG["experiment_count"] * CONFIG["experiment_count"])
+    ]
+    datasets = p.map(data_processing, args)
 
     for i in range(CONFIG["experiment_count"]):
       print("-" * 200)
@@ -265,20 +273,12 @@ def comparison_train_dataset():
           + " " + sampling_method
       )
 
-      args = [
-          [
-              e_i,
-              sampling_method,
-          ] for e_i in range(CONFIG["experiment_count"])
-      ]
-      datasets = p.map(data_processing, args)
-
-      _, _, x_test, _, _, y_test, _, _, y_test_value, input_shape = support_datasets[
-          i
-      ]
+      _, _, x_test, _, _, y_test, _, _, y_test_value, input_shape = support_datasets[i]
       args = []
       for j in range(CONFIG["experiment_count"]):
-        x_train, _, _, y_train, _, _, y_train_value, _, _, _ = datasets[j]
+        x_train, _, _, y_train, _, _, y_train_value, _, _, _ = datasets[
+            CONFIG["experiment_count"] * i + j
+        ]
         _, x_support, _, _, y_support, _, _, y_support_value, _, _ = support_datasets[
             CONFIG["experiment_count"] * i + j
         ]
@@ -367,9 +367,9 @@ def comparison_test_dataset():
   results = {}
   args = [
       [
-          i,
+          e_i,
           "zero"
-      ] for i in range(CONFIG["experiment_count"] * CONFIG["experiment_count"])
+      ] for e_i in range(CONFIG["experiment_count"] * CONFIG["experiment_count"])
   ]
   datasets = p.map(data_processing, args)
   for sampling_method in sampling_methods:
@@ -379,6 +379,13 @@ def comparison_test_dataset():
     for label in LABELS:
       results[sampling_method][label] = []
 
+    args = [
+        [
+            e_i,
+            sampling_method,
+        ] for e_i in range(CONFIG["experiment_count"] * CONFIG["experiment_count"])
+    ]
+    support_datasets = p.map(data_processing, args)
 
     for i in range(CONFIG["experiment_count"]):
       print("-" * 200)
@@ -390,21 +397,15 @@ def comparison_test_dataset():
           + " " + sampling_method
       )
 
-      args = [
-          [
-              e_i,
-              sampling_method,
-          ] for e_i in range(CONFIG["experiment_count"])
-      ]
-      support_datasets = p.map(data_processing, args)
-
       _, _, x_test, _, _, y_test, _, _, y_test_value, input_shape = datasets[i]
       args = []
       for j in range(CONFIG["experiment_count"]):
-        _, x_support, _, _, y_support, _, _, y_support_value, _, _ = support_datasets[j]
+        _, x_support, _, _, y_support, _, _, y_support_value, _, _ = support_datasets[
+            CONFIG["experiment_count"] * i + j
+        ]
         x_train, _, _, y_train, _, _, y_train_value, _, _, _ = datasets[
-          CONFIG["experiment_count"] * i + j
-          ]
+            CONFIG["experiment_count"] * i + j
+        ]
         support_ids = np.random.permutation(x_support.shape[0])
         support_ids = np.tile(
             support_ids,
