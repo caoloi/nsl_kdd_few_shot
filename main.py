@@ -120,7 +120,12 @@ def train(args):
 
 
 def train_and_create_result(p, e_i):
-  _, x_support, x_test, _, y_support, y_test, _, y_support_value, y_test_value, input_shape = data_processing()
+  _, x_support, x_test, _, y_support, y_test, _, y_support_value, y_test_value, input_shape = data_processing(
+      [
+          None,
+          "zero",
+      ]
+  )
   # x_train, x_support, x_test, y_train, y_support, y_test, y_train_value, y_support_value, y_test_value, input_shape = data_processing()
   # ids = np.random.permutation(x_support.shape[0])
   # ids = np.random.choice(ids, CONFIG["support_rate"])
@@ -131,7 +136,15 @@ def train_and_create_result(p, e_i):
   # y_train = np.vstack((y_train, random_y_support))
   # y_train_value = np.hstack((y_train_value, random_y_support_value))
 
-  args = [[i, None] for i in range(CONFIG["num_models"])]
+  args = [
+      [i,
+       [
+           "a",
+           "b",
+           "d",
+       ][i % 3]
+       ] for i in range(CONFIG["num_models"])
+  ]
 
   datasets = p.map(data_processing, args)
 
@@ -143,7 +156,8 @@ def train_and_create_result(p, e_i):
       # support_ids = np.random.choice(support_ids, CONFIG["support_rate"])
       support_ids = np.tile(
           support_ids,
-          (CONFIG["support_rate"] // len(x_support)) * int(i / 1 + 1)
+          # (CONFIG["support_rate"] // len(x_support)) * int(i / 1 + 1)
+          5,
       )
       random_x_support = x_support[support_ids]
       random_y_support = y_support[support_ids]
@@ -218,9 +232,21 @@ def main():
 
 def comparison_train_dataset():
   p = Pool(CONFIG["num_process"])
-  sampling_methods = ["a", "b", "c", "d", "e", "f"]
+  sampling_methods = [
+      "a",
+      "b",
+      "c",
+      "d",
+      "e",
+      "f"
+  ]
   results = {}
-  args = [[i, "zero"] for i in range(CONFIG["experiment_count"] * CONFIG["experiment_count"])]
+  args = [
+      [
+          i,
+          "zero"
+      ] for i in range(CONFIG["experiment_count"] * CONFIG["experiment_count"])
+  ]
   support_datasets = p.map(data_processing, args)
   for sampling_method in sampling_methods:
     results[sampling_method] = {
@@ -273,7 +299,11 @@ def comparison_train_dataset():
         x_train = np.vstack((random_x_train, random_x_support))
         y_train = np.vstack((random_y_train, random_y_support))
         y_train_value = np.hstack(
-            (random_y_train_value, random_y_support_value))
+            (
+                random_y_train_value,
+                random_y_support_value
+            )
+        )
 
         args.append(
             [
@@ -335,7 +365,13 @@ def comparison_test_dataset():
       "f"
   ]
   results = {}
-
+  args = [
+      [
+          i,
+          "zero"
+      ] for i in range(CONFIG["experiment_count"] * CONFIG["experiment_count"])
+  ]
+  datasets = p.map(data_processing, args)
   for sampling_method in sampling_methods:
     results[sampling_method] = {
         "accuracy": [],
@@ -343,8 +379,6 @@ def comparison_test_dataset():
     for label in LABELS:
       results[sampling_method][label] = []
 
-    args = [[e_i, "zero"] for e_i in range(CONFIG["experiment_count"])]
-    datasets = p.map(data_processing, args)
 
     for i in range(CONFIG["experiment_count"]):
       print("-" * 200)
@@ -364,12 +398,13 @@ def comparison_test_dataset():
       ]
       support_datasets = p.map(data_processing, args)
 
-      x_train, _, x_test, y_train, _, y_test, y_train_value, _, y_test_value, _ = datasets[i]
+      _, _, x_test, _, _, y_test, _, _, y_test_value, input_shape = datasets[i]
       args = []
       for j in range(CONFIG["experiment_count"]):
-        _, x_support, _, _, y_support, _, _, y_support_value, _, input_shape = support_datasets[
-            j
-        ]
+        _, x_support, _, _, y_support, _, _, y_support_value, _, _ = support_datasets[j]
+        x_train, _, _, y_train, _, _, y_train_value, _, _, _ = datasets[
+          CONFIG["experiment_count"] * i + j
+          ]
         support_ids = np.random.permutation(x_support.shape[0])
         support_ids = np.tile(
             support_ids,
@@ -387,7 +422,11 @@ def comparison_test_dataset():
         x_train = np.vstack((random_x_train, random_x_support))
         y_train = np.vstack((random_y_train, random_y_support))
         y_train_value = np.hstack(
-            (random_y_train_value, random_y_support_value))
+            (
+                random_y_train_value,
+                random_y_support_value
+            )
+        )
 
         args.append(
             [
@@ -440,5 +479,5 @@ def comparison_test_dataset():
 
 if __name__ == "__main__":
   # main()
-  comparison_train_dataset()
-  # comparison_test_dataset()
+  # comparison_train_dataset()
+  comparison_test_dataset()
