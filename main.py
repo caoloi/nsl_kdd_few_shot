@@ -478,6 +478,6 @@ def comparison_test_dataset():
 
 
 if __name__ == "__main__":
-  # main()
+  main()
   # comparison_train_dataset()
-  comparison_test_dataset()
+  # comparison_test_dataset()

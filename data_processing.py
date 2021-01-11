@@ -337,58 +337,36 @@ def __resample_processing(df, index, method, balanced, type="train"):
     for label in SAMPLE_NUM_PER_LABEL:
       if SAMPLE_NUM_PER_LABEL[label][type] >= 0:
         if type == "test":
-          # sorted_df = df_per_category[label].sort_values("difficulty")
-          # temp_df = sorted_df.tail(10)
-          # temp_df = sorted_df.head(5).append(sorted_df.tail(5))
-          # temp_df = sorted_df.tail(np.max([SAMPLE_NUM_PER_LABEL[label][type], len(sorted_df) // 4]))
-          # temp_df = sorted_df[(len(sorted_df) // 4):(3 * (len(sorted_df) // 4))]
-          # temp_df = df_per_category[label].sort_values("difficulty").head(len(df_per_category[label]) // 2)
-          # samples = temp_df.sample(
-          #     n=SAMPLE_NUM_PER_LABEL[label][type],
-          #     replace=SAMPLE_NUM_PER_LABEL[label][type] > len(temp_df)
-          # )
-          samples = df_per_category[label].sample(
-              n=TEST_SAMLE_NUM_PER_LABEL[method][ii],
-              replace=TEST_SAMLE_NUM_PER_LABEL[method][ii] > len(
-                  df_per_category[label]
-              )
-          )
-          # samples = df_per_category[label].sample(
-          #     n=TEST_SAMLE_NUM_PER_LABEL[CONFIG["test_sampling_method"]][ii],
-          #     replace=TEST_SAMLE_NUM_PER_LABEL[CONFIG["test_sampling_method"]][ii] > len(
-          #         df_per_category[label]
-          #     )
-          # )
+          if CONFIG["test_sampling_method"] == "zero":
+            samples = df_per_category[label].sample(
+                n=TEST_SAMLE_NUM_PER_LABEL[method][ii],
+                replace=TEST_SAMLE_NUM_PER_LABEL[method][ii] > len(
+                    df_per_category[label]
+                )
+            )
+          else:
+            samples = df_per_category[label].sample(
+                n=TEST_SAMLE_NUM_PER_LABEL[CONFIG["test_sampling_method"]][ii],
+                replace=TEST_SAMLE_NUM_PER_LABEL[CONFIG["test_sampling_method"]][ii] > len(
+                    df_per_category[label]
+                )
+            )
         else:
-          # print(label)
-          # print(len(df_per_category[label]))
-          # temp_df = df_per_category[label].sort_values("difficulty").head(len(df_per_category[label]) // 2)
-          # temp_df = df_per_category[label].sort_values(
-          #     "difficulty"
-          # )[
-          #     (
-          #         len(
-          #             df_per_category[label]
-          #         ) // 4
-          #     ):
-          # ]
-          # print(len(temp_df))
-          temp_df = df_per_category[label]
-          samples = temp_df.sample(
-              n=index * TRAIN_SAMLE_NUM_PER_LABEL[CONFIG["train_sampling_method"]][ii],
-              replace=index * TRAIN_SAMLE_NUM_PER_LABEL[CONFIG["train_sampling_method"]][ii] > len(
-                  temp_df
-              )
-          )
-          # samples = temp_df.sample(
-          #     n=index * TRAIN_SAMLE_NUM_PER_LABEL[method][ii],
-          #     replace=index * TRAIN_SAMLE_NUM_PER_LABEL[method][ii] > len(
-          #         temp_df
-          #     )
-          # )
+          if CONFIG["rain_sampling_method"] == "zero":
+            samples = df_per_category[label].sample(
+                n=index * TRAIN_SAMLE_NUM_PER_LABEL[method][ii],
+                replace=index * TRAIN_SAMLE_NUM_PER_LABEL[method][ii] > len(
+                    df_per_category[label]
+                )
+            )
+          else:
+            samples = df_per_category[label].sample(
+                n=index * TRAIN_SAMLE_NUM_PER_LABEL[CONFIG["train_sampling_method"]][ii],
+                replace=index * TRAIN_SAMLE_NUM_PER_LABEL[CONFIG["train_sampling_method"]][ii] > len(
+                    df_per_category[label]
+                )
+            )
         df_list.append(samples)
-      # samples = df_per_category[label].sample(n=int(np.log(len(df_per_category[label]) + 1)))
-      # df_list.append(samples)
       ii += 1
     df = pd.concat(df_list, ignore_index=True)
 
