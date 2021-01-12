@@ -156,8 +156,8 @@ def train_and_create_result(p, e_i):
       # support_ids = np.random.choice(support_ids, CONFIG["support_rate"])
       support_ids = np.tile(
           support_ids,
-          (CONFIG["support_rate"] // len(x_support)) * int(i / 1 + 1)
-          # 5,
+          # (CONFIG["support_rate"] // len(x_support)) * int(i / 1 + 1)
+          5,
       )
       random_x_support = x_support[support_ids]
       random_y_support = y_support[support_ids]
