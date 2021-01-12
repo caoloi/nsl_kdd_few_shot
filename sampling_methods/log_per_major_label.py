@@ -2,11 +2,11 @@ from records import TRAIN_RECORDS, TEST_RECORDS
 import numpy as np
 
 N = {
-  "normal": 20,
-  "probe": 23.3,
-  "dos": 25,
-  "u2r": 23,
-  "r2l": 28.5,
+  "normal": 5,
+  "probe": 7,
+  "dos": 8.5,
+  "u2r": 7.5,
+  "r2l": 12,
 }
 # records = TRAIN_RECORDS
 records = TEST_RECORDS

@@ -140,8 +140,8 @@ def train_and_create_result(p, e_i):
       [i,
        [
            "a",
-           "b",
            "d",
+           "f",
        ][i % 3]
        ] for i in range(CONFIG["num_models"])
   ]
