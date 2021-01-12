@@ -364,6 +364,7 @@ def calc_ensemble_accuracy(x, y, p, e_i):
   plt.savefig(file_name)
 
   plt.clf()
+  plt.close()
 
   return result
 

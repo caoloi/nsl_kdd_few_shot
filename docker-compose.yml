@@ -8,6 +8,10 @@ services:
     image: tensorflow/tensorflow:latest-gpu-py3-jupyter
     volumes:
       - ./:/workspace/fsl
+      - ./data
+      - ./results
+      - ./summaries
+      - ./temp
     runtime: nvidia
     # command:
     #   - "sh"
