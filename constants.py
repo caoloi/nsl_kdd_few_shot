@@ -8,7 +8,7 @@ CONFIG = {
     "dataset": "kdd",
     "train_data": "train+",
     "train_sampling_method": "zero",
-    "test_sampling_method": "e_025",
+    "test_sampling_method": "e_100",
     "img_rows": 11,
     "img_cols": 11,
     "output_dim": 121,
