@@ -22,7 +22,7 @@ from keras.optimizers import Adam
 from keras.models import Model, load_model
 from keras.layers import Input
 import numpy as np
-from multiprocessing import Pool
+import multiprocessing as mp
 from sklearn.metrics import classification_report, accuracy_score, confusion_matrix
 
 
@@ -172,9 +172,8 @@ def train_and_create_result(p, e_i):
       y_train = np.vstack((random_y_train, random_y_support))
       y_train_value = np.hstack((random_y_train_value, random_y_support_value))
 
-      # x_train = np.vstack((x_train, random_x_support))
-      # y_train = np.vstack((y_train, random_y_support))
-      # y_train_value = np.hstack((y_train_value, random_y_support_value))
+      del support_ids, random_x_support, random_y_support, random_y_support_value, train_ids, random_x_train, random_y_train, random_y_train_value, train_normal_ids, x_train_normal, y_train_normal, y_train_value_normal
+
       args.append(
           [
               i,
@@ -204,7 +203,7 @@ def train_and_create_result(p, e_i):
 
 
 def main():
-  p = Pool(CONFIG["num_process"])
+  p = mp.get_context('spawn').Pool(CONFIG["num_process"])
   results = []
 
   for i in range(CONFIG["experiment_count"]):
@@ -223,7 +222,7 @@ def main():
       p.close()
       p.join()
 
-      p = Pool(CONFIG["num_process"])
+      p = mp.get_context('spawn').Pool(CONFIG["num_process"])
 
   summary = create_summary(results)
   print_summary(summary)
@@ -231,7 +230,7 @@ def main():
 
 
 def comparison_train_dataset():
-  p = Pool(CONFIG["num_process"])
+  p = mp.get_context('spawn').Pool(CONFIG["num_process"])
   sampling_methods = [
       "a",
       "b",
@@ -355,7 +354,7 @@ def comparison_train_dataset():
 
 
 def comparison_test_dataset():
-  p = Pool(CONFIG["num_process"])
+  p = mp.get_context('spawn').Pool(CONFIG["num_process"])
   sampling_methods = [
       # "a",
       "b",
