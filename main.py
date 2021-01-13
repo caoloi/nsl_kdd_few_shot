@@ -172,7 +172,7 @@ def train_and_create_result(p, e_i):
       y_train = np.vstack((random_y_train, random_y_support))
       y_train_value = np.hstack((random_y_train_value, random_y_support_value))
 
-      del support_ids, random_x_support, random_y_support, random_y_support_value, train_ids, random_x_train, random_y_train, random_y_train_value, train_normal_ids, x_train_normal, y_train_normal, y_train_value_normal
+      del support_ids, random_x_support, random_y_support, random_y_support_value, train_ids, random_x_train, random_y_train, random_y_train_value
 
       args.append(
           [
