@@ -234,10 +234,11 @@ def calc_ensemble_accuracy(x, y, p, e_i):
     ]
     acc = accuracy_score(y, pred)
     ensemble_acc_list = np.append(ensemble_acc_list, acc)
-    print(
-        "Epoch: " + str(i + 1) + "/" + str(CONFIG["epochs"] * CONFIG["repeat"])
-        + "\tEnsemble Accuracy: " + "{:.07f}".format(acc)
-    )
+    if (i + 1) % 10 == 0:
+      print(
+          "Epoch: " + str(i + 1) + "/" + str(CONFIG["epochs"] * CONFIG["repeat"])
+          + "\tEnsemble Accuracy: " + "{:.07f}".format(acc)
+      )
     if i == CONFIG["epochs"] * CONFIG["repeat"] - 1:
       report = classification_report(y, pred, target_names=LABELS)
       print(report)

@@ -8,7 +8,7 @@ exec:
 	# 	-it \
 	# 	--rm \
 	# 	-v /home/tksfjt/nsl_kdd_few_shot:/workspace/fsl \
-	# 	nvcr.io/nvidia/tensorflow:20.11-tf1-py3 \
+	# 	nvcr.io/nvidia/tensorflow:20.12-tf1-py3 \
 	# 	bash -c 'pip install -U pip && pip install keras==2.2.4 imblearn && cd fsl && python main.py'
 build:
 	docker-compose build

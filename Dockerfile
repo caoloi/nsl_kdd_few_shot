@@ -1,4 +1,4 @@
-FROM nvcr.io/nvidia/tensorflow:20.11-tf1-py3
+FROM nvcr.io/nvidia/tensorflow:20.12-tf1-py3
 
 RUN pip install -U pip
 
