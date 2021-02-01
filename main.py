@@ -137,16 +137,17 @@ def train_and_create_result(p, e_i):
   # y_train_value = np.hstack((y_train_value, random_y_support_value))
 
   args = [
-      [i,
-       [
-           "a",
-          #  "b",
-          #  "c",
-           "d",
-          #  "e",
-           "f",
-       ][i % 3]
-       ] for i in range(CONFIG["num_models"])
+      [
+          i,
+          [
+              "a",
+              #  "b",
+              #  "c",
+              "d",
+              #  "e",
+              "f",
+          ][i % 3]
+      ] for i in range(CONFIG["num_models"])
   ]
 
   datasets = p.map(data_processing, args)
