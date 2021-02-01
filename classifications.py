@@ -16,10 +16,17 @@ def calc_centers(x, y, model):
   for i in range(len(y)):
     centers[y[i]].append(output[i])
 
+  # weights = np.array(
+  #     [
+  #         np.amax(center, axis=1) - np.amin(center, axis=1)
+  #         for center in centers
+  #     ]
+  # )
+  # weights = np.sum(weights, axis=1)
   centers = np.array([np.mean(center, axis=0) for center in centers])
-  weights = np.array([np.std(center, axis=0) for center in centers])
 
-  return centers, weights
+  # return centers, weights
+  return centers, np.ones(5)
 
 
 def calc_centers_2(pred, true):
@@ -46,7 +53,7 @@ def calc_distance(x, x_support, y_support, model):
                   vect - center
               )
               for center in centers
-          ] - weights
+          ] / weights
           for vect in output
       ]
   )
