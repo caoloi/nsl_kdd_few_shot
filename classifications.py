@@ -17,8 +17,9 @@ def calc_centers(x, y, model):
     centers[y[i]].append(output[i])
 
   centers = np.array([np.mean(center, axis=0) for center in centers])
+  weights = np.array([np.std(center, axis=0) for center in centers])
 
-  return centers
+  return centers, weights
 
 
 def calc_centers_2(pred, true):
@@ -36,7 +37,7 @@ def calc_centers_2(pred, true):
 
 def calc_distance(x, x_support, y_support, model):
   output = model.predict_on_batch(x)
-  centers = calc_centers(x_support, y_support, model)
+  centers, weights = calc_centers(x_support, y_support, model)
 
   d_list = np.array(
       [
@@ -45,7 +46,7 @@ def calc_distance(x, x_support, y_support, model):
                   vect - center
               )
               for center in centers
-          ]
+          ] - weights
           for vect in output
       ]
   )

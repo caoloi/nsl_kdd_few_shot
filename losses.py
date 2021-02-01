@@ -5,7 +5,7 @@ from classifications import calc_centers, calc_centers_2
 
 def center_loss(x_support, y_support, y_support_value, model):
   def c_loss(y_true, y_pred):
-    centers = calc_centers(x_support, y_support_value, model)
+    centers, _ = calc_centers(x_support, y_support_value, model)
     # train_centers = calc_centers_2(y_pred, y_true[:, :5])
 
     loss1 = K.sum(
