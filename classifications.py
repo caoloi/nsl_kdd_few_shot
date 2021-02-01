@@ -57,12 +57,12 @@ def calc_distance(x, x_support, y_support, model):
           for vect in output
       ]
   )
-  d_list = np.array(
-      [
-          d / np.sum(d)
-          for d in d_list
-      ]
-  )
+  # d_list = np.array(
+  #     [
+  #         d / np.sum(d)
+  #         for d in d_list
+  #     ]
+  # )
 
   return d_list
 
