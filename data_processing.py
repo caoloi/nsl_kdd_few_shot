@@ -20,6 +20,7 @@ from constants import (
 from sklearn.preprocessing import QuantileTransformer
 from scipy.stats import boxcox
 pd.options.mode.chained_assignment = None  # default="warn" | Disable warnings
+from copy import copy
 
 
 def data_processing(args):
@@ -34,7 +35,9 @@ def data_processing(args):
         + method
     )
 
-  x_train, x_support, x_test, y_train, y_support, y_test = __load_data(index, method)
+  x_train, x_support, x_test, y_train, y_support, y_test, y_test_orig = __load_data(
+      index, method
+  )
 
   if image_data_format() == "channels_first" and CONFIG["model_type"] == "cnn":
     x_train = x_train.reshape(
@@ -100,7 +103,7 @@ def data_processing(args):
   y_support = to_categorical(y_support, CONFIG["num_classes"])
   y_test = to_categorical(y_test, CONFIG["num_classes"])
 
-  return x_train, x_support, x_test, y_train, y_support, y_test, y_train_value, y_support_value, y_test_value, input_shape
+  return x_train, x_support, x_test, y_train, y_support, y_test, y_train_value, y_support_value, y_test_value, y_test_orig, input_shape
 
 
 def t_sne_data_processing():
@@ -134,17 +137,17 @@ def t_sne_data_processing():
 
 def __load_data(index, method):
   if CONFIG["dataset"] == "kdd":
-    x_train, x_support, x_test, y_train, y_support, y_test = __kdd_encoding(
+    x_train, x_support, x_test, y_train, y_support, y_test, y_test_orig = __kdd_encoding(
         index,
         method,
     )
   else:
-    x_train, x_support, x_test, y_train, y_support, y_test = __kdd_encoding(
+    x_train, x_support, x_test, y_train, y_support, y_test, y_test_orig = __kdd_encoding(
         index,
         method,
     )
 
-  return x_train, x_support, x_test, y_train, y_support, y_test
+  return x_train, x_support, x_test, y_train, y_support, y_test, y_test_orig
 
 
 def __load_kdd_dataset():
@@ -190,7 +193,7 @@ def __kdd_encoding(index, method):
       method,
       balanced=True,
   )
-  x_train, y_train = __label_to_num_processing(train_df)
+  x_train, y_train, _ = __label_to_num_processing(train_df)
   support_df = __resample_processing(
       test_df,
       index,
@@ -203,7 +206,7 @@ def __kdd_encoding(index, method):
   #     r=CONFIG["smote_rate"],
   #     type="test",
   # )
-  x_support, y_support = __label_to_num_processing(support_df)
+  x_support, y_support, _ = __label_to_num_processing(support_df)
 
   test_df = __resample_processing(
       test_df,
@@ -211,7 +214,7 @@ def __kdd_encoding(index, method):
       method,
       balanced=False,
   )
-  x_test, y_test = __label_to_num_processing(test_df)
+  x_test, y_test, y_test_orig = __label_to_num_processing(test_df)
 
   if CONFIG["model_type"] == "cnn":
     x_train = np.array(x_train).reshape(
@@ -237,7 +240,7 @@ def __kdd_encoding(index, method):
   y_support = y_support.to_numpy()
   y_test = y_test.to_numpy()
 
-  return x_train, x_support, x_test, y_train, y_support, y_test
+  return x_train, x_support, x_test, y_train, y_support, y_test, y_test_orig
 
 
 def __numerical_processing(train_df, test_df):
@@ -330,7 +333,7 @@ def __resample_processing(df, index, method, balanced, type="train"):
     df_per_category = {}
     for label in ENTRY_TYPE:
       for minor_label in ENTRY_TYPE[label]:
-        df_per_category[minor_label] = df[df["label"] == minor_label[:-1]]
+        df_per_category[minor_label] = df[df["label"] == minor_label]
 
     df_list = []
     ii = 0
@@ -361,7 +364,8 @@ def __resample_processing(df, index, method, balanced, type="train"):
             )
           else:
             samples = df_per_category[label].sample(
-                n=index * TRAIN_SAMLE_NUM_PER_LABEL[CONFIG["train_sampling_method"]][ii],
+                n=index *
+                TRAIN_SAMLE_NUM_PER_LABEL[CONFIG["train_sampling_method"]][ii],
                 replace=index * TRAIN_SAMLE_NUM_PER_LABEL[CONFIG["train_sampling_method"]][ii] > len(
                     df_per_category[label]
                 )
@@ -377,14 +381,13 @@ def __resample_processing(df, index, method, balanced, type="train"):
 
 
 def __label_to_num_processing(df):
+  y_orig = copy(df["label"])
+
   # Replace connexion type string with an int (also works with NSL)
   for label in ENTRY_TYPE:
     for i in range(len(ENTRY_TYPE[label])):
       df["label"] = df["label"].replace(
-        [
-            ENTRY_TYPE[label][i],
-            ENTRY_TYPE[label][i][:-1]
-        ],
+          ENTRY_TYPE[label][i],
           LABEL_TO_NUM[label]
       )
 
@@ -398,7 +401,7 @@ def __label_to_num_processing(df):
       ]
   )
 
-  return x, y
+  return x, y, y_orig
 
 
 def __smote_processing(df, r=1, type="train"):

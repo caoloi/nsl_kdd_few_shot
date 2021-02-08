@@ -1,5 +1,5 @@
 import numpy as np
-from constants import CONFIG, SAMPLE_NUM_PER_LABEL, LABELS
+from constants import CONFIG, SAMPLE_NUM_PER_LABEL, LABELS, LABEL_TO_NUM, ENTRY_TYPE_REVERSE
 from sklearn.metrics import classification_report, accuracy_score, confusion_matrix
 import datetime
 import pytz
@@ -7,6 +7,7 @@ import pathlib
 import matplotlib.pyplot as plt
 from io import StringIO
 import os
+from collections import defaultdict
 
 
 def calc_centers(x, y, model):
@@ -171,7 +172,7 @@ def accuracy_scores(args):
   return acc_list
 
 
-def calc_ensemble_accuracy(x, y, p, e_i):
+def calc_ensemble_accuracy(x, y, y_orig, p, e_i):
   print("-" * 200)
 
   distances = np.array(p.map(load_distances, range(CONFIG["num_models"])))
@@ -244,12 +245,33 @@ def calc_ensemble_accuracy(x, y, p, e_i):
     ensemble_acc_list = np.append(ensemble_acc_list, acc)
     if (i + 1) % 10 == 0:
       print(
-          "Epoch: " + str(i + 1) + "/" + str(CONFIG["epochs"] * CONFIG["repeat"])
+          "Epoch: " + str(i + 1) + "/" +
+          str(CONFIG["epochs"] * CONFIG["repeat"])
           + "\tEnsemble Accuracy: " + "{:.07f}".format(acc)
       )
     if i == CONFIG["epochs"] * CONFIG["repeat"] - 1:
       report = classification_report(y, pred, target_names=LABELS)
       print(report)
+      report2_correct = defaultdict(int)
+      report2_total = defaultdict(int)
+      for pr, yo in zip(pred, y_orig):
+        if pr == LABEL_TO_NUM[ENTRY_TYPE_REVERSE[yo]]:
+          report2_correct[yo] += 1
+        else:
+          report2_correct[yo] += 0
+        report2_total[yo] += 1
+      for label in ENTRY_TYPE_REVERSE:
+        if report2_total[label] > 0:
+          print(
+              label.ljust(20, " "),
+              report2_correct[label],
+              report2_total[label],
+              "{:.04f}".format(
+                  report2_correct[label] / report2_total[label]
+              ),
+              sep='\t\t'
+          )
+
       c_mat = confusion_matrix(y, pred)
       print(c_mat)
       # save_report(acc, report, c_mat, "Last Ensemble")  # models[0][0])

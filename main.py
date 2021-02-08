@@ -120,21 +120,12 @@ def train(args):
 
 
 def train_and_create_result(p, e_i):
-  _, x_support, x_test, _, y_support, y_test, _, y_support_value, y_test_value, input_shape = data_processing(
+  _, x_support, x_test, _, y_support, y_test, _, y_support_value, y_test_value, y_test_orig, input_shape = data_processing(
       [
           None,
           "zero",
       ]
   )
-  # x_train, x_support, x_test, y_train, y_support, y_test, y_train_value, y_support_value, y_test_value, input_shape = data_processing()
-  # ids = np.random.permutation(x_support.shape[0])
-  # ids = np.random.choice(ids, CONFIG["support_rate"])
-  # random_x_support = x_support[ids]
-  # random_y_support = y_support[ids]
-  # random_y_support_value = y_support_value[ids]
-  # x_train = np.vstack((x_train, random_x_support))
-  # y_train = np.vstack((y_train, random_y_support))
-  # y_train_value = np.hstack((y_train_value, random_y_support_value))
 
   args = [
       [
@@ -155,13 +146,13 @@ def train_and_create_result(p, e_i):
   for j in range(CONFIG["repeat"]):
     args = []
     for i in range(CONFIG["num_models"]):
-      x_train, _, _, y_train, _, _, y_train_value, _, _, _ = datasets[i]
+      x_train, _, _, y_train, _, _, y_train_value, _, _, _, _ = datasets[i]
       support_ids = np.random.permutation(x_support.shape[0])
       # support_ids = np.random.choice(support_ids, CONFIG["support_rate"])
       support_ids = np.tile(
           support_ids,
           # (CONFIG["support_rate"] // len(x_support)) * int(i / 1 + 1)
-          5,
+          1,
       )
       random_x_support = x_support[support_ids]
       random_y_support = y_support[support_ids]
@@ -199,6 +190,7 @@ def train_and_create_result(p, e_i):
   result = calc_ensemble_accuracy(
       x_test,
       y_test_value,
+      y_test_orig,
       p,
       e_i,
   )
@@ -276,13 +268,13 @@ def comparison_train_dataset():
           + " " + sampling_method
       )
 
-      _, _, x_test, _, _, y_test, _, _, y_test_value, input_shape = support_datasets[i]
+      _, _, x_test, _, _, y_test, _, _, y_test_value, _, input_shape = support_datasets[i]
       args = []
       for j in range(CONFIG["experiment_count"]):
         x_train, _, _, y_train, _, _, y_train_value, _, _, _ = datasets[
             CONFIG["experiment_count"] * i + j
         ]
-        _, x_support, _, _, y_support, _, _, y_support_value, _, _ = support_datasets[
+        _, x_support, _, _, y_support, _, _, y_support_value, _, _, _ = support_datasets[
             CONFIG["experiment_count"] * i + j
         ]
         support_ids = np.random.permutation(x_support.shape[0])
@@ -400,13 +392,13 @@ def comparison_test_dataset():
           + " " + sampling_method
       )
 
-      _, _, x_test, _, _, y_test, _, _, y_test_value, input_shape = datasets[i]
+      _, _, x_test, _, _, y_test, _, _, y_test_value, _, input_shape = datasets[i]
       args = []
       for j in range(CONFIG["experiment_count"]):
-        _, x_support, _, _, y_support, _, _, y_support_value, _, _ = support_datasets[
+        _, x_support, _, _, y_support, _, _, y_support_value, _, _, _ = support_datasets[
             CONFIG["experiment_count"] * i + j
         ]
-        x_train, _, _, y_train, _, _, y_train_value, _, _, _ = datasets[
+        x_train, _, _, y_train, _, _, y_train_value, _, _, _, _ = datasets[
             CONFIG["experiment_count"] * i + j
         ]
         support_ids = np.random.permutation(x_support.shape[0])
