@@ -290,8 +290,8 @@ TEST_SAMLE_NUM_PER_LABEL = {
     # 9711, 141, 73, 157, 735, 319, 996, 359, 7, 4657, 41, 665, 12, 737, 2, 685, 293, 20, 2, 2, 13, 13, 15, 2, 133, 3, 1231, 1, 18, 2, 0, 0, 944, 178, 17, 9, 4, 14, 2, 331
 }
 
-for k in TRAIN_SAMLE_NUM_PER_LABEL:
-  TRAIN_SAMLE_NUM_PER_LABEL[k] = list(map(lambda x: int(x * 0.1), TRAIN_SAMLE_NUM_PER_LABEL[k]))
+# for k in TRAIN_SAMLE_NUM_PER_LABEL:
+#   TRAIN_SAMLE_NUM_PER_LABEL[k] = list(map(lambda x: int(x * 0.1), TRAIN_SAMLE_NUM_PER_LABEL[k]))
 
 SAMPLE_NUM_PER_LABEL = {
     # normal

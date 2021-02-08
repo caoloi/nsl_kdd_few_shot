@@ -132,10 +132,10 @@ def train_and_create_result(p, e_i):
           i,
           [
               "a",
-              #  "b",
-              #  "c",
+              # "b",
+              # "c",
               "d",
-              #  "e",
+              # "e",
               "f",
           ][i % 3]
       ] for i in range(CONFIG["num_models"])
@@ -152,7 +152,7 @@ def train_and_create_result(p, e_i):
       support_ids = np.tile(
           support_ids,
           # (CONFIG["support_rate"] // len(x_support)) * int(i / 1 + 1)
-          1,
+          5,
       )
       random_x_support = x_support[support_ids]
       random_y_support = y_support[support_ids]
