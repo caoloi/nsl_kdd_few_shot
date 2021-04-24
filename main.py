@@ -38,7 +38,7 @@ def train(args):
         0.8,
         0.3,
         0.15,
-        0.1,
+        0.08,
     ][CONFIG["num_process"] - 1]
     # config.gpu_options.allow_growth = True
     sess = tf.compat.v1.Session(config=config)
