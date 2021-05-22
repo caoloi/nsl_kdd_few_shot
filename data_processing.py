@@ -23,8 +23,20 @@ pd.options.mode.chained_assignment = None  # default="warn" | Disable warnings
 from copy import copy
 
 
+def create_csv():
+  train_df, test_df = __load_kdd_dataset()
+  train_df, test_df = __numerical_processing(train_df, test_df)
+
+  for index in range(CONFIG["num_models"]):
+    train_df.to_csv("./temp/train_df_" + str(index) + ".csv")
+
+  train_df.to_csv("./temp/train_df.csv")
+  test_df.to_csv("./temp/test_df.csv")
+
+
 def data_processing(args):
   index, method = args
+
   if index is not None:
     print(
         "Load Dataset "
@@ -35,73 +47,9 @@ def data_processing(args):
         + method
     )
 
-  x_train, x_support, x_test, y_train, y_support, y_test, y_test_orig = __load_data(
-      index, method
-  )
-
-  if image_data_format() == "channels_first" and CONFIG["model_type"] == "cnn":
-    x_train = x_train.reshape(
-        x_train.shape[0],
-        1,
-        CONFIG["img_rows"],
-        CONFIG["img_cols"]
-    )
-    x_support = x_support.reshape(
-        x_support.shape[0],
-        1,
-        CONFIG["img_rows"],
-        CONFIG["img_cols"]
-    )
-    x_test = x_test.reshape(
-        x_test.shape[0],
-        1,
-        CONFIG["img_rows"],
-        CONFIG["img_cols"]
-    )
-
-    input_shape = (
-        1,
-        CONFIG["img_rows"],
-        CONFIG["img_cols"]
-    )
-  elif CONFIG["model_type"] == "cnn":
-    x_train = x_train.reshape(
-        x_train.shape[0],
-        CONFIG["img_rows"],
-        CONFIG["img_cols"],
-        1
-    )
-    x_support = x_support.reshape(
-        x_support.shape[0],
-        CONFIG["img_rows"],
-        CONFIG["img_cols"],
-        1
-    )
-    x_test = x_test.reshape(
-        x_test.shape[0],
-        CONFIG["img_rows"],
-        CONFIG["img_cols"],
-        1
-    )
-
-    input_shape = (
-        CONFIG["img_rows"],
-        CONFIG["img_cols"],
-        1
-    )
-  else:
-    input_shape = (121,)
-
-  # Maintain single value ground truth labels for center loss inputs
-  # Because Embedding layer only accept index as inputs instead of one-hot vector
-  y_train_value = y_train
-  y_support_value = y_support
-  y_test_value = y_test
-
-  # convert class vectors to binary class matrices
-  y_train = to_categorical(y_train, CONFIG["num_classes"])
-  y_support = to_categorical(y_support, CONFIG["num_classes"])
-  y_test = to_categorical(y_test, CONFIG["num_classes"])
+  x_train, y_train, y_train_value, input_shape = train_data_processing(args)
+  x_support, y_support, y_support_value, _ = support_data_processing(args)
+  x_test, y_test, y_test_value, _, y_test_orig = test_data_processing(args)
 
   return x_train, x_support, x_test, y_train, y_support, y_test, y_train_value, y_support_value, y_test_value, y_test_orig, input_shape
 
@@ -135,21 +83,6 @@ def t_sne_data_processing():
   return x_train, x_support, x_test, y_train, y_support, y_test
 
 
-def __load_data(index, method):
-  if CONFIG["dataset"] == "kdd":
-    x_train, x_support, x_test, y_train, y_support, y_test, y_test_orig = __kdd_encoding(
-        index,
-        method,
-    )
-  else:
-    x_train, x_support, x_test, y_train, y_support, y_test, y_test_orig = __kdd_encoding(
-        index,
-        method,
-    )
-
-  return x_train, x_support, x_test, y_train, y_support, y_test, y_test_orig
-
-
 def __load_kdd_dataset():
   # ***** DATA PATH *****
   data_path = "./data/"
@@ -181,12 +114,18 @@ def __load_kdd_dataset():
   return train_df, test_df
 
 
-def __kdd_encoding(index, method):
-  train_df, test_df = __load_kdd_dataset()
+def train_data_processing(args):
+  index, method = args
 
-  train_df, test_df = __numerical_processing(train_df, test_df)
+  if index is None:
+    train_df = pd.read_csv("./temp/train_df.csv", index_col=0)
+  else:
+    train_df = pd.read_csv(
+        "./temp/train_df_" + str(index) + ".csv",
+        index_col=0
+    )
+  train_df = train_df.sample(frac=1)
 
-  # train_df = __smote_processing(train_df)
   train_df = __resample_processing(
       train_df,
       index,
@@ -194,6 +133,42 @@ def __kdd_encoding(index, method):
       balanced=True,
   )
   x_train, y_train, _ = __label_to_num_processing(train_df)
+
+  if CONFIG["model_type"] == "cnn":
+    x_train = np.array(x_train).reshape(
+        x_train.shape[0],
+        CONFIG["img_rows"],
+        CONFIG["img_cols"]
+    )
+  else:
+    x_train = x_train.to_numpy()
+  y_train = y_train.to_numpy()
+
+  if image_data_format() == "channels_first" and CONFIG["model_type"] == "cnn":
+    x_train = x_train.reshape(
+        x_train.shape[0], 1, CONFIG["img_rows"], CONFIG["img_cols"]
+    )
+    input_shape = (1, CONFIG["img_rows"], CONFIG["img_cols"])
+  elif CONFIG["model_type"] == "cnn":
+    x_train = x_train.reshape(
+        x_train.shape[0], CONFIG["img_rows"], CONFIG["img_cols"], 1
+    )
+    input_shape = (CONFIG["img_rows"], CONFIG["img_cols"], 1)
+  else:
+    input_shape = (121,)
+
+  y_train_value = y_train
+  y_train = to_categorical(y_train, CONFIG["num_classes"])
+
+  return x_train, y_train, y_train_value, input_shape
+
+
+def support_data_processing(args):
+  index, method = args
+
+  test_df = pd.read_csv("./temp/test_df.csv", index_col=0)
+  test_df = test_df.sample(frac=1)
+
   support_df = __resample_processing(
       test_df,
       index,
@@ -201,12 +176,41 @@ def __kdd_encoding(index, method):
       balanced=True,
       type="test",
   )
-  # support_df = __smote_processing(
-  #     support_df,
-  #     r=CONFIG["smote_rate"],
-  #     type="test",
-  # )
   x_support, y_support, _ = __label_to_num_processing(support_df)
+
+  if CONFIG["model_type"] == "cnn":
+    x_support = np.array(x_support).reshape(
+        x_support.shape[0],
+        CONFIG["img_rows"],
+        CONFIG["img_cols"]
+    )
+  else:
+    x_support = x_support.to_numpy()
+  y_support = y_support.to_numpy()
+
+  if image_data_format() == "channels_first" and CONFIG["model_type"] == "cnn":
+    x_support = x_support.reshape(
+        x_support.shape[0], 1, CONFIG["img_rows"], CONFIG["img_cols"]
+    )
+    input_shape = (1, CONFIG["img_rows"], CONFIG["img_cols"])
+  elif CONFIG["model_type"] == "cnn":
+    x_support = x_support.reshape(
+        x_support.shape[0], CONFIG["img_rows"], CONFIG["img_cols"], 1
+    )
+    input_shape = (CONFIG["img_rows"], CONFIG["img_cols"], 1)
+  else:
+    input_shape = (121,)
+
+  y_support_value = y_support
+  y_support = to_categorical(y_support, CONFIG["num_classes"])
+
+  return x_support, y_support, y_support_value, input_shape
+
+
+def test_data_processing(args):
+  index, method = args
+
+  test_df = pd.read_csv("./temp/test_df.csv", index_col=0)
 
   test_df = __resample_processing(
       test_df,
@@ -217,30 +221,32 @@ def __kdd_encoding(index, method):
   x_test, y_test, y_test_orig = __label_to_num_processing(test_df)
 
   if CONFIG["model_type"] == "cnn":
-    x_train = np.array(x_train).reshape(
-        x_train.shape[0],
-        CONFIG["img_rows"],
-        CONFIG["img_cols"]
-    )
-    x_support = np.array(x_support).reshape(
-        x_support.shape[0],
-        CONFIG["img_rows"],
-        CONFIG["img_cols"]
-    )
     x_test = np.array(x_test).reshape(
         x_test.shape[0],
         CONFIG["img_rows"],
         CONFIG["img_cols"]
     )
   else:
-    x_train = x_train.to_numpy()
-    x_support = x_support.to_numpy()
     x_test = x_test.to_numpy()
-  y_train = y_train.to_numpy()
-  y_support = y_support.to_numpy()
   y_test = y_test.to_numpy()
 
-  return x_train, x_support, x_test, y_train, y_support, y_test, y_test_orig
+  if image_data_format() == "channels_first" and CONFIG["model_type"] == "cnn":
+    x_test = x_test.reshape(
+        x_test.shape[0], 1, CONFIG["img_rows"], CONFIG["img_cols"]
+    )
+    input_shape = (1, CONFIG["img_rows"], CONFIG["img_cols"])
+  elif CONFIG["model_type"] == "cnn":
+    x_test = x_test.reshape(
+        x_test.shape[0], CONFIG["img_rows"], CONFIG["img_cols"], 1
+    )
+    input_shape = (CONFIG["img_rows"], CONFIG["img_cols"], 1)
+  else:
+    input_shape = (121,)
+
+  y_test_value = y_test
+  y_test = to_categorical(y_test, CONFIG["num_classes"])
+
+  return x_test, y_test, y_test_value, input_shape, y_test_orig
 
 
 def __numerical_processing(train_df, test_df):
@@ -257,14 +263,6 @@ def __numerical_processing(train_df, test_df):
         train_df[c] = np.log(train_df[c] + 1)
       if test_df[c].min() != test_df[c].max():
         test_df[c] = np.log(test_df[c] + 1)
-
-      # boxcox
-      # if train_df[c].min() != train_df[c].max():
-      #   train_df[c] = train_df[c] + 1
-      #   train_df[c] = boxcox(train_df[c], lmbda=0.5)
-      # if test_df[c].min() != test_df[c].max():
-      #   test_df[c] = test_df[c] + 1
-      #   test_df[c] = boxcox(test_df[c], lmbda=0.5)
 
       # scale to range [0, 1]
       min = np.min([train_df[c].min(), test_df[c].min()])
@@ -341,40 +339,29 @@ def __resample_processing(df, index, method, balanced, type="train"):
       if SAMPLE_NUM_PER_LABEL[label][type] >= 0:
         if type == "test":
           if CONFIG["test_sampling_method"] == "zero":
-            samples = df_per_category[label].sample(
-                n=TEST_SAMLE_NUM_PER_LABEL[method][ii],
-                replace=TEST_SAMLE_NUM_PER_LABEL[method][ii] > len(
-                    df_per_category[label]
-                )
-            )
+            samples = __tile_samples(
+                df_per_category[label],
+                TEST_SAMLE_NUM_PER_LABEL[method][ii])
           else:
-            samples = df_per_category[label].sample(
-                n=TEST_SAMLE_NUM_PER_LABEL[CONFIG["test_sampling_method"]][ii],
-                replace=TEST_SAMLE_NUM_PER_LABEL[CONFIG["test_sampling_method"]][ii] > len(
-                    df_per_category[label]
-                )
+            samples = __tile_samples(
+                df_per_category[label],
+                TEST_SAMLE_NUM_PER_LABEL[CONFIG["test_sampling_method"]][ii]
             )
         else:
           if CONFIG["train_sampling_method"] == "zero":
-            samples = df_per_category[label].sample(
-                n=index * TRAIN_SAMLE_NUM_PER_LABEL[method][ii],
-                replace=index * TRAIN_SAMLE_NUM_PER_LABEL[method][ii] > len(
-                    df_per_category[label]
-                )
+            samples = __tile_samples(
+                df_per_category[label],
+                index * TRAIN_SAMLE_NUM_PER_LABEL[method][ii]
             )
           else:
-            samples = df_per_category[label].sample(
-                n=index *
-                TRAIN_SAMLE_NUM_PER_LABEL[CONFIG["train_sampling_method"]][ii],
-                replace=index * TRAIN_SAMLE_NUM_PER_LABEL[CONFIG["train_sampling_method"]][ii] > len(
-                    df_per_category[label]
-                )
+            samples = __tile_samples(
+                df_per_category[label],
+                index *
+                TRAIN_SAMLE_NUM_PER_LABEL[CONFIG["train_sampling_method"]][ii]
             )
         df_list.append(samples)
       ii += 1
     df = pd.concat(df_list, ignore_index=True)
-
-    # Assign x (inputs) and y (outputs) of the network
     df = df.sample(frac=1)
 
   return df
@@ -404,140 +391,12 @@ def __label_to_num_processing(df):
   return x, y, y_orig
 
 
-def __smote_processing(df, r=1, type="train"):
-  classes = []
-  for k in SAMPLE_NUM_PER_LABEL:
-    if SAMPLE_NUM_PER_LABEL[k][type] > 0:
-      classes.append(k[:-1])
-  df = df[df["label"].isin(classes)]
-  x = df.drop(columns="label")
-  y = df["label"]
-  # print('Original dataset samples per class {}'.format(Counter(y)))
-
-  strategy = Counter(y)
-  for k in strategy:
-    strategy[k] = np.max(
-        [
-            strategy[k],
-            (1 if k == "normal" else r) *
-            SAMPLE_NUM_PER_LABEL[k + "."][type]
-        ]
-    )
-  sm = SMOTENC(
-      sampling_strategy=strategy,
-      categorical_features=[
-          1,
-          2,
-          3,
-          4,
-          5,
-          6,
-          7,
-          8,
-          9,
-          10,
-          11,
-          12,
-          13,
-          14,
-          15,
-          16,
-          17,
-          18,
-          19,
-          20,
-          21,
-          22,
-          23,
-          24,
-          25,
-          26,
-          27,
-          28,
-          29,
-          30,
-          31,
-          32,
-          33,
-          34,
-          35,
-          36,
-          37,
-          38,
-          39,
-          40,
-          41,
-          42,
-          43,
-          44,
-          45,
-          46,
-          47,
-          48,
-          49,
-          50,
-          51,
-          52,
-          53,
-          54,
-          55,
-          56,
-          57,
-          58,
-          59,
-          60,
-          61,
-          62,
-          63,
-          64,
-          65,
-          66,
-          67,
-          68,
-          69,
-          70,
-          71,
-          72,
-          73,
-          74,
-          75,
-          76,
-          77,
-          78,
-          79,
-          80,
-          81,
-          82,
-          83,
-          84,
-          87,
-          92,
-          100,
-          101,
-          121,
-      ],
-      k_neighbors=(2 if type == "test" else 5),
-      n_jobs=-1
-  )
-  x, y = sm.fit_resample(x, y)
-  # print('Resampled dataset samples per class {}'.format(Counter(y)))
-  df = pd.concat([y, x], axis=1)
-  return df
-
-
-def __rank_gauss(df):
-  for col in df.columns:
-    if col != "label" and col != "difficulty":
-      transformer = QuantileTransformer(
-          n_quantiles=100,
-          random_state=0,
-          output_distribution='normal'
-      )
-      vec_len = len(df[col].values)
-      raw_vec = df[col].values.reshape(vec_len, 1)
-      transformer.fit(raw_vec)
-
-      # 変換後のデータで各列を置換
-      df[col] = transformer.transform(raw_vec).reshape(1, vec_len)[0]
-
-  return df
+def __tile_samples(df, num):
+  ids = []
+  id = 0
+  df_len = len(df)
+  while len(ids) < num:
+    ids.append(id)
+    id += 1
+    id %= df_len
+  return df.iloc[ids]

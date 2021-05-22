@@ -12,7 +12,7 @@ else:
 
 from constants import CONFIG, LABELS
 from classifications import calc_ensemble_accuracy, calc_distance, load_distances
-from data_processing import data_processing
+from data_processing import create_csv, train_data_processing, support_data_processing, test_data_processing
 from callbacks import Histories
 from models import build_fsl_cnn, build_fsl_dnn
 from summary import create_summary, print_summary, save_summary
@@ -120,7 +120,13 @@ def train(args):
 
 
 def train_and_create_result(p, e_i):
-  _, x_support, x_test, _, y_support, y_test, _, y_support_value, y_test_value, y_test_orig, input_shape = data_processing(
+  x_support, y_support, y_support_value, input_shape = support_data_processing(
+      [
+          None,
+          "zero",
+      ]
+  )
+  x_test, y_test, y_test_value, _, y_test_orig = test_data_processing(
       [
           None,
           "zero",
@@ -141,12 +147,12 @@ def train_and_create_result(p, e_i):
       ] for i in range(CONFIG["num_models"])
   ]
 
-  datasets = p.map(data_processing, args)
+  train_datasets = p.map(train_data_processing, args)
 
   for j in range(CONFIG["repeat"]):
     args = []
     for i in range(CONFIG["num_models"]):
-      x_train, _, _, y_train, _, _, y_train_value, _, _, _, _ = datasets[i]
+      x_train, y_train, y_train_value, _ = train_datasets[i]
       support_ids = np.random.permutation(x_support.shape[0])
       # support_ids = np.random.choice(support_ids, CONFIG["support_rate"])
       support_ids = np.tile(
@@ -203,6 +209,7 @@ def main():
   results = []
 
   for i in range(CONFIG["experiment_count"]):
+    create_csv()
     print("-" * 200)
     print(
         "Experiment "
@@ -242,7 +249,7 @@ def comparison_train_dataset():
           "zero"
       ] for e_i in range(CONFIG["experiment_count"] * CONFIG["experiment_count"])
   ]
-  support_datasets = p.map(data_processing, args)
+  support_datasets = p.map(support_data_processing, args)
   for sampling_method in sampling_methods:
     results[sampling_method] = {
         "accuracy": [],
@@ -256,7 +263,7 @@ def comparison_train_dataset():
             sampling_method,
         ] for e_i in range(CONFIG["experiment_count"] * CONFIG["experiment_count"])
     ]
-    datasets = p.map(data_processing, args)
+    train_datasets = p.map(train_data_processing, args)
 
     for i in range(CONFIG["experiment_count"]):
       print("-" * 200)
@@ -268,13 +275,18 @@ def comparison_train_dataset():
           + " " + sampling_method
       )
 
-      _, _, x_test, _, _, y_test, _, _, y_test_value, _, input_shape = support_datasets[i]
+      x_test, y_test, y_test_value, input_shape, _ = test_data_processing(
+          [
+              None,
+              "zero",
+          ]
+      )
       args = []
       for j in range(CONFIG["experiment_count"]):
-        x_train, _, _, y_train, _, _, y_train_value, _, _, _ = datasets[
+        x_train, y_train, y_train_value, _ = train_datasets[
             CONFIG["experiment_count"] * i + j
         ]
-        _, x_support, _, _, y_support, _, _, y_support_value, _, _, _ = support_datasets[
+        x_support, y_support, y_support_value, _ = support_datasets[
             CONFIG["experiment_count"] * i + j
         ]
         support_ids = np.random.permutation(x_support.shape[0])
@@ -366,7 +378,7 @@ def comparison_test_dataset():
           "zero"
       ] for e_i in range(CONFIG["experiment_count"] * CONFIG["experiment_count"])
   ]
-  datasets = p.map(data_processing, args)
+  train_datasets = p.map(train_data_processing, args)
   for sampling_method in sampling_methods:
     results[sampling_method] = {
         "accuracy": [],
@@ -380,7 +392,7 @@ def comparison_test_dataset():
             sampling_method,
         ] for e_i in range(CONFIG["experiment_count"] * CONFIG["experiment_count"])
     ]
-    support_datasets = p.map(data_processing, args)
+    support_datasets = p.map(support_data_processing, args)
 
     for i in range(CONFIG["experiment_count"]):
       print("-" * 200)
@@ -392,13 +404,18 @@ def comparison_test_dataset():
           + " " + sampling_method
       )
 
-      _, _, x_test, _, _, y_test, _, _, y_test_value, _, input_shape = datasets[i]
+      x_test, y_test, y_test_value, input_shape, _ = test_data_processing(
+          [
+              None,
+              "zero",
+          ]
+      )
       args = []
       for j in range(CONFIG["experiment_count"]):
-        _, x_support, _, _, y_support, _, _, y_support_value, _, _, _ = support_datasets[
+        x_support, y_support, y_support_value, _ = support_datasets[
             CONFIG["experiment_count"] * i + j
         ]
-        x_train, _, _, y_train, _, _, y_train_value, _, _, _, _ = datasets[
+        x_train, y_train, y_train_value, _ = train_datasets[
             CONFIG["experiment_count"] * i + j
         ]
         support_ids = np.random.permutation(x_support.shape[0])
