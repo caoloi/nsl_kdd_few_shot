@@ -42,6 +42,12 @@ def train(args):
         0.18,
         0.15,
         0.1,
+        0.1,
+        0.1,
+        0.1,
+        0.1,
+        0.1,
+        0.025,
     ][CONFIG["num_process"] - 1]
     # config.gpu_options.allow_growth = True
     sess = tf.compat.v1.Session(config=config)
@@ -129,6 +135,13 @@ def train(args):
   for d_l, y_t_v in zip(all_d_list, all_y_train_value):
     correct_d_list.append(d_l[y_t_v])
   ids = np.argsort(-np.array(correct_d_list))
+  # ids_0 = ids[len(ids)//2:]
+  # # ids_0 = ids_0[::-1]
+  # ids_1 = ids[:len(ids)//2]
+  # ids_1 = ids_1[::-1]
+  # ids = [None]*(len(ids_0) + len(ids_1))
+  # ids[::2] = ids_0
+  # ids[1::2] = ids_1
   train_df = pd.read_csv(
       "./temp/train_df_" + str(index) + ".csv",
       index_col=0
