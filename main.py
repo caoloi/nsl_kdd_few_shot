@@ -12,7 +12,7 @@ else:
 
 from constants import CONFIG, LABELS
 from classifications import calc_ensemble_accuracy, calc_distance, load_distances
-from data_processing import create_csv, train_data_processing, support_data_processing, test_data_processing
+from data_processing import create_csv, train_data_processing, support_data_processing, test_data_processing, all_train_data_processing
 from callbacks import Histories
 from models import build_fsl_cnn, build_fsl_dnn
 from summary import create_summary, print_summary, save_summary
@@ -22,6 +22,7 @@ from keras.optimizers import Adam
 from keras.models import Model, load_model
 from keras.layers import Input
 import numpy as np
+import pandas as pd
 import multiprocessing as mp
 from sklearn.metrics import classification_report, accuracy_score, confusion_matrix
 
@@ -113,6 +114,28 @@ def train(args):
       shuffle=CONFIG["shuffle"],
   )
 
+  all_x_train, _, all_y_train_value, _ = all_train_data_processing(
+      [
+          index, None
+      ]
+  )
+  all_d_list = calc_distance(
+      all_x_train,
+      x_support,
+      y_support_value,
+      model,
+  )
+  correct_d_list = []
+  for d_l, y_t_v in zip(all_d_list, all_y_train_value):
+    correct_d_list.append(d_l[y_t_v])
+  ids = np.argsort(-np.array(correct_d_list))
+  train_df = pd.read_csv(
+      "./temp/train_df_" + str(index) + ".csv",
+      index_col=0
+  )
+  train_df = train_df.iloc[ids]
+  train_df.to_csv("./temp/train_df_" + str(index) + ".csv")
+
   file_name = "./temp/model_" + str(index) + "_" + str(j) + ".h5"
   if os.path.isfile(file_name):
     os.remove(file_name)
@@ -135,24 +158,25 @@ def train_and_create_result(p, e_i):
       ]
   )
 
-  args = [
-      [
-          i,
-          [
-              "a",
-              # "b",
-              # "c",
-              "d",
-              # "e",
-              "f",
-          ][i % 3]
-      ] for i in range(CONFIG["num_models"])
-  ]
-
-  train_datasets = p.map(train_data_processing, args)
-
   for j in range(CONFIG["repeat"]):
+    args = [
+        [
+            i,
+            [
+                "a",
+                # "b",
+                # "c",
+                "d",
+                # "e",
+                "f",
+            ][i % 3]
+        ] for i in range(CONFIG["num_models"])
+    ]
+
+    train_datasets = p.map(train_data_processing, args)
+
     args = []
+
     for i in range(CONFIG["num_models"]):
       x_train, y_train, y_train_value, _ = train_datasets[i]
       support_ids = np.random.permutation(x_support.shape[0])

@@ -163,6 +163,48 @@ def train_data_processing(args):
   return x_train, y_train, y_train_value, input_shape
 
 
+def all_train_data_processing(args):
+  index, _ = args
+
+  if index is None:
+    train_df = pd.read_csv("./temp/train_df.csv", index_col=0)
+  else:
+    train_df = pd.read_csv(
+        "./temp/train_df_" + str(index) + ".csv",
+        index_col=0
+    )
+
+  x_train, y_train, _ = __label_to_num_processing(train_df)
+
+  if CONFIG["model_type"] == "cnn":
+    x_train = np.array(x_train).reshape(
+        x_train.shape[0],
+        CONFIG["img_rows"],
+        CONFIG["img_cols"]
+    )
+  else:
+    x_train = x_train.to_numpy()
+  y_train = y_train.to_numpy()
+
+  if image_data_format() == "channels_first" and CONFIG["model_type"] == "cnn":
+    x_train = x_train.reshape(
+        x_train.shape[0], 1, CONFIG["img_rows"], CONFIG["img_cols"]
+    )
+    input_shape = (1, CONFIG["img_rows"], CONFIG["img_cols"])
+  elif CONFIG["model_type"] == "cnn":
+    x_train = x_train.reshape(
+        x_train.shape[0], CONFIG["img_rows"], CONFIG["img_cols"], 1
+    )
+    input_shape = (CONFIG["img_rows"], CONFIG["img_cols"], 1)
+  else:
+    input_shape = (121,)
+
+  y_train_value = y_train
+  y_train = to_categorical(y_train, CONFIG["num_classes"])
+
+  return x_train, y_train, y_train_value, input_shape
+
+
 def support_data_processing(args):
   index, method = args
 

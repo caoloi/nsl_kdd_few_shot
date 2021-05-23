@@ -1,6 +1,6 @@
 import keras
-from sklearn.metrics import classification_report, accuracy_score, confusion_matrix
-from classifications import calc_pred, save_report, calc_distance
+from sklearn.metrics import classification_report, accuracy_score
+from classifications import calc_distance
 from constants import CONFIG, LABELS
 import matplotlib.pyplot as plt
 import numpy as np
@@ -29,14 +29,6 @@ class Histories(keras.callbacks.Callback):
     return
 
   def on_epoch_end(self, epoch, logs={}):
-    # print("Model: " + str(self.index + 1) + "/" + str(CONFIG["num_models"]))
-    # print("========= train =========")
-    # train_pred = calc_pred(self.x_train, self.x_support, self.y_support, self.model)
-    # print(classification_report(self.y_train, train_pred))
-    # train_acc = accuracy_score(self.y_train, train_pred)
-    # print(train_acc)
-
-    # print("========= test =========")
     d_list = calc_distance(
         self.x_test,
         self.x_support,
@@ -51,8 +43,6 @@ class Histories(keras.callbacks.Callback):
           "Epoch: " + str(epoch + 1 + self.j * CONFIG["epochs"])
           + "/" + str(CONFIG["epochs"] * CONFIG["repeat"])
           + "\tModel: " + str(self.index + 1) + "/" + str(CONFIG["num_models"])
-          # + "(" + str(self.j + 1) + ")"
-          # + "\tTrain Accuracy: " + "|  " * self.index + "{:.07f}".format(train_acc) + "|  " * (CONFIG["num_models"] - self.index - 1)
           + "\tTest Accuracy: " + "|  " * self.index
           + "{:.07f}".format(acc) + "|  "
           * (CONFIG["num_models"] - self.index - 1)
@@ -60,7 +50,6 @@ class Histories(keras.callbacks.Callback):
           + "{:.07f}".format(logs["loss"]) + "|  "
           * (CONFIG["num_models"] - self.index - 1)
       )
-      # if self.index == 0:
       if False:
         plt.ion()
         plt.clf()
