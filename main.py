@@ -158,13 +158,18 @@ def train(args):
 
 
 def train_and_create_result(p, e_i):
-  x_support, y_support, y_support_value, input_shape = support_data_processing(
-      [
-          None,
-          "zero",
-      ]
-  )
-  x_test, y_test, y_test_value, _, y_test_orig = test_data_processing(
+  # x_support, y_support, y_support_value, input_shape = support_data_processing(
+  #     [
+  #         None,
+  #         "zero",
+  #     ]
+  # )
+  dir_name = "./benchmark/" + str(e_i) + "/"
+  x_support = np.load(dir_name + "x_support.npy")
+  y_support = np.load(dir_name + "y_support.npy")
+  y_support_value = np.load(dir_name + "y_support_value.npy")
+
+  x_test, y_test, y_test_value, input_shape, y_test_orig = test_data_processing(
       [
           None,
           "zero",
@@ -529,7 +534,34 @@ def comparison_test_dataset():
       )
 
 
+def create_benchmark_dataset():
+  for i in range(100):
+    x_support, y_support, y_support_value, _ = support_data_processing(
+        [
+            None,
+            "zero",
+        ]
+    )
+    dir_name = "./benchmark/" + str(i) + "/"
+    if os.path.isdir(dir_name):
+      os.remove(dir_name)
+    os.makedirs(dir_name)
+    np.save(
+        dir_name + "x_support",
+        x_support,
+    )
+    np.save(
+        dir_name + "y_support",
+        y_support,
+    )
+    np.save(
+        dir_name + "y_support_value",
+        y_support_value,
+    )
+
+
 if __name__ == "__main__":
   main()
   # comparison_train_dataset()
   # comparison_test_dataset()
+  # create_benchmark_dataset()
