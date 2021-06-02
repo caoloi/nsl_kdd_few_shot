@@ -35,7 +35,7 @@ class Histories(keras.callbacks.Callback):
         self.y_support,
         self.model,
     )
-    if (epoch + 1) % np.min([10, CONFIG["epochs"]]) == 0:
+    if (epoch + 1) % np.min([50, CONFIG["epochs"]]) == 0:
       pred = np.argmin(d_list, axis=1)
       acc = accuracy_score(self.y_test, pred)
       # print(acc)

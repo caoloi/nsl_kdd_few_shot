@@ -21,6 +21,7 @@ from sklearn.preprocessing import QuantileTransformer
 from scipy.stats import boxcox
 pd.options.mode.chained_assignment = None  # default="warn" | Disable warnings
 from copy import copy
+import os
 
 
 def create_csv():
@@ -28,10 +29,19 @@ def create_csv():
   train_df, test_df = __numerical_processing(train_df, test_df)
 
   for index in range(CONFIG["num_models"]):
-    train_df.to_csv("./temp/train_df_" + str(index) + ".csv")
+    train_df_with_index_file_name = "./temp/train_df_" + str(index) + ".csv"
+    if os.path.isfile(train_df_with_index_file_name):
+      os.remove(train_df_with_index_file_name)
+    train_df.to_csv(train_df_with_index_file_name)
 
-  train_df.to_csv("./temp/train_df.csv")
-  test_df.to_csv("./temp/test_df.csv")
+  train_df_file_name = "./temp/train_df.csv"
+  if os.path.isfile(train_df_file_name):
+    os.remove(train_df_file_name)
+  train_df.to_csv(train_df_file_name)
+  test_df_file_name = "./temp/test_df.csv"
+  if os.path.isfile(test_df_file_name):
+    os.remove(test_df_file_name)
+  test_df.to_csv(test_df_file_name)
 
 
 def data_processing(args):

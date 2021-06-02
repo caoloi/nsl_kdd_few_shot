@@ -4,11 +4,16 @@ services:
     build: .
     image: fsl
     volumes:
-      - ./:/fsl
-      - ./data
-      - ./results
-      - ./summaries
+      - ${PWD}/:/fsl
+      - ${PWD}/data
+      - ${PWD}/results
+      - ${PWD}/summaries
+      - ${PWD}/benchmark
     runtime: nvidia
     ports:
       - 8889:8889
     command: python main.py
+    shm_size: 1g
+    ulimits:
+      memlock: -1
+      stack: 67108864

@@ -41,13 +41,13 @@ def train(args):
         0.25,
         0.18,
         0.15,
+        0.096,
         0.1,
         0.1,
         0.1,
         0.1,
         0.1,
-        0.1,
-        0.025,
+        0.015,
     ][CONFIG["num_process"] - 1]
     # config.gpu_options.allow_growth = True
     sess = tf.compat.v1.Session(config=config)
@@ -120,6 +120,7 @@ def train(args):
       shuffle=CONFIG["shuffle"],
   )
 
+  # -----
   all_x_train, _, all_y_train_value, _ = all_train_data_processing(
       [
           index, None
@@ -135,6 +136,7 @@ def train(args):
   for d_l, y_t_v in zip(all_d_list, all_y_train_value):
     correct_d_list.append(d_l[y_t_v])
   ids = np.argsort(-np.array(correct_d_list))
+  # -----
   # ids_0 = ids[len(ids)//2:]
   # # ids_0 = ids_0[::-1]
   # ids_1 = ids[:len(ids)//2]
@@ -142,12 +144,17 @@ def train(args):
   # ids = [None]*(len(ids_0) + len(ids_1))
   # ids[::2] = ids_0
   # ids[1::2] = ids_1
+  # -----
   train_df = pd.read_csv(
       "./temp/train_df_" + str(index) + ".csv",
       index_col=0
   )
   train_df = train_df.iloc[ids]
-  train_df.to_csv("./temp/train_df_" + str(index) + ".csv")
+  train_df_file_name = "./temp/train_df_" + str(index) + ".csv"
+  if os.path.isfile(train_df_file_name):
+    os.remove(train_df_file_name)
+  train_df.to_csv(train_df_file_name)
+  # -----
 
   file_name = "./temp/model_" + str(index) + "_" + str(j) + ".h5"
   if os.path.isfile(file_name):
