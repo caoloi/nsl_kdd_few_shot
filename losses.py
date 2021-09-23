@@ -9,13 +9,14 @@ def center_loss(x_support, y_support, y_support_value, model):
     # train_centers = calc_centers_2(y_pred, y_true[:, :5])
 
     loss1 = K.sum(
-        K.square(
+        K.pow(
             y_pred - K.dot(
                 y_true[:, :5],
                 K.variable(
                     centers
                 ),
-            )
+            ),
+            2,
         ),
         axis=-1
     )
@@ -91,7 +92,7 @@ def center_loss(x_support, y_support, y_support_value, model):
 
     # loss6 = K.sum(K.square(K.variable(support_pred - np.dot(y_support, train_centers))), axis=-1)
 
-    loss = 1.0 * loss1 + 1.0 * loss4
+    loss = 10.0 * loss1 + 1.0 * loss4
     # loss = loss5 + loss6
 
     return loss

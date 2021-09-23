@@ -45,23 +45,37 @@ def calc_centers_2(pred, true):
 
 def calc_distance(x, x_support, y_support, model):
   output = model.predict_on_batch(x)
-  centers, weights = calc_centers(x_support, y_support, model)
+  # centers, weights = calc_centers(x_support, y_support, model)
+
+  # d_list = np.array(
+  #     [
+  #         [
+  #             np.linalg.norm(
+  #                 vect - center
+  #             )
+  #             for center in centers
+  #         ] / weights
+  #         for vect in output
+  #     ]
+  # )
+  # d_list = np.array(
+  #     [
+  #         d / np.sum(d)
+  #         for d in d_list
+  #     ]
+  # )
+
+  coordinates = model.predict_on_batch(x_support)
 
   d_list = np.array(
       [
           [
               np.linalg.norm(
-                  vect - center
+                  vect - coordinate
               )
-              for center in centers
-          ] / weights
+              for coordinate in coordinates
+          ]
           for vect in output
-      ]
-  )
-  d_list = np.array(
-      [
-          d / np.sum(d)
-          for d in d_list
       ]
   )
 
@@ -172,10 +186,16 @@ def accuracy_scores(args):
   return acc_list
 
 
-def calc_ensemble_accuracy(x, y, y_orig, p, e_i):
+def calc_ensemble_accuracy(x, y, y_orig, y_support, p, e_i):
   print("-" * 200)
 
-  distances = np.array(p.map(load_distances, range(CONFIG["num_models"])))
+  # distances = np.array(p.map(load_distances, range(CONFIG["num_models"])))
+  distances = np.array(
+      [
+          load_distances(i)
+          for i in range(CONFIG["num_models"])
+      ]
+  )
 
   print("-" * 200)
 
@@ -183,7 +203,13 @@ def calc_ensemble_accuracy(x, y, y_orig, p, e_i):
       [
           i,
           y,
-          np.argmin(distances[i], axis=2)
+          # np.argmin(distances[i], axis=2)
+          np.array(
+              [
+                  y_support[idx]
+                  for idx in np.argmin(distances[i], axis=2)
+              ]
+          )
       ]
       for i in range(CONFIG["num_models"])
   ]
@@ -204,11 +230,23 @@ def calc_ensemble_accuracy(x, y, y_orig, p, e_i):
           accuracy_score(
               y,
               [
-                  np.argmin(
-                      np.sum(
-                          distances[i, :, j],
-                          axis=0
-                      )
+                  # np.argmin(
+                  #     np.sum(
+                  #         distances[i, :, j],
+                  #         axis=0
+                  #     )
+                  # )
+                  np.array(
+                      [
+                          y_support[
+                              np.argmin(
+                                  np.sum(
+                                    distances[i, :, j],
+                                      axis=0
+                                  )
+                              )
+                          ]
+                      ]
                   )
                   for j in range(distances.shape[2])
               ]
@@ -233,11 +271,23 @@ def calc_ensemble_accuracy(x, y, y_orig, p, e_i):
 
   for i in range(CONFIG["epochs"] * CONFIG["repeat"]):
     pred = [
-        np.argmin(
-            np.sum(
-                distances[:, i, j],
-                axis=0
-            )
+        # np.argmin(
+        #     np.sum(
+        #         distances[:, i, j],
+        #         axis=0
+        #     )
+        # )
+        np.array(
+            [
+                y_support[
+                    np.argmin(
+                        np.sum(
+                            distances[:, i, j],
+                            axis=0
+                        )
+                    )
+                ]
+            ]
         )
         for j in range(distances.shape[2])
     ]
@@ -292,11 +342,23 @@ def calc_ensemble_accuracy(x, y, y_orig, p, e_i):
       ]
   )
   pred = [
-      np.argmin(
-          np.sum(
-              last_10_distances[:, i],
-              axis=0
-          )
+      # np.argmin(
+      #     np.sum(
+      #         last_10_distances[:, i],
+      #         axis=0
+      #     )
+      # )
+      np.array(
+          [
+              y_support[
+                  np.argmin(
+                      np.sum(
+                          last_10_distances[:, i],
+                          axis=0
+                      )
+                  )
+              ]
+          ]
       )
       for i in range(last_10_distances.shape[1])
   ]
@@ -324,11 +386,23 @@ def calc_ensemble_accuracy(x, y, y_orig, p, e_i):
       ]
   )
   pred = [
-      np.argmin(
-          np.sum(
-              all_distances[:, i],
-              axis=0
-          )
+      # np.argmin(
+      #     np.sum(
+      #         all_distances[:, i],
+      #         axis=0
+      #     )
+      # )
+      np.array(
+          [
+              y_support[
+                  np.argmin(
+                      np.sum(
+                          all_distances[:, i],
+                          axis=0
+                      )
+                  )
+              ]
+          ]
       )
       for i in range(all_distances.shape[1])
   ]

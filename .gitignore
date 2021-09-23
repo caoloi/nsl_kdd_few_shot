@@ -5,3 +5,4 @@ temp*
 *result*.jpg
 ngrok_ssh.sh
 /sampling_methods/__pycache__
+core
