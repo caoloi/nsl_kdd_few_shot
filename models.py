@@ -24,8 +24,8 @@ from tensorflow.keras.layers import (
 from constants import CONFIG
 
 
-def build_fsl_dnn(inputs):
-    x = Dense(121)(inputs)
+def build_fsl_dnn(input):
+    x = Dense(121)(input)
     # x = Dense(242)(x)
     # x = Dense(60, activation="relu")(x)
     x = Dense(60, activation="relu")(x)
@@ -35,8 +35,8 @@ def build_fsl_dnn(inputs):
     return x
 
 
-def __build_fsl_cnn(inputs):
-    x = Reshape((121, 1))(inputs)
+def __build_fsl_cnn(input):
+    x = Reshape((121, 1))(input)
     # print(x.shape)
     x = Conv1D(4, 2, padding="valid")(x)
     # print(x.shape)
@@ -67,7 +67,7 @@ def __build_fsl_cnn(inputs):
     x = Dense(121)(x)
     # print(x.shape)
 
-    x_in = Flatten()(inputs)
+    x_in = Flatten()(input)
     x = Add()(
         [
             x,
@@ -80,85 +80,88 @@ def __build_fsl_cnn(inputs):
     return x
 
 
-def build_fsl_cnn(inputs):
-    # Layer 1
-    l1_conv_in = Reshape((11, 11, 1))(inputs)
-    l1_conv_out = __conv_block(l1_conv_in, 4)
-    l1_out = __pool_block(l1_conv_out)
+def build_fsl_cnn(input):
+    # CNN 1
+    cnn1_out = __cnn_block_for_nsl_kdd(input)
 
-    # Layer 2
-    l2_conv_out = __conv_block(l1_out, 16)
-    l2_out = __pool_block(l2_conv_out)
+    # Addition 1
+    addition1_in1 = Reshape((121,))(input)
+    addition1_in2 = Reshape((121,))(cnn1_out)
+    # addition1_in2 = Flatten()(l1_out)
+    addition1_out = Add()([addition1_in1, addition1_in2])
 
-    # Layer 3
-    l3_conv_out = __conv_block(l2_out, 64)
-    l3_out = __pool_block(l3_conv_out)
-
-    # Layer 4
-    l4_out = __conv_block(l3_out, CONFIG["output_dim"])
-
-    # Layer 5
-    l5_in1 = Reshape((121,))(inputs)
-    l5_in2 = Reshape((121,))(l4_out)
-    # l5_in2 = Flatten()(l1_out)
-    l5_out = Add()([l5_in1, l5_in2])
-
-    # Layer 6
-    # l6_out = Dense(121)(l5_out)
+    # Dense 1
+    # dense1_out = Dense(121)(addition1_out)
 
     # Final Layour
-    final_out = Reshape((121,))(l5_out)
+    final_out = Reshape((121,))(addition1_out)
 
     return final_out
 
 
-def build_fsl_attention(inputs):
-    # Layer 1
-    l1_in = Reshape((121, 1))(inputs)
-    l1_out = __attention_block(l1_in)
+def build_fsl_attention(input):
+    # Attention 1
+    attention1_in = Reshape((121, 1))(input)
+    attention1_out = __attention_block(attention1_in)
 
-    # Layer 2
-    l2_conv_in = Reshape((11, 11, 1))(l1_out)
-    l2_conv_out = __conv_block(l2_conv_in, 4)
-    l2_out = __pool_block(l2_conv_out)
+    # CNN 1
+    cnn1_out = __cnn_block_for_nsl_kdd(attention1_out)
 
-    # Layer 3
-    l3_conv_out = __conv_block(l2_out, 16)
-    l3_out = __pool_block(l3_conv_out)
-
-    # Layer 4
-    l4_conv_out = __conv_block(l3_out, 64)
-    l4_out = __pool_block(l4_conv_out)
-
-    # Layer 5
-    l5_out = __conv_block(l4_out, CONFIG["output_dim"])
-
-    # Layer 6
-    l6_in1 = Reshape((121,))(l1_out)
-    l6_in2 = Reshape((121,))(l5_out)
-    l6_out = Add()([l6_in1, l6_in2])
+    # Addition 1
+    addition1_in1 = Reshape((121,))(attention1_out)
+    addition1_in2 = Reshape((121,))(cnn1_out)
+    addition1_out = Add()([addition1_in1, addition1_in2])
 
     # Final Layour
-    final_out = Reshape((121,))(l6_out)
+    final_out = Reshape((121,))(addition1_out)
 
     return final_out
 
 
-def __attention_block(inputs):
-    x_attention = Attention(use_scale=True)([inputs, inputs])
-    x = Add()([x_attention, inputs])
+def __attention_block(input):
+    attention_in = Reshape((121, 1))(input)
+    x_attention = Attention(use_scale=True)([attention_in, attention_in])
+    out = Add()([x_attention, attention_in])
 
-    return x
+    return out
 
 
-def __conv_block(inputs, channels):
+def __cnn_block_for_nsl_kdd(input):
+    # Reshape Input
+    conv1_in = Reshape((11, 11, 1))(input)
+
+    # Convolution 1
+    conv1_out = __conv_block(conv1_in, 4)
+
+    # Pooling 1
+    pool1_out = __pool_block(conv1_out)
+
+    # Convolution 2
+    conv2_out = __conv_block(pool1_out, 16)
+
+    # Pooling 2
+    pool2_out = __pool_block(conv2_out)
+
+    # Convolution 3
+    conv3_out = __conv_block(pool2_out, 64)
+
+    # Pooling 3
+    pool3_out = __pool_block(conv3_out)
+
+    # Convolution 4
+    conv4_out = __conv_block(pool3_out, 121)
+
+    return conv4_out
+
+
+def __conv_block(input, channels):
     x = Conv2D(
         channels,
         3,
         strides=1,
         padding="same",
         kernel_initializer="he_normal",
-    )(inputs)
+    )(input)
     # x = Conv2D(
     #     channels,
     #     3,
@@ -169,17 +172,17 @@ def __conv_block(inputs, channels):
     return x
 
 
-def __pool_block(inputs):
-    x = MaxPooling2D(pool_size=2, strides=2)(inputs)
+def __pool_block(input):
+    x = MaxPooling2D(pool_size=2, strides=2)(input)
     return x
 
 
 # Squeeze and Excitation
-def __se_block(inputs, channels, r=6):
+def __se_block(input, channels, r=6):
     # Squeeze
-    x = GlobalAveragePooling2D()(inputs)
+    x = GlobalAveragePooling2D()(input)
     # Excitation
     x = Dense(channels // r, activation="relu")(x)
     x = Dense(channels, activation="sigmoid")(x)
-    x = Multiply()([inputs, x])
+    x = Multiply()([input, x])
     return x
