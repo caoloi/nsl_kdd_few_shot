@@ -144,28 +144,10 @@ def train_data_processing(args):
     )
     x_train, y_train, _ = __label_to_num_processing(train_df)
 
-    if CONFIG["model_type"] == "cnn":
-        x_train = np.array(x_train).reshape(
-            x_train.shape[0],
-            CONFIG["img_rows"],
-            CONFIG["img_cols"]
-        )
-    else:
-        x_train = x_train.to_numpy()
+    x_train = x_train.to_numpy()
     y_train = y_train.to_numpy()
 
-    if image_data_format() == "channels_first" and CONFIG["model_type"] == "cnn":
-        x_train = x_train.reshape(
-            x_train.shape[0], 1, CONFIG["img_rows"], CONFIG["img_cols"]
-        )
-        input_shape = (1, CONFIG["img_rows"], CONFIG["img_cols"])
-    elif CONFIG["model_type"] == "cnn":
-        x_train = x_train.reshape(
-            x_train.shape[0], CONFIG["img_rows"], CONFIG["img_cols"], 1
-        )
-        input_shape = (CONFIG["img_rows"], CONFIG["img_cols"], 1)
-    else:
-        input_shape = (121,)
+    input_shape = (121,)
 
     y_train_value = y_train
     y_train = to_categorical(y_train, CONFIG["num_classes"])
@@ -186,28 +168,10 @@ def all_train_data_processing(args):
 
     x_train, y_train, _ = __label_to_num_processing(train_df)
 
-    if CONFIG["model_type"] == "cnn":
-        x_train = np.array(x_train).reshape(
-            x_train.shape[0],
-            CONFIG["img_rows"],
-            CONFIG["img_cols"]
-        )
-    else:
-        x_train = x_train.to_numpy()
+    x_train = x_train.to_numpy()
     y_train = y_train.to_numpy()
 
-    if image_data_format() == "channels_first" and CONFIG["model_type"] == "cnn":
-        x_train = x_train.reshape(
-            x_train.shape[0], 1, CONFIG["img_rows"], CONFIG["img_cols"]
-        )
-        input_shape = (1, CONFIG["img_rows"], CONFIG["img_cols"])
-    elif CONFIG["model_type"] == "cnn":
-        x_train = x_train.reshape(
-            x_train.shape[0], CONFIG["img_rows"], CONFIG["img_cols"], 1
-        )
-        input_shape = (CONFIG["img_rows"], CONFIG["img_cols"], 1)
-    else:
-        input_shape = (121,)
+    input_shape = (121,)
 
     y_train_value = y_train
     y_train = to_categorical(y_train, CONFIG["num_classes"])
@@ -230,28 +194,10 @@ def support_data_processing(args):
     )
     x_support, y_support, _ = __label_to_num_processing(support_df)
 
-    if CONFIG["model_type"] == "cnn":
-        x_support = np.array(x_support).reshape(
-            x_support.shape[0],
-            CONFIG["img_rows"],
-            CONFIG["img_cols"]
-        )
-    else:
-        x_support = x_support.to_numpy()
+    x_support = x_support.to_numpy()
     y_support = y_support.to_numpy()
 
-    if image_data_format() == "channels_first" and CONFIG["model_type"] == "cnn":
-        x_support = x_support.reshape(
-            x_support.shape[0], 1, CONFIG["img_rows"], CONFIG["img_cols"]
-        )
-        input_shape = (1, CONFIG["img_rows"], CONFIG["img_cols"])
-    elif CONFIG["model_type"] == "cnn":
-        x_support = x_support.reshape(
-            x_support.shape[0], CONFIG["img_rows"], CONFIG["img_cols"], 1
-        )
-        input_shape = (CONFIG["img_rows"], CONFIG["img_cols"], 1)
-    else:
-        input_shape = (121,)
+    input_shape = (121,)
 
     y_support_value = y_support
     y_support = to_categorical(y_support, CONFIG["num_classes"])
@@ -272,29 +218,11 @@ def test_data_processing(args):
     )
     x_test, y_test, y_test_orig = __label_to_num_processing(test_df)
 
-    if CONFIG["model_type"] == "cnn":
-        x_test = np.array(x_test).reshape(
-            x_test.shape[0],
-            CONFIG["img_rows"],
-            CONFIG["img_cols"]
-        )
-    else:
-        x_test = x_test.to_numpy()
+    x_test = x_test.to_numpy()
     y_test = y_test.to_numpy()
     y_test_orig = y_test_orig.to_numpy()
 
-    if image_data_format() == "channels_first" and CONFIG["model_type"] == "cnn":
-        x_test = x_test.reshape(
-            x_test.shape[0], 1, CONFIG["img_rows"], CONFIG["img_cols"]
-        )
-        input_shape = (1, CONFIG["img_rows"], CONFIG["img_cols"])
-    elif CONFIG["model_type"] == "cnn":
-        x_test = x_test.reshape(
-            x_test.shape[0], CONFIG["img_rows"], CONFIG["img_cols"], 1
-        )
-        input_shape = (CONFIG["img_rows"], CONFIG["img_cols"], 1)
-    else:
-        input_shape = (121,)
+    input_shape = (121,)
 
     y_test_value = y_test
     y_test = to_categorical(y_test, CONFIG["num_classes"])
