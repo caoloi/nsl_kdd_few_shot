@@ -81,50 +81,72 @@ def __build_fsl_cnn(inputs):
 
 
 def build_fsl_cnn(inputs):
-    x = Reshape((121, 1))(inputs)
-    x_attention = __multi_head_attention_block(x)
+    # Layer 1
+    l1_conv_in = Reshape((11, 11, 1))(inputs)
+    l1_conv_out = __conv_block(l1_conv_in, 4)
+    l1_out = __pool_block(l1_conv_out)
 
-    x = Reshape((11, 11, 1))(x_attention)
-    x = __conv_block(x, 4)
-    x = __pool_block(x)
+    # Layer 2
+    l2_conv_out = __conv_block(l1_out, 16)
+    l2_out = __pool_block(l2_conv_out)
 
-    x = __conv_block(x, 16)
-    x = __pool_block(x)
+    # Layer 3
+    l3_conv_out = __conv_block(l2_out, 64)
+    l3_out = __pool_block(l3_conv_out)
 
-    x = __conv_block(x, 64)
-    x = __pool_block(x)
+    # Layer 4
+    l4_out = __conv_block(l3_out, CONFIG["output_dim"])
 
-    x = __conv_block(x, CONFIG["output_dim"])
-    # x = __conv_block(x, 121)
+    # Layer 5
+    l5_in1 = Reshape((121,))(inputs)
+    l5_in2 = Reshape((121,))(l4_out)
+    # l5_in2 = Flatten()(l1_out)
+    l5_out = Add()([l5_in1, l5_in2])
 
-    x = Flatten()(x)
+    # Layer 6
+    # l6_out = Dense(121)(l5_out)
 
-    x_in = Flatten()(x_attention)
-    x = Add()(
-        [
-            x,
-            x_in
-        ]
-    )
+    # Final Layour
+    final_out = Reshape((121,))(l5_out)
 
-    x = Dense(CONFIG["output_dim"])(x)
-
-    return x
+    return final_out
 
 
-def __multi_head_attention_block(inputs):
-    # x_attention = AdditiveAttention(
-    #     use_scale=True,
-    # )([inputs, inputs])
-    x_attention = Attention(
-        use_scale=True,
-    )([inputs, inputs])
-    x = Add()(
-        [
-            x_attention,
-            inputs,
-        ]
-    )
+def build_fsl_attention(inputs):
+    # Layer 1
+    l1_in = Reshape((121, 1))(inputs)
+    l1_out = __attention_block(l1_in)
+
+    # Layer 2
+    l2_conv_in = Reshape((11, 11, 1))(l1_out)
+    l2_conv_out = __conv_block(l2_conv_in, 4)
+    l2_out = __pool_block(l2_conv_out)
+
+    # Layer 3
+    l3_conv_out = __conv_block(l2_out, 16)
+    l3_out = __pool_block(l3_conv_out)
+
+    # Layer 4
+    l4_conv_out = __conv_block(l3_out, 64)
+    l4_out = __pool_block(l4_conv_out)
+
+    # Layer 5
+    l5_out = __conv_block(l4_out, CONFIG["output_dim"])
+
+    # Layer 6
+    l6_in1 = Reshape((121,))(l1_out)
+    l6_in2 = Reshape((121,))(l5_out)
+    l6_out = Add()([l6_in1, l6_in2])
+
+    # Final Layour
+    final_out = Reshape((121,))(l6_out)
+
+    return final_out
+
+
+def __attention_block(inputs):
+    x_attention = Attention(use_scale=True)([inputs, inputs])
+    x = Add()([x_attention, inputs])
 
     return x
 

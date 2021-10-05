@@ -11,7 +11,7 @@ from tensorflow.keras.optimizers import Adam
 from tensorflow.compat.v1.keras import backend as K
 from losses import center_loss
 from summary import create_summary, print_summary, save_summary
-from models import build_fsl_cnn, build_fsl_dnn
+from models import build_fsl_attention, build_fsl_cnn, build_fsl_dnn
 from callbacks import Histories
 from data_processing import create_csv, train_data_processing, support_data_processing, test_data_processing, all_train_data_processing
 from classifications import calc_ensemble_accuracy, calc_distance, load_distances
@@ -47,7 +47,7 @@ def train(args):
                     0.25,  # 3
                     0.18,  # 4
                     0.15,  # 5
-                    0.25,  # 6
+                    0.24,  # 6
                     0.1,  # 7
                     0.1,  # 8
                     0.1,  # 9
@@ -69,7 +69,7 @@ def train(args):
     )
 
     input = Input(shape=list(input_shape))
-    output = build_fsl_cnn(
+    output = build_fsl_attention(
         input
     ) if CONFIG["model_type"] == "cnn" else build_fsl_dnn(input)
     model = Model(inputs=input, outputs=output)
