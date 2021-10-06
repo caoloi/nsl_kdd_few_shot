@@ -17,17 +17,8 @@ from data_processing import create_csv, train_data_processing, support_data_proc
 from classifications import calc_ensemble_accuracy, calc_distance, load_distances
 from constants import CONFIG, LABELS
 
-
-pf = platform.system()
-if pf == 'Darwin':
-    import plaidml.keras
-    import os
-    plaidml.keras.install_backend()
-    os.environ["KERAS_BACKEND"] = "plaidml.keras.backend"
-    os.environ["PLAIDML_EXPERIMENTAL"] = "1"
-else:
-    import os
-    os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
+import os
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
 
 
 def train(args):
@@ -45,7 +36,7 @@ def train(args):
                     0.8,  # 1
                     0.4,  # 2
                     0.25,  # 3
-                    0.18,  # 4
+                    0.4,  # 4
                     0.15,  # 5
                     0.24,  # 6
                     0.1,  # 7
@@ -187,12 +178,18 @@ def train_and_create_result(p, e_i):
     input_shape = np.load(dir_name + "input_shape.npy")
     y_test_orig = np.load(dir_name + "y_test_orig.npy", allow_pickle=True)
 
-    for j in range(CONFIG["repeat"]):
+    for repeat_index in range(CONFIG["repeat"]):
         args = []
 
-        for i in range(CONFIG["num_models"]):
+        for model_index in range(CONFIG["num_models"]):
+            # dir_name = "./benchmark/train/" + \
+            #     ["a", "b", "c", "d", "e", "f"][model_index % 6] + \
+            #     "/" + str(e_i) + "/" + str(model_index) + "/"
+            # dir_name = "./benchmark/train/" + "a" + "/" + \
+            #     str(e_i) + "/" + str(model_index) + "/"
             dir_name = "./benchmark/train/" + \
-                ["a", "d", "f"][i % 3] + "/" + str(e_i) + "/" + str(i) + "/"
+                ["a", "d", "f"][model_index % 3] + \
+                "/" + str(e_i) + "/" + str(model_index) + "/"
             x_train = np.load(dir_name + "x_train.npy")
             y_train = np.load(dir_name + "y_train.npy")
             y_train_value = np.load(dir_name + "y_train_value.npy")
@@ -235,8 +232,8 @@ def train_and_create_result(p, e_i):
 
             args.append(
                 [
-                    i,
-                    j,
+                    model_index,
+                    repeat_index,
                     x_train,
                     x_support,
                     # sampled_x_support,

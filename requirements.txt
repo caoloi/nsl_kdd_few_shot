@@ -12,8 +12,6 @@ MulticoreTSNE==0.1
 numpy==1.19.4
 pandas==1.1.4
 Pillow==8.0.1
-plaidml==0.7.0
-plaidml-keras==0.7.0
 pycparser==2.20
 pyparsing==2.4.7
 python-dateutil==2.8.1
