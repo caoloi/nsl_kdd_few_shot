@@ -102,7 +102,8 @@ def build_fsl_cnn(input):
 def build_fsl_attention(input):
     # Attention 1
     attention1_in = Reshape((121, 1))(input)
-    attention1_out = __attention_block(attention1_in)
+    # attention1_out = __attention_block(attention1_in)
+    attention1_out = __multi_head_attention_block(attention1_in, 2)
 
     # CNN 1
     cnn1_out = __cnn_block_for_nsl_kdd(attention1_out)
@@ -114,6 +115,7 @@ def build_fsl_attention(input):
 
     # Final Layour
     final_out = Reshape((121,))(addition1_out)
+    # final_out = Reshape((121,))(attention1_out)
 
     return final_out
 
@@ -124,6 +126,21 @@ def __attention_block(input):
     out = Add()([x_attention, attention_in])
 
     return out
+
+
+def __multi_head_attention_block(input, head_num):
+    attention_outputs = []
+
+    for _ in range(head_num):
+        attention_output = __attention_block(input)
+        reshaped_output = Reshape((121,))(attention_output)
+        attention_outputs.append(reshaped_output)
+
+    concat_output = Concatenate(axis=-1)(attention_outputs)
+
+    liner_output = Dense(121)(concat_output)
+
+    return liner_output
 
 
 def __cnn_block_for_nsl_kdd(input):
