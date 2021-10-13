@@ -5,4 +5,12 @@ exec:
 build:
 	docker-compose build
 monitor:
-	watch -n 1 "sensors | grep Core; cat /proc/cpuinfo | grep MHz; nvidia-smi"
+	# watch -n 1 "sensors \
+	# 	&& (cat /proc/cpuinfo | grep MHz) \
+	# 	&& nvidia-smi \
+	# 	&& (sudo nvme smart-log /dev/nvme0n1 | grep temperature) \
+	# 	&& (sudo nvme smart-log /dev/nvme1n1 | grep temperature)"
+	watch -n 1 "sensors \
+		&& nvidia-smi \
+		&& (sudo nvme smart-log /dev/nvme0n1 | grep temperature) \
+		&& (sudo nvme smart-log /dev/nvme1n1 | grep temperature)"
