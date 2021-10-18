@@ -58,11 +58,11 @@ def data_processing(args):
             + method
         )
 
-    x_train, y_train, y_train_value, input_shape = train_data_processing(args)
-    x_support, y_support, y_support_value, _ = support_data_processing(args)
-    x_test, y_test, y_test_value, _, y_test_orig = test_data_processing(args)
+    x_train, y_train, y_train_value = train_data_processing(args)
+    x_support, y_support, y_support_value = support_data_processing(args)
+    x_test, y_test, y_test_value, y_test_orig = test_data_processing(args)
 
-    return x_train, x_support, x_test, y_train, y_support, y_test, y_train_value, y_support_value, y_test_value, y_test_orig, input_shape
+    return x_train, x_support, x_test, y_train, y_support, y_test, y_train_value, y_support_value, y_test_value, y_test_orig
 
 
 def t_sne_data_processing():
@@ -147,12 +147,10 @@ def train_data_processing(args):
     x_train = x_train.to_numpy()
     y_train = y_train.to_numpy()
 
-    input_shape = (121,)
-
     y_train_value = y_train
     y_train = to_categorical(y_train, CONFIG["num_classes"])
 
-    return x_train, y_train, y_train_value, input_shape
+    return x_train, y_train, y_train_value
 
 
 def all_train_data_processing(args):
@@ -171,12 +169,10 @@ def all_train_data_processing(args):
     x_train = x_train.to_numpy()
     y_train = y_train.to_numpy()
 
-    input_shape = (121,)
-
     y_train_value = y_train
     y_train = to_categorical(y_train, CONFIG["num_classes"])
 
-    return x_train, y_train, y_train_value, input_shape
+    return x_train, y_train, y_train_value
 
 
 def support_data_processing(args):
@@ -197,12 +193,10 @@ def support_data_processing(args):
     x_support = x_support.to_numpy()
     y_support = y_support.to_numpy()
 
-    input_shape = (121,)
-
     y_support_value = y_support
     y_support = to_categorical(y_support, CONFIG["num_classes"])
 
-    return x_support, y_support, y_support_value, input_shape
+    return x_support, y_support, y_support_value
 
 
 def test_data_processing(args):
@@ -222,12 +216,10 @@ def test_data_processing(args):
     y_test = y_test.to_numpy()
     y_test_orig = y_test_orig.to_numpy()
 
-    input_shape = (121,)
-
     y_test_value = y_test
     y_test = to_categorical(y_test, CONFIG["num_classes"])
 
-    return x_test, y_test, y_test_value, input_shape, y_test_orig
+    return x_test, y_test, y_test_value, y_test_orig
 
 
 def __numerical_processing(train_df, test_df):

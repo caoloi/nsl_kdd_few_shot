@@ -7,7 +7,7 @@ from constants import CONFIG
 
 def __create_benchmark_support_dataset():
     for e_i in range(10):
-        x_support, y_support, y_support_value, _ = support_data_processing(
+        x_support, y_support, y_support_value = support_data_processing(
             [
                 None,
                 "zero",
@@ -36,7 +36,7 @@ def __create_benchmark_train_dataset():
     for e_i in range(10):
         for method in ["a", "b", "c", "d", "e", "f"]:
             for i in range(CONFIG["num_models"]):
-                x_train, y_train, y_train_value, _ = train_data_processing(
+                x_train, y_train, y_train_value = train_data_processing(
                     [
                         i,
                         method
@@ -62,7 +62,7 @@ def __create_benchmark_train_dataset():
 
 
 def __create_benchmark_test_dataset():
-    x_test, y_test, y_test_value, input_shape, y_test_orig = test_data_processing(
+    x_test, y_test, y_test_value, y_test_orig = test_data_processing(
         [
             None,
             "zero",
@@ -83,10 +83,6 @@ def __create_benchmark_test_dataset():
     np.save(
         dir_name + "y_test_value",
         y_test_value,
-    )
-    np.save(
-        dir_name + "input_shape",
-        input_shape,
     )
     np.save(
         dir_name + "y_test_orig",

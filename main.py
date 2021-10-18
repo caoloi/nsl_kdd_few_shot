@@ -19,7 +19,7 @@ os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
 
 
 def __train(args):
-    model_index, x_train, x_support, x_test, y_train, y_support, _, y_train_value, y_support_value, y_test_value, input_shape = args
+    model_index, x_train, x_support, x_test, y_train, y_support, _, y_train_value, y_support_value, y_test_value = args
 
     os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
     os.environ["CUDA_VISIBLE_DEVICES"] = str(model_index % 2)
@@ -49,7 +49,7 @@ def __train(args):
         + str(model_index + 1) + "/" + str(CONFIG["num_models"])
     )
 
-    input = Input(shape=list(input_shape))
+    input = Input(shape=CONFIG["input_shape"])
     output = build_fsl_attention(
         input
     ) if CONFIG["model_type"] == "cnn" else build_fsl_dnn(input)
@@ -117,7 +117,6 @@ def __train_and_create_result(p, e_i):
     x_test = np.load(dir_name + "x_test.npy")
     y_test = np.load(dir_name + "y_test.npy")
     y_test_value = np.load(dir_name + "y_test_value.npy")
-    input_shape = np.load(dir_name + "input_shape.npy")
     y_test_orig = np.load(dir_name + "y_test_orig.npy", allow_pickle=True)
 
     args = []
@@ -168,7 +167,6 @@ def __train_and_create_result(p, e_i):
                 y_train_value,
                 y_support_value,
                 y_test_value,
-                input_shape,
             ]
         )
     p.map(__train, args)
