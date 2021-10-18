@@ -1,5 +1,4 @@
 import tensorflow as tf
-import platform
 import shutil
 from sklearn.metrics import classification_report, accuracy_score, confusion_matrix
 import multiprocessing as mp
@@ -24,34 +23,28 @@ os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
 def train(args):
     index, j, x_train, x_support, x_test, y_train, y_support, _, y_train_value, y_support_value, y_test_value, input_shape = args
 
-    import platform
-    pf = platform.system()
-    if pf != 'Darwin':
-
-        os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
-        os.environ["CUDA_VISIBLE_DEVICES"] = str(index % 2)
-        config = tf.compat.v1.ConfigProto(
-            gpu_options=tf.compat.v1.GPUOptions(
-                per_process_gpu_memory_fraction=[
-                    0.8,  # 1
-                    0.4,  # 2
-                    0.25,  # 3
-                    0.4,  # 4
-                    0.15,  # 5
-                    0.24,  # 6
-                    0.1,  # 7
-                    0.1,  # 8
-                    0.1,  # 9
-                    0.1,  # 10
-                    0.1,  # 11
-                    0.09,  # 12
-                ][CONFIG["num_process"] - 1],
-            )
+    os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
+    os.environ["CUDA_VISIBLE_DEVICES"] = str(index % 2)
+    config = tf.compat.v1.ConfigProto(
+        gpu_options=tf.compat.v1.GPUOptions(
+            per_process_gpu_memory_fraction=[
+                0.8,  # 1
+                0.4,  # 2
+                0.25,  # 3
+                0.4,  # 4
+                0.15,  # 5
+                0.24,  # 6
+                0.1,  # 7
+                0.1,  # 8
+                0.1,  # 9
+                0.1,  # 10
+                0.1,  # 11
+                0.09,  # 12
+            ][CONFIG["num_process"] - 1],
         )
-        sess = tf.compat.v1.Session(config=config)
-        K.set_session(sess)
-        K.set_epsilon(CONFIG["epsilon"])
-    K.set_floatx(CONFIG["floatx"])
+    )
+    sess = tf.compat.v1.Session(config=config)
+    K.set_session(sess)
 
     print(
         "Setting up Model "
@@ -70,14 +63,11 @@ def train(args):
                            "_" + str(j - 1) + ".h5")
     model.compile(
         optimizer=Adam(),
-        loss=[
-            center_loss(
-                x_support,
-                y_support,
-                y_support_value,
-                model
-            )
-        ],
+        loss=center_loss(
+            x_support,
+            y_support_value,
+            model
+        ),
     )
 
     expanded_y_train = np.array(
@@ -278,13 +268,6 @@ def main():
         )
         result = train_and_create_result(p, i)
         results.append(result)
-
-        pf = platform.system()
-        if pf == 'Darwin':
-            p.close()
-            p.join()
-
-            p = mp.get_context('spawn').Pool(CONFIG["num_process"])
 
     summary = create_summary(results)
     print_summary(summary)
