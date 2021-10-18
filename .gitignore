@@ -6,5 +6,5 @@ temp*
 ngrok_ssh.sh
 /sampling_methods/__pycache__
 core
-benchmark
+benchmark*
 data

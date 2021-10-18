@@ -107,13 +107,13 @@ def __train(args):
 
 
 def __train_and_create_result(p, e_i):
-    dir_name = "./benchmark/support/" + \
+    dir_name = CONFIG["benchmark_dir"] + "/support/" + \
         CONFIG["test_sampling_method"] + "/" + str(e_i) + "/"
     x_support = np.load(dir_name + "x_support.npy")
     y_support = np.load(dir_name + "y_support.npy")
     y_support_value = np.load(dir_name + "y_support_value.npy")
 
-    dir_name = "./benchmark/test/"
+    dir_name = CONFIG["benchmark_dir"] + "/test/"
     x_test = np.load(dir_name + "x_test.npy")
     y_test = np.load(dir_name + "y_test.npy")
     y_test_value = np.load(dir_name + "y_test_value.npy")
@@ -122,12 +122,12 @@ def __train_and_create_result(p, e_i):
     args = []
 
     for model_index in range(CONFIG["num_models"]):
-        # dir_name = "./benchmark/train/" + \
+        # dir_name = CONFIG["benchmark_dir"] + "/train/" + \
         #     ["a", "b", "c", "d", "e", "f"][model_index % 6] + \
         #     "/" + str(e_i) + "/" + str(model_index) + "/"
-        # dir_name = "./benchmark/train/" + "a" + "/" + \
+        # dir_name = CONFIG["benchmark_dir"] + "/train/" + "a" + "/" + \
         #     str(e_i) + "/" + str(model_index) + "/"
-        dir_name = "./benchmark/train/" + \
+        dir_name = CONFIG["benchmark_dir"] + "/train/" + \
             ["a", "d", "f"][model_index % 3] + \
             "/" + str(e_i) + "/" + str(model_index) + "/"
         x_train = np.load(dir_name + "x_train.npy")

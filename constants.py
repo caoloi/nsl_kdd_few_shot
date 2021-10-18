@@ -1,23 +1,24 @@
 # REFERENCES PARAMETERS
 CONFIG = {
-    "epochs": 10,
+    "epochs": 100,
     "batch_size": 50,
     "num_classes": 5,
-    "num_models": 1,
-    # "num_models": 12,
+    # "num_models": 1,
+    "num_models": 12,
     "dataset": "kdd",
     "train_data": "train+",
     "test_data": "test+",
     "train_sampling_method": "zero",
     "test_sampling_method": "e_025",
     "output_dim": 121,
-    "num_process": 1,
-    # "num_process": 6,
+    # "num_process": 1,
+    "num_process": 6,
     "model_type": "cnn",
     "experiment_count": 1,
     "shuffle": True,
     "save_report": False,
     "input_shape": (11, 11, 1),
+    "benchmark_dir": "./benchmark",
 }
 
 LABEL_TO_NUM = {

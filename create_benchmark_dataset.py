@@ -1,7 +1,7 @@
 import shutil
 import os
 import numpy as np
-from data_processing import train_data_processing, support_data_processing, test_data_processing
+from data_processing import create_csv, train_data_processing, support_data_processing, test_data_processing
 from constants import CONFIG
 
 
@@ -13,7 +13,7 @@ def __create_benchmark_support_dataset():
                 "zero",
             ]
         )
-        dir_name = "./benchmark/support/" + \
+        dir_name = CONFIG["benchmark_dir"] + "/support/" + \
             CONFIG["test_sampling_method"] + "/" + str(e_i) + "/"
         if os.path.isdir(dir_name):
             shutil.rmtree(dir_name)
@@ -42,7 +42,7 @@ def __create_benchmark_train_dataset():
                         method
                     ]
                 )
-                dir_name = "./benchmark/train/" + method + \
+                dir_name = CONFIG["benchmark_dir"] + "/train/" + method + \
                     "/" + str(e_i) + "/" + str(i) + "/"
                 if os.path.isdir(dir_name):
                     shutil.rmtree(dir_name)
@@ -68,7 +68,7 @@ def __create_benchmark_test_dataset():
             "zero",
         ]
     )
-    dir_name = "./benchmark/test/"
+    dir_name = CONFIG["benchmark_dir"] + "/test/"
     if os.path.isdir(dir_name):
         shutil.rmtree(dir_name)
     os.makedirs(dir_name)
@@ -91,6 +91,7 @@ def __create_benchmark_test_dataset():
 
 
 if __name__ == "__main__":
+    create_csv()
     __create_benchmark_support_dataset()
     __create_benchmark_train_dataset()
     __create_benchmark_test_dataset()
