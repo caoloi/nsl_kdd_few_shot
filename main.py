@@ -21,10 +21,10 @@ os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
 
 
 def train(args):
-    index, j, x_train, x_support, x_test, y_train, y_support, _, y_train_value, y_support_value, y_test_value, input_shape = args
+    model_index, x_train, x_support, x_test, y_train, y_support, _, y_train_value, y_support_value, y_test_value, input_shape = args
 
     os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
-    os.environ["CUDA_VISIBLE_DEVICES"] = str(index % 2)
+    os.environ["CUDA_VISIBLE_DEVICES"] = str(model_index % 2)
     config = tf.compat.v1.ConfigProto(
         gpu_options=tf.compat.v1.GPUOptions(
             per_process_gpu_memory_fraction=[
@@ -43,13 +43,12 @@ def train(args):
             ][CONFIG["num_process"] - 1],
         )
     )
-    sess = tf.compat.v1.Session(config=config)
-    K.set_session(sess)
+    session = tf.compat.v1.Session(config=config)
+    K.set_session(session)
 
     print(
         "Setting up Model "
-        + str(index + 1) + "/" + str(CONFIG["num_models"])
-        + "(" + str(j + 1) + ")"
+        + str(model_index + 1) + "/" + str(CONFIG["num_models"])
     )
 
     input = Input(shape=list(input_shape))
@@ -58,9 +57,6 @@ def train(args):
     ) if CONFIG["model_type"] == "cnn" else build_fsl_dnn(input)
     model = Model(inputs=input, outputs=output)
 
-    if j > 0:
-        model.load_weights("./temp/model_" + str(index) +
-                           "_" + str(j - 1) + ".h5")
     model.compile(
         optimizer=Adam(),
         loss=center_loss(
@@ -91,65 +87,23 @@ def train(args):
         y_test_value,
         x_support,
         y_support_value,
-        index,
-        j,
+        model_index,
     )
 
     init = tf.compat.v1.global_variables_initializer()
-    sess.run(init)
+    session.run(init)
 
     model.fit(
         x_train,
         expanded_y_train,
-        batch_size=CONFIG["batch_size"],  # + index * 5,
-        epochs=CONFIG["epochs"] if j >= 0 else 1,
+        batch_size=CONFIG["batch_size"],
+        epochs=CONFIG["epochs"],
         verbose=False,
         callbacks=[
             histories
         ],
         shuffle=CONFIG["shuffle"],
     )
-
-    # -----
-    # all_x_train, _, all_y_train_value, _ = all_train_data_processing(
-    #     [
-    #         index, None
-    #     ]
-    # )
-    # all_d_list = calc_distance(
-    #     all_x_train,
-    #     x_support,
-    #     y_support_value,
-    #     model,
-    # )
-    # correct_d_list = []
-    # for d_l, y_t_v in zip(all_d_list, all_y_train_value):
-    #   correct_d_list.append(d_l[y_t_v])
-    # ids = np.argsort(-np.array(correct_d_list))
-    # -----
-    # ids_0 = ids[len(ids)//2:]
-    # # ids_0 = ids_0[::-1]
-    # ids_1 = ids[:len(ids)//2]
-    # ids_1 = ids_1[::-1]
-    # ids = [None]*(len(ids_0) + len(ids_1))
-    # ids[::2] = ids_0
-    # ids[1::2] = ids_1
-    # -----
-    # train_df = pd.read_csv(
-    #     "./temp/train_df_" + str(index) + ".csv",
-    #     index_col=0
-    # )
-    # train_df = train_df.iloc[ids]
-    # train_df_file_name = "./temp/train_df_" + str(index) + ".csv"
-    # if os.path.isfile(train_df_file_name):
-    #   os.remove(train_df_file_name)
-    # train_df.to_csv(train_df_file_name)
-    # -----
-
-    file_name = "./temp/model_" + str(index) + "_" + str(j) + ".h5"
-    if os.path.isfile(file_name):
-        os.remove(file_name)
-    model.save_weights(file_name)
 
     K.clear_session()
 
@@ -168,78 +122,58 @@ def train_and_create_result(p, e_i):
     input_shape = np.load(dir_name + "input_shape.npy")
     y_test_orig = np.load(dir_name + "y_test_orig.npy", allow_pickle=True)
 
-    for repeat_index in range(CONFIG["repeat"]):
-        args = []
+    args = []
 
-        for model_index in range(CONFIG["num_models"]):
-            # dir_name = "./benchmark/train/" + \
-            #     ["a", "b", "c", "d", "e", "f"][model_index % 6] + \
-            #     "/" + str(e_i) + "/" + str(model_index) + "/"
-            # dir_name = "./benchmark/train/" + "a" + "/" + \
-            #     str(e_i) + "/" + str(model_index) + "/"
-            dir_name = "./benchmark/train/" + \
-                ["a", "d", "f"][model_index % 3] + \
-                "/" + str(e_i) + "/" + str(model_index) + "/"
-            x_train = np.load(dir_name + "x_train.npy")
-            y_train = np.load(dir_name + "y_train.npy")
-            y_train_value = np.load(dir_name + "y_train_value.npy")
+    for model_index in range(CONFIG["num_models"]):
+        # dir_name = "./benchmark/train/" + \
+        #     ["a", "b", "c", "d", "e", "f"][model_index % 6] + \
+        #     "/" + str(e_i) + "/" + str(model_index) + "/"
+        # dir_name = "./benchmark/train/" + "a" + "/" + \
+        #     str(e_i) + "/" + str(model_index) + "/"
+        dir_name = "./benchmark/train/" + \
+            ["a", "d", "f"][model_index % 3] + \
+            "/" + str(e_i) + "/" + str(model_index) + "/"
+        x_train = np.load(dir_name + "x_train.npy")
+        y_train = np.load(dir_name + "y_train.npy")
+        y_train_value = np.load(dir_name + "y_train_value.npy")
 
-            support_ids = np.random.permutation(x_support.shape[0])
-            # support_ids = np.random.choice(support_ids, CONFIG["support_rate"])
-            support_ids = np.tile(
-                support_ids,
-                # (CONFIG["support_rate"] // len(x_support)) * int(i / 1 + 1)
-                10,
-            )
-            random_x_support = x_support[support_ids]
-            random_y_support = y_support[support_ids]
-            random_y_support_value = y_support_value[support_ids]
+        support_ids = np.random.permutation(x_support.shape[0])
+        support_ids = np.tile(
+            support_ids,
+            10,
+        )
+        random_x_support = x_support[support_ids]
+        random_y_support = y_support[support_ids]
+        random_y_support_value = y_support_value[support_ids]
 
-            train_ids = np.random.permutation(x_train.shape[0])
-            random_x_train = x_train[train_ids]
-            random_y_train = y_train[train_ids]
-            random_y_train_value = y_train_value[train_ids]
+        train_ids = np.random.permutation(x_train.shape[0])
+        random_x_train = x_train[train_ids]
+        random_y_train = y_train[train_ids]
+        random_y_train_value = y_train_value[train_ids]
 
-            x_train = np.vstack((random_x_train, random_x_support))
-            y_train = np.vstack((random_y_train, random_y_support))
-            y_train_value = np.hstack(
-                (random_y_train_value, random_y_support_value))
+        x_train = np.vstack((random_x_train, random_x_support))
+        y_train = np.vstack((random_y_train, random_y_support))
+        y_train_value = np.hstack(
+            (random_y_train_value, random_y_support_value))
 
-            # np.random.seed(seed=i * j)
-            # sampled_support_ids = np.array([])
-            # for label in range(CONFIG["num_classes"]):
-            #   temp_ids = np.random.choice(
-            #     np.where(y_support_value == label)[0],
-            #     (3 * y_support_value.shape[0] // CONFIG["num_classes"]) // 5,
-            #     replace=False
-            #   )
-            #   sampled_support_ids = np.concatenate([sampled_support_ids, temp_ids], 0).astype('int64')
-            # sampled_x_support = x_support[sampled_support_ids]
-            # sampled_y_support = y_support[sampled_support_ids]
-            # sampled_y_support_value = y_support_value[sampled_support_ids]
+        del support_ids, random_x_support, random_y_support, random_y_support_value, train_ids, random_x_train, random_y_train, random_y_train_value
 
-            del support_ids, random_x_support, random_y_support, random_y_support_value, train_ids, random_x_train, random_y_train, random_y_train_value
-
-            args.append(
-                [
-                    model_index,
-                    repeat_index,
-                    x_train,
-                    x_support,
-                    # sampled_x_support,
-                    x_test,
-                    y_train,
-                    y_support,
-                    # sampled_y_support,
-                    y_test,
-                    y_train_value,
-                    y_support_value,
-                    # sampled_y_support_value,
-                    y_test_value,
-                    input_shape,
-                ]
-            )
-        p.map(train, args)
+        args.append(
+            [
+                model_index,
+                x_train,
+                x_support,
+                x_test,
+                y_train,
+                y_support,
+                y_test,
+                y_train_value,
+                y_support_value,
+                y_test_value,
+                input_shape,
+            ]
+        )
+    p.map(train, args)
 
     result = calc_ensemble_accuracy(
         x_test,

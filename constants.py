@@ -4,25 +4,21 @@ CONFIG = {
     "batch_size": 50,
     "num_classes": 5,
     # "num_models": 1,
-    "num_models": 6,
+    "num_models": 12,
     "dataset": "kdd",
     "train_data": "train+",
     "test_data": "test+",
     "train_sampling_method": "zero",
-    "test_sampling_method": "e_050",
+    "test_sampling_method": "e_025",
     "img_rows": 11,
     "img_cols": 11,
     "output_dim": 121,
     "num_process": 6,
     "smote_rate": 1,
     "model_type": "cnn",
-    "support_rate": 100,
-    "experiment_count": 1,
+    "experiment_count": 10,
     "shuffle": True,
     "save_report": False,
-    "repeat": 1,
-    "epsilon": 1e-04,
-    "floatx": "float32",
 }
 
 LABEL_TO_NUM = {
@@ -240,7 +236,13 @@ TEST_SAMLE_NUM_PER_LABEL = {
     "f": [27, 3, 3, 3, 4, 4, 4, 3, 1, 4, 2, 3, 1, 3, 0, 3, 3, 2, 0, 0, 2, 2, 2, 0, 4, 0, 4, 0, 1, 0, 0, 0, 3, 3, 1, 1, 0, 1, 0, 3],
     "zero": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
 
-    "e_025": [5, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 1, 1, 0, 1, 0, 2, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1],
+    "e_025": [
+        5,
+        1, 0, 1, 1, 1, 1,
+        1, 0, 1, 0, 1, 0, 1, 0, 1, 0,
+        1, 0, 0, 1, 1, 1, 0, 1,
+        0, 2, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1
+    ],
     "e_050": [10, 1, 1, 2, 2, 2, 2, 1, 0, 2, 1, 1, 0, 2, 0, 2, 1, 2, 0, 0, 1, 1, 2, 0, 4, 0, 2, 0, 1, 0, 0, 0, 2, 1, 1, 0, 0, 1, 0, 2],
     "e_075": [15, 2, 2, 2, 3, 3, 3, 2, 0, 3, 1, 2, 1, 2, 0, 2, 2, 2, 1, 1, 2, 2, 2, 1, 4, 0, 3, 0, 1, 0, 0, 0, 3, 2, 1, 1, 0, 1, 0, 3],
     "e_100": [20, 3, 2, 3, 4, 4, 4, 2, 1, 4, 1, 3, 1, 3, 0, 3, 2, 3, 1, 1, 3, 3, 3, 1, 5, 0, 4, 0, 2, 0, 0, 0, 4, 3, 1, 1, 1, 1, 0, 3],
@@ -288,7 +290,50 @@ TEST_SAMLE_NUM_PER_LABEL = {
     # 18, 10, 8, 10, 13, 11, 14, 12, 4, 17, 7, 13, 5, 13, 2, 13, 11, 6, 2, 2, 5, 5, 5, 2, 10, 3, 14, 1, 6, 2, 0, 0, 14, 10, 6, 5, 3, 5, 2, 11,
 
     # Full
-    # 9711, 141, 73, 157, 735, 319, 996, 359, 7, 4657, 41, 665, 12, 737, 2, 685, 293, 20, 2, 2, 13, 13, 15, 2, 133, 3, 1231, 1, 18, 2, 0, 0, 944, 178, 17, 9, 4, 14, 2, 331
+    # normal 9711
+
+    # ipsweep 141
+    # nmap 73
+    # portsweep 157
+    # satan 735
+    # saint 319
+    # mscan 996
+
+    # back 359
+    # land 7
+    # neptune 4657
+    # pod 41
+    # smurf 665
+    # teardrop 12
+    # apache2 737
+    # udpstorm 2
+    # processtable 685
+    # mailbomb 293
+
+    # buffer_overflow 20
+    # loadmodule 2
+    # perl 2
+    # rootkit 13
+    # xterm 13
+    # ps 15
+    # sqlattack 2
+    # httptunnel 133
+
+    # ftp_write 3
+    # guess_passwd 1231
+    # imap 1
+    # multihop 18
+    # phf 2
+    # spy 0
+    # warezclient 0
+    # warezmaster 944
+    # snmpgetattack 178
+    # named 17
+    # xlock 9
+    # xsnoop 4
+    # sendmail 14
+    # worm 2
+    # snmpguess 331
 }
 
 # for k in TRAIN_SAMLE_NUM_PER_LABEL:

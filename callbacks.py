@@ -8,15 +8,14 @@ import os
 
 
 class Histories(keras.callbacks.Callback):
-    def __init__(self, x_train, y_train, x_test, y_test, x_support, y_support, index, j):
+    def __init__(self, x_train, y_train, x_test, y_test, x_support, y_support, model_index):
         self.x_train = x_train
         self.y_train = y_train
         self.x_test = x_test
         self.y_test = y_test
         self.x_support = x_support
         self.y_support = y_support
-        self.index = index
-        self.j = j
+        self.model_index = model_index
 
     def on_train_begin(self, logs={}):
         self.aucs = []
@@ -46,16 +45,15 @@ class Histories(keras.callbacks.Callback):
             acc = accuracy_score(self.y_test, pred)
             # print(acc)
             print(
-                "Epoch: " + str(epoch + 1 + self.j * CONFIG["epochs"])
-                + "/" + str(CONFIG["epochs"] * CONFIG["repeat"])
-                + "\tModel: " + str(self.index + 1) + "/" +
-                str(CONFIG["num_models"])
-                + "\tTest Accuracy: " + "|  " * self.index
+                "Epoch: " + str(epoch + 1) + "/" + str(CONFIG["epochs"])
+                + "\tModel: " + str(self.model_index + 1) +
+                "/" + str(CONFIG["num_models"])
+                + "\tTest Accuracy: " + "|  " * self.model_index
                 + "{:.07f}".format(acc) + "|  "
-                * (CONFIG["num_models"] - self.index - 1)
-                + "\t\tLoss: " + "|  " * self.index
+                * (CONFIG["num_models"] - self.model_index - 1)
+                + "\t\tLoss: " + "|  " * self.model_index
                 + "{:.07f}".format(logs["loss"]) + "|  "
-                * (CONFIG["num_models"] - self.index - 1)
+                * (CONFIG["num_models"] - self.model_index - 1)
             )
             if False:
                 plt.ion()
@@ -67,7 +65,7 @@ class Histories(keras.callbacks.Callback):
                     plt.scatter(output[self.y_test == i, 0],
                                 output[self.y_test == i, 1], color=cmp(i), marker=f"${i}$")
                 plt.title(
-                    "Model: " + str(self.index + 1) + "/" +
+                    "Model: " + str(self.model_index + 1) + "/" +
                     str(CONFIG["num_models"]) + ", "
                     + "Epoch: " + str(epoch + 1) + "/" +
                     str(CONFIG["epochs"]) + ", "
@@ -82,25 +80,22 @@ class Histories(keras.callbacks.Callback):
                 print(report)
                 # save_report(acc, report, c_mat, "Epoch: " + str(epoch), self.model)
 
-        file_name = "./temp/model_" + str(
-            self.index
-        ) + "_epoch_" + str(
-            epoch + self.j * CONFIG["epochs"]
-        )
+        file_name = "./temp/model_" + \
+            str(self.model_index) + "_epoch_" + str(epoch)
         if os.path.isfile(file_name):
             os.remove(file_name)
         np.save(
             file_name,
             d_list,
         )
-        if epoch == 0 and self.j <= 0:
+        if epoch == 0:
             losses = np.array([logs["loss"]])
         else:
             losses = np.load(
-                "./temp/model_" + str(self.index) + "_losses" + ".npy"
+                "./temp/model_" + str(self.model_index) + "_losses" + ".npy"
             )
             losses = np.append(losses, logs["loss"])
-        file_name = "./temp/model_" + str(self.index) + "_losses"
+        file_name = "./temp/model_" + str(self.model_index) + "_losses"
         if os.path.isfile(file_name):
             os.remove(file_name)
         np.save(

@@ -118,9 +118,9 @@ def load_distances(index):
 
     distance = [
         np.load(
-            "./temp/model_" + str(index) + "_epoch_" + str(j) + ".npy"
+            "./temp/model_" + str(index) + "_epoch_" + str(epoch) + ".npy"
         )
-        for j in range(CONFIG["epochs"] * CONFIG["repeat"])
+        for epoch in range(CONFIG["epochs"])
     ]
     return distance
 
@@ -177,9 +177,9 @@ def accuracy_scores(args):
         [
             accuracy_score(
                 y,
-                preds[j],
+                preds[epoch],
             )
-            for j in range(CONFIG["epochs"] * CONFIG["repeat"])
+            for epoch in range(CONFIG["epochs"])
         ]
     )
 
@@ -272,7 +272,7 @@ def calc_ensemble_accuracy(x, y, y_orig, y_support, p, e_i):
 
     ensemble_acc_list = np.array([])
 
-    for epoch_repeat in range(CONFIG["epochs"] * CONFIG["repeat"]):
+    for epoch in range(CONFIG["epochs"]):
         pred = [
             # np.argmin(
             #     np.sum(
@@ -285,7 +285,7 @@ def calc_ensemble_accuracy(x, y, y_orig, y_support, p, e_i):
                     y_support[
                         np.argmin(
                             np.sum(
-                                distances[:, epoch_repeat, support_index],
+                                distances[:, epoch, support_index],
                                 axis=0
                             )
                         )
@@ -296,13 +296,13 @@ def calc_ensemble_accuracy(x, y, y_orig, y_support, p, e_i):
         ]
         acc = accuracy_score(y, pred)
         ensemble_acc_list = np.append(ensemble_acc_list, acc)
-        if (epoch_repeat + 1) % 10 == 0:
+        if (epoch + 1) % 10 == 0:
             print(
-                "Epoch: " + str(epoch_repeat + 1) + "/" +
-                str(CONFIG["epochs"] * CONFIG["repeat"])
+                "Epoch: " + str(epoch + 1) + "/" +
+                str(CONFIG["epochs"])
                 + "\tEnsemble Accuracy: " + "{:.07f}".format(acc)
             )
-        if epoch_repeat == CONFIG["epochs"] * CONFIG["repeat"] - 1:
+        if epoch == CONFIG["epochs"] - 1:
             report = classification_report(y, pred, target_names=LABELS)
             print(report)
             report2_correct = defaultdict(int)
@@ -340,18 +340,18 @@ def calc_ensemble_accuracy(x, y, y_orig, y_support, p, e_i):
     cm = plt.get_cmap("jet", CONFIG["num_models"] + 1)
 
     plt.figure(figsize=(12, 8))
-    x = list(range(1, CONFIG["epochs"] * CONFIG["repeat"] + 1))
+    x = list(range(1, CONFIG["epochs"] + 1))
     for model_index in range(CONFIG["num_models"]):
         plt.plot(x, acc_list[model_index], label="Model %s" %
                  (model_index + 1), c=cm(model_index))
     plt.plot(x, ensemble_acc_list, label="Ensemble",
              c=cm(CONFIG["num_models"]))
     plt.xlabel("Epoch")
-    plt.xlim(0, CONFIG["epochs"] * CONFIG["repeat"])
+    plt.xlim(0, CONFIG["epochs"])
     plt.xticks(
         np.arange(
             0,
-            CONFIG["epochs"] * CONFIG["repeat"] + 1,
+            CONFIG["epochs"] + 1,
             # CONFIG["epochs"],
             25,
         )
@@ -370,15 +370,15 @@ def calc_ensemble_accuracy(x, y, y_orig, y_support, p, e_i):
     losses = np.array(p.map(load_losses, range(CONFIG["num_models"])))
 
     plt.figure(figsize=(12, 8))
-    x = list(range(1, CONFIG["epochs"] * CONFIG["repeat"] + 1))
+    x = list(range(1, CONFIG["epochs"] + 1))
     for i in range(CONFIG["num_models"]):
         plt.plot(x, losses[i], label="Model %s" % (i + 1), c=cm(i))
     plt.xlabel("Epoch")
-    plt.xlim(0, CONFIG["epochs"] * CONFIG["repeat"])
+    plt.xlim(0, CONFIG["epochs"])
     plt.xticks(
         np.arange(
             0,
-            CONFIG["epochs"] * CONFIG["repeat"] + 1,
+            CONFIG["epochs"] + 1,
             # CONFIG["epochs"],
             25,
         )
