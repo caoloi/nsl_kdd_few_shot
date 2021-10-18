@@ -1,6 +1,6 @@
 # REFERENCES PARAMETERS
 CONFIG = {
-    "epochs": 100,
+    "epochs": 10,
     "batch_size": 50,
     "num_classes": 5,
     # "num_models": 1,
@@ -16,7 +16,7 @@ CONFIG = {
     "num_process": 6,
     "smote_rate": 1,
     "model_type": "cnn",
-    "experiment_count": 10,
+    "experiment_count": 1,
     "shuffle": True,
     "save_report": False,
 }

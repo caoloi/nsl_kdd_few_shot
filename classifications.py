@@ -17,27 +17,6 @@ def calc_centers(x, y, model):
     for i in range(len(y)):
         centers[y[i]].append(output[i])
 
-    # weights = np.array(
-    #     [
-    #         np.amax(center, axis=1) - np.amin(center, axis=1)
-    #         for center in centers
-    #     ]
-    # )
-    # weights = np.sum(weights, axis=1)
-    centers = np.array([np.mean(center, axis=0) for center in centers])
-
-    # return centers, weights
-    return centers, np.ones(5)
-
-
-def calc_centers_2(pred, true):
-    centers = [[] for _ in range(CONFIG["num_classes"])]
-
-    for xx, yy in zip(pred, true):
-        centers[np.argmax(yy)].append(xx)
-
-    centers = np.array(centers)
-
     centers = np.array([np.mean(center, axis=0) for center in centers])
 
     return centers

@@ -1,26 +1,24 @@
 import tensorflow as tf
-import shutil
-from sklearn.metrics import classification_report, accuracy_score, confusion_matrix
 import multiprocessing as mp
 import pandas as pd
 import numpy as np
 from tensorflow.keras.layers import Input
-from tensorflow.keras.models import Model, load_model
+from tensorflow.keras.models import Model
 from tensorflow.keras.optimizers import Adam
 from tensorflow.compat.v1.keras import backend as K
 from losses import center_loss
 from summary import create_summary, print_summary, save_summary
 from models import build_fsl_attention, build_fsl_cnn, build_fsl_dnn
 from callbacks import Histories
-from data_processing import create_csv, train_data_processing, support_data_processing, test_data_processing, all_train_data_processing
-from classifications import calc_ensemble_accuracy, calc_distance, load_distances
-from constants import CONFIG, LABELS
+from data_processing import create_csv
+from classifications import calc_ensemble_accuracy
+from constants import CONFIG
 
 import os
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
 
 
-def train(args):
+def __train(args):
     model_index, x_train, x_support, x_test, y_train, y_support, _, y_train_value, y_support_value, y_test_value, input_shape = args
 
     os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
@@ -108,7 +106,7 @@ def train(args):
     K.clear_session()
 
 
-def train_and_create_result(p, e_i):
+def __train_and_create_result(p, e_i):
     dir_name = "./benchmark/support/" + \
         CONFIG["test_sampling_method"] + "/" + str(e_i) + "/"
     x_support = np.load(dir_name + "x_support.npy")
@@ -137,26 +135,26 @@ def train_and_create_result(p, e_i):
         y_train = np.load(dir_name + "y_train.npy")
         y_train_value = np.load(dir_name + "y_train_value.npy")
 
-        support_ids = np.random.permutation(x_support.shape[0])
-        support_ids = np.tile(
-            support_ids,
-            10,
-        )
-        random_x_support = x_support[support_ids]
-        random_y_support = y_support[support_ids]
-        random_y_support_value = y_support_value[support_ids]
+        # support_ids = np.random.permutation(x_support.shape[0])
+        # support_ids = np.tile(
+        #     support_ids,
+        #     10,
+        # )
+        # random_x_support = x_support[support_ids]
+        # random_y_support = y_support[support_ids]
+        # random_y_support_value = y_support_value[support_ids]
 
-        train_ids = np.random.permutation(x_train.shape[0])
-        random_x_train = x_train[train_ids]
-        random_y_train = y_train[train_ids]
-        random_y_train_value = y_train_value[train_ids]
+        # train_ids = np.random.permutation(x_train.shape[0])
+        # random_x_train = x_train[train_ids]
+        # random_y_train = y_train[train_ids]
+        # random_y_train_value = y_train_value[train_ids]
 
-        x_train = np.vstack((random_x_train, random_x_support))
-        y_train = np.vstack((random_y_train, random_y_support))
-        y_train_value = np.hstack(
-            (random_y_train_value, random_y_support_value))
+        # x_train = np.vstack((random_x_train, random_x_support))
+        # y_train = np.vstack((random_y_train, random_y_support))
+        # y_train_value = np.hstack(
+        #     (random_y_train_value, random_y_support_value))
 
-        del support_ids, random_x_support, random_y_support, random_y_support_value, train_ids, random_x_train, random_y_train, random_y_train_value
+        # del support_ids, random_x_support, random_y_support, random_y_support_value, train_ids, random_x_train, random_y_train, random_y_train_value
 
         args.append(
             [
@@ -173,7 +171,7 @@ def train_and_create_result(p, e_i):
                 input_shape,
             ]
         )
-    p.map(train, args)
+    p.map(__train, args)
 
     result = calc_ensemble_accuracy(
         x_test,
@@ -187,7 +185,7 @@ def train_and_create_result(p, e_i):
     return result
 
 
-def main():
+def __main():
     p = mp.get_context('spawn').Pool(CONFIG["num_process"])
     results = []
 
@@ -200,7 +198,7 @@ def main():
             + "/"
             + str(CONFIG["experiment_count"])
         )
-        result = train_and_create_result(p, i)
+        result = __train_and_create_result(p, i)
         results.append(result)
 
     summary = create_summary(results)
@@ -208,98 +206,6 @@ def main():
     save_summary(summary)
 
 
-def create_benchmark_support_dataset():
-    for e_i in range(10):
-        x_support, y_support, y_support_value, _ = support_data_processing(
-            [
-                None,
-                "zero",
-            ]
-        )
-        dir_name = "./benchmark/support/" + \
-            CONFIG["test_sampling_method"] + "/" + str(e_i) + "/"
-        if os.path.isdir(dir_name):
-            shutil.rmtree(dir_name)
-        os.makedirs(dir_name)
-        np.save(
-            dir_name + "x_support",
-            x_support,
-        )
-        np.save(
-            dir_name + "y_support",
-            y_support,
-        )
-        np.save(
-            dir_name + "y_support_value",
-            y_support_value,
-        )
-
-
-def create_benchmark_train_dataset():
-    for e_i in range(10):
-        for method in ["a", "b", "c", "d", "e", "f"]:
-            for i in range(CONFIG["num_models"]):
-                x_train, y_train, y_train_value, _ = train_data_processing(
-                    [
-                        i,
-                        method
-                    ]
-                )
-                dir_name = "./benchmark/train/" + method + \
-                    "/" + str(e_i) + "/" + str(i) + "/"
-                if os.path.isdir(dir_name):
-                    shutil.rmtree(dir_name)
-                os.makedirs(dir_name)
-                np.save(
-                    dir_name + "x_train",
-                    x_train,
-                )
-                np.save(
-                    dir_name + "y_train",
-                    y_train,
-                )
-                np.save(
-                    dir_name + "y_train_value",
-                    y_train_value,
-                )
-
-
-def create_benchmark_test_dataset():
-    x_test, y_test, y_test_value, input_shape, y_test_orig = test_data_processing(
-        [
-            None,
-            "zero",
-        ]
-    )
-    dir_name = "./benchmark/test/"
-    if os.path.isdir(dir_name):
-        shutil.rmtree(dir_name)
-    os.makedirs(dir_name)
-    np.save(
-        dir_name + "x_test",
-        x_test,
-    )
-    np.save(
-        dir_name + "y_test",
-        y_test,
-    )
-    np.save(
-        dir_name + "y_test_value",
-        y_test_value,
-    )
-    np.save(
-        dir_name + "input_shape",
-        input_shape,
-    )
-    np.save(
-        dir_name + "y_test_orig",
-        y_test_orig,
-    )
-
-
 if __name__ == "__main__":
-    main()
+    __main()
     # create_csv()
-    # create_benchmark_support_dataset()
-    # create_benchmark_train_dataset()
-    # create_benchmark_test_dataset()

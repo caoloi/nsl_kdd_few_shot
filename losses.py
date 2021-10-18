@@ -1,11 +1,11 @@
 from tensorflow.compat.v1.keras import backend as K
 import numpy as np
-from classifications import calc_centers, calc_centers_2
+from classifications import calc_centers
 
 
 def center_loss(x_support, y_support_value, model):
     def c_loss(y_true, y_pred):
-        centers, _ = calc_centers(x_support, y_support_value, model)
+        centers = calc_centers(x_support, y_support_value, model)
 
         loss = K.variable(0.0)
         loss = loss + 1.0 * __center_loss(y_true, y_pred, centers)
