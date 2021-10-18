@@ -102,8 +102,8 @@ def build_fsl_cnn(input):
 def build_fsl_attention(input):
     # Attention 1
     attention1_in = Reshape((121, 1))(input)
-    # attention1_out = __attention_block(attention1_in)
-    attention1_out = __multi_head_attention_block(attention1_in, 2)
+    # attention1_out = __attention_block(attention1_in, 121)
+    attention1_out = __11_head_attention_block(attention1_in)
 
     # CNN 1
     cnn1_out = __cnn_block_for_nsl_kdd(attention1_out)
@@ -120,27 +120,28 @@ def build_fsl_attention(input):
     return final_out
 
 
-def __attention_block(input):
-    attention_in = Reshape((121, 1))(input)
+def __attention_block(input, dim):
+    attention_in = Reshape((dim, 1))(input)
     x_attention = Attention(use_scale=True)([attention_in, attention_in])
     out = Add()([x_attention, attention_in])
 
     return out
 
 
-def __multi_head_attention_block(input, head_num):
+def __11_head_attention_block(input):
+    HEAD_NUM = 11
     attention_outputs = []
+    split_input = Reshape((HEAD_NUM, 11))(input)
 
-    for _ in range(head_num):
-        attention_output = __attention_block(input)
-        reshaped_output = Reshape((121,))(attention_output)
+    for i in range(HEAD_NUM):
+        attention_input = split_input[:, i, :]
+        attention_output = __attention_block(attention_input, 11)
+        reshaped_output = Reshape((11,))(attention_output)
         attention_outputs.append(reshaped_output)
 
     concat_output = Concatenate(axis=-1)(attention_outputs)
 
-    liner_output = Dense(121)(concat_output)
-
-    return liner_output
+    return concat_output
 
 
 def __cnn_block_for_nsl_kdd(input):
