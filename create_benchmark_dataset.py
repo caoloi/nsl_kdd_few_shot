@@ -91,6 +91,7 @@ def __create_benchmark_test_dataset():
 
 
 if __name__ == "__main__":
+    np.random.seed(seed=32)
     create_csv()
     __create_benchmark_support_dataset()
     __create_benchmark_train_dataset()
