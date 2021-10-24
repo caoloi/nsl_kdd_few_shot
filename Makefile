@@ -4,8 +4,10 @@ exec:
 	# docker-compose run --rm tensorflow bash -c "cd /fsl && python main.py"
 build:
 	docker-compose build
-create_benchmark:
+create_benchmark_dataset:
 	docker-compose run --rm tensorflow bash -c "cd /fsl && python create_benchmark_dataset.py"
+test:
+	docker-compose run --rm tensorflow bash -c "cd /fsl && python test.py"
 monitor:
 	# watch -n 1 "sensors \
 	# 	&& (cat /proc/cpuinfo | grep MHz) \
