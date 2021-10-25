@@ -1,10 +1,9 @@
 temp*
-/temp
-/__pycache__
-/.vscode
+__pycache__
+.vscode
 *result*.jpg
 ngrok_ssh.sh
-/sampling_methods/__pycache__
+sampling_methods/__pycache__
 core
 benchmark*
 data*
