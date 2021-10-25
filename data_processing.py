@@ -28,13 +28,6 @@ def create_csv():
     train_df, test_df = __load_kdd_dataset()
     train_df, test_df = __numerical_processing(train_df, test_df)
 
-    for index in range(CONFIG["num_models"]):
-        train_df_with_index_file_name = "./temp/train_df_" + \
-            str(index) + ".csv"
-        if os.path.isfile(train_df_with_index_file_name):
-            os.remove(train_df_with_index_file_name)
-        train_df.to_csv(train_df_with_index_file_name)
-
     train_df_file_name = "./temp/train_df.csv"
     if os.path.isfile(train_df_file_name):
         os.remove(train_df_file_name)
@@ -125,20 +118,14 @@ def __load_kdd_dataset():
 
 
 def train_data_processing(args):
-    index, method = args
+    random_seed, method = args
 
-    if index is None:
-        train_df = pd.read_csv("./temp/train_df.csv", index_col=0)
-    else:
-        train_df = pd.read_csv(
-            "./temp/train_df_" + str(index) + ".csv",
-            index_col=0
-        )
+    train_df = pd.read_csv("./temp/train_df.csv", index_col=0)
     train_df = train_df.sample(frac=1)
 
     train_df = __resample_processing(
         train_df,
-        index,
+        random_seed,
         method,
         balanced=True,
     )
@@ -176,14 +163,14 @@ def all_train_data_processing(args):
 
 
 def support_data_processing(args):
-    index, method = args
+    random_seed, method = args
 
     test_df = pd.read_csv("./temp/test_df.csv", index_col=0)
     test_df = test_df.sample(frac=1)
 
     support_df = __resample_processing(
         test_df,
-        index,
+        random_seed,
         method,
         balanced=True,
         type="test",
@@ -200,13 +187,13 @@ def support_data_processing(args):
 
 
 def test_data_processing(args):
-    index, method = args
+    random_seed, method = args
 
     test_df = pd.read_csv("./temp/test_df.csv", index_col=0)
 
     test_df = __resample_processing(
         test_df,
-        index,
+        random_seed,
         method,
         balanced=False,
     )
@@ -293,13 +280,7 @@ def __column_processing(df):
     return df
 
 
-def __resample_processing(df, index, method, balanced, type="train"):
-    if index is None or type == "test":
-        index = 1
-    else:
-        # index = index % 3 + 1
-        index = 1
-
+def __resample_processing(df, random_seed, method, balanced, type="train"):
     if balanced:
         df_per_category = {}
         for label in ENTRY_TYPE:
@@ -324,18 +305,17 @@ def __resample_processing(df, index, method, balanced, type="train"):
                     if CONFIG["train_sampling_method"] == "zero":
                         samples = __tile_samples(
                             df_per_category[label],
-                            index * TRAIN_SAMLE_NUM_PER_LABEL[method][ii]
+                            TRAIN_SAMLE_NUM_PER_LABEL[method][ii]
                         )
                     else:
                         samples = __tile_samples(
                             df_per_category[label],
-                            index *
                             TRAIN_SAMLE_NUM_PER_LABEL[CONFIG["train_sampling_method"]][ii]
                         )
                 df_list.append(samples)
             ii += 1
         df = pd.concat(df_list, ignore_index=True)
-        df = df.sample(frac=1)
+        df = df.sample(frac=1, random_state=random_seed)
 
     return df
 
