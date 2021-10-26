@@ -9,6 +9,7 @@ services:
       - ${PWD}/results
       - ${PWD}/summaries
       - ${PWD}/benchmark
+      - ${PWD}/temp
     runtime: nvidia
     ports:
       - 8889:8889
