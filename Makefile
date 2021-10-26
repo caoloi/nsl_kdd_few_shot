@@ -1,14 +1,14 @@
 exec:
-	# docker compose up
-	docker compose run --rm tensorflow bash -c "cd /fsl && rm -r temp && mkdir temp && python main.py"
-	# docker compose run --rm tensorflow bash -c "cd /fsl && python main.py"
+	# docker-compose up
+	docker-compose run --rm tensorflow bash -c "cd /fsl && rm -r temp && mkdir temp && python main.py"
+	# docker-compose run --rm tensorflow bash -c "cd /fsl && python main.py"
 build:
-	docker compose build
+	docker-compose build
 create_benchmark_dataset:
-	docker compose run --rm tensorflow bash -c "cd /fsl && python create_benchmark_dataset.py"
+	docker-compose run --rm tensorflow bash -c "cd /fsl && python create_benchmark_dataset.py"
 	sudo chown -R $$(whoami) .
 test:
-	docker compose run --rm tensorflow bash -c "cd /fsl && python test.py"
+	docker-compose run --rm tensorflow bash -c "cd /fsl && python test.py"
 monitor:
 	# watch -n 1 "sensors \
 	# 	&& (cat /proc/cpuinfo | grep MHz) \
