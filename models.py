@@ -5,23 +5,14 @@ from tensorflow.keras.layers import (
     Conv2D,
     MaxPooling1D,
     MaxPooling2D,
-    AveragePooling1D,
-    AveragePooling2D,
     GlobalAveragePooling2D,
     Flatten,
     Dense,
     Multiply,
-    Embedding,
-    Lambda,
     Concatenate,
     Reshape,
-    BatchNormalization,
-    Activation,
     Attention,
-    AdditiveAttention,
 )
-
-from constants import CONFIG
 
 
 def build_fsl_dnn(input):
@@ -31,51 +22,6 @@ def build_fsl_dnn(input):
     x = Dense(60, activation="relu")(x)
     x = Dropout(0.25)(x)
     x = Dense(121, activation="softmax")(x)
-
-    return x
-
-
-def __build_fsl_cnn(input):
-    x = Reshape((121, 1))(input)
-    # print(x.shape)
-    x = Conv1D(4, 2, padding="valid")(x)
-    # print(x.shape)
-    x = MaxPooling1D(pool_size=2)(x)
-    # print(x.shape)
-    x = Conv1D(8, 8, padding="same")(x)
-    # print(x.shape)
-    x = MaxPooling1D(pool_size=2)(x)
-    # print(x.shape)
-    x = Conv1D(16, 8, padding="same")(x)
-    # print(x.shape)
-    x = MaxPooling1D(pool_size=2)(x)
-    # print(x.shape)
-    x = Conv1D(32, 8, padding="same")(x)
-    # print(x.shape)
-    x = MaxPooling1D(pool_size=3)(x)
-    # print(x.shape)
-    x = Conv1D(64, 2, padding="valid")(x)
-    # print(x.shape)
-    x = MaxPooling1D(pool_size=2)(x)
-    # print(x.shape)
-    x = Conv1D(128, 8, padding="same")(x)
-    # print(x.shape)
-    x = MaxPooling1D(pool_size=2)(x)
-    # print(x.shape)
-    x = Flatten()(x)
-    # print(x.shape)
-    x = Dense(121)(x)
-    # print(x.shape)
-
-    x_in = Flatten()(input)
-    x = Add()(
-        [
-            x,
-            x_in
-        ]
-    )
-    # print(x.shape)
-    # exit()
 
     return x
 
@@ -103,14 +49,16 @@ def build_fsl_attention(input):
     # Attention 1
     attention1_in = Reshape((121, 1))(input)
     # attention1_out = __attention_block(attention1_in, 121)
-    attention1_out = __11_head_attention_block(attention1_in)
+    # attention1_out = __11_head_attention_block(attention1_in)
+    attention1_out = __custom_multi_head_attention_block(attention1_in)
 
     # CNN 1
     cnn1_out = __cnn_block_for_nsl_kdd(attention1_out)
 
     # Addition 1
     addition1_in1 = Reshape((121,))(attention1_out)
-    addition1_in2 = Reshape((121,))(cnn1_out)
+    # addition1_in2 = Reshape((121,))(cnn1_out)
+    addition1_in2 = Flatten()(cnn1_out)
     addition1_out = Add()([addition1_in1, addition1_in2])
 
     # Final Layour
@@ -142,6 +90,49 @@ def __11_head_attention_block(input):
     concat_output = Concatenate(axis=-1)(attention_outputs)
 
     return concat_output
+
+
+def __custom_multi_head_attention_block(input):
+    input = Reshape((121,))(input)
+    attention_outputs = []
+
+    # PROTOCOL
+    protocol_reshaped_output = __sliced_input_attention_block(input, 1, 4)
+    attention_outputs.append(protocol_reshaped_output)
+
+    # SERVICE
+    service_reshaped_output = __sliced_input_attention_block(input, 4, 74)
+    attention_outputs.append(service_reshaped_output)
+
+    # FLAG
+    flag_reshaped_output = __sliced_input_attention_block(input, 74, 85)
+    attention_outputs.append(flag_reshaped_output)
+
+    # OTHERS
+    OTHERS_INPUT_DIM = 37
+    duration_input = Reshape((1,))(input[:, 0])
+    others_attention_input = Concatenate(
+        axis=-1
+    )([duration_input, input[:, 85:]])
+    flag_reshaped_output = __sliced_input_attention_block(
+        others_attention_input,
+        0,
+        OTHERS_INPUT_DIM
+    )
+    attention_outputs.append(flag_reshaped_output)
+
+    concat_output = Concatenate(axis=-1)(attention_outputs)
+
+    return concat_output
+
+
+def __sliced_input_attention_block(input, begin_index, end_index):
+    input_dim = end_index - begin_index
+    attention_input = input[:, begin_index:end_index]
+    attention_output = __attention_block(attention_input, input_dim)
+    reshaped_output = Reshape((input_dim,))(attention_output)
+
+    return reshaped_output
 
 
 def __cnn_block_for_nsl_kdd(input):
@@ -192,15 +183,4 @@ def __conv_block(input, channels):
 
 def __pool_block(input):
     x = MaxPooling2D(pool_size=2, strides=2)(input)
-    return x
-
-
-# Squeeze and Excitation
-def __se_block(input, channels, r=6):
-    # Squeeze
-    x = GlobalAveragePooling2D()(input)
-    # Excitation
-    x = Dense(channels // r, activation="relu")(x)
-    x = Dense(channels, activation="sigmoid")(x)
-    x = Multiply()([input, x])
     return x

@@ -1,20 +1,21 @@
-import keras
+import tensorflow.keras as keras
 from sklearn.metrics import classification_report, accuracy_score
 from classifications import calc_distance
 from constants import CONFIG, LABELS
 import matplotlib.pyplot as plt
 import numpy as np
-import os
+from save_result_utils import save_d_list, save_loss, save_center_distances
 
 
 class Histories(keras.callbacks.Callback):
-    def __init__(self, x_train, y_train, x_test, y_test, x_support, y_support, model_index):
+    def __init__(self, x_train, y_train, x_test, y_test, x_support, y_support, benchmark_index, model_index):
         self.x_train = x_train
         self.y_train = y_train
         self.x_test = x_test
         self.y_test = y_test
         self.x_support = x_support
         self.y_support = y_support
+        self.benchmark_index = benchmark_index
         self.model_index = model_index
 
     def on_train_begin(self, logs={}):
@@ -28,20 +29,33 @@ class Histories(keras.callbacks.Callback):
         return
 
     def on_epoch_end(self, epoch, logs={}):
-        d_list = calc_distance(
+        d_list, centers = calc_distance(
             self.x_test,
             self.x_support,
             self.y_support,
             self.model,
         )
-        if (epoch + 1) % np.min([50, CONFIG["epochs"]]) == 0:
-            # pred = np.argmin(d_list, axis=1)
-            pred = np.array(
-                [
-                    self.y_support[idx]
-                    for idx in np.argmin(d_list, axis=1)
-                ]
-            )
+        center_distances = []
+        for label_i in range(CONFIG["num_classes"]):
+            for label_j in range(CONFIG["num_classes"]):
+                if label_i < label_j:
+                    center_i = centers[label_i]
+                    center_j = centers[label_j]
+                    center_distance = np.linalg.norm(
+                        center_i - center_j
+                    )
+                    center_distances.append(
+                        "{:.04f}".format(center_distance)
+                    )
+
+        if (epoch + 1) % np.min([25, CONFIG["epochs"]]) == 0:
+            pred = np.argmin(d_list, axis=1)
+            # pred = np.array(
+            #     [
+            #         self.y_support[idx]
+            #         for idx in np.argmin(d_list, axis=1)
+            #     ]
+            # )
             acc = accuracy_score(self.y_test, pred)
             # print(acc)
             print(
@@ -51,9 +65,10 @@ class Histories(keras.callbacks.Callback):
                 + "\tTest Accuracy: " + "|  " * self.model_index
                 + "{:.07f}".format(acc) + "|  "
                 * (CONFIG["num_models"] - self.model_index - 1)
-                + "\t\tLoss: " + "|  " * self.model_index
-                + "{:.07f}".format(logs["loss"]) + "|  "
+                + "\tLoss: " + "|  " * self.model_index
+                + "{:.04f}".format(logs["loss"]).zfill(8) + "|  "
                 * (CONFIG["num_models"] - self.model_index - 1)
+                + " " + " ".join(center_distances)
             )
             if False:
                 plt.ion()
@@ -80,27 +95,25 @@ class Histories(keras.callbacks.Callback):
                 print(report)
                 # save_report(acc, report, c_mat, "Epoch: " + str(epoch), self.model)
 
-        file_name = "./temp/model_" + \
-            str(self.model_index) + "_epoch_" + str(epoch)
-        if os.path.isfile(file_name):
-            os.remove(file_name)
-        np.save(
-            file_name,
-            d_list,
+        save_d_list(
+            self.benchmark_index,
+            self.model_index,
+            epoch,
+            d_list
         )
-        if epoch == 0:
-            losses = np.array([logs["loss"]])
-        else:
-            losses = np.load(
-                "./temp/model_" + str(self.model_index) + "_losses" + ".npy"
-            )
-            losses = np.append(losses, logs["loss"])
-        file_name = "./temp/model_" + str(self.model_index) + "_losses"
-        if os.path.isfile(file_name):
-            os.remove(file_name)
-        np.save(
-            file_name,
-            losses,
+
+        save_loss(
+            self.benchmark_index,
+            self.model_index,
+            epoch,
+            logs["loss"]
+        )
+
+        save_center_distances(
+            self.benchmark_index,
+            self.model_index,
+            epoch,
+            center_distances
         )
 
         return

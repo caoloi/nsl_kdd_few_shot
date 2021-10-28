@@ -1,7 +1,10 @@
 exec:
 	# docker-compose up
-	docker-compose run --rm tensorflow bash -c "cd /fsl && rm -r temp && mkdir temp && python main.py"
-	# docker-compose run --rm tensorflow bash -c "cd /fsl && python main.py"
+	# docker-compose run --rm tensorflow bash -c "cd /fsl \
+	# 	&& rm -r temp && mkdir temp \
+	# 	&& python main.py"
+	docker-compose run --rm tensorflow bash -c "cd /fsl && python main.py"
+	sudo chown -R $$(whoami) .
 build:
 	docker-compose build
 create_benchmark_dataset:

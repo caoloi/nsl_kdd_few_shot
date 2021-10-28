@@ -1,13 +1,15 @@
 import numpy as np
-from constants import CONFIG, SAMPLE_NUM_PER_LABEL, LABELS, LABEL_TO_NUM, ENTRY_TYPE_REVERSE
-from sklearn.metrics import classification_report, accuracy_score, confusion_matrix
+from constants import CONFIG, SAMPLE_NUM_PER_LABEL
+from sklearn.metrics import accuracy_score
 import datetime
 import pytz
 import pathlib
-import matplotlib.pyplot as plt
 from io import StringIO
-import os
-from collections import defaultdict
+from tensorflow.compat.v1.keras import backend as K
+import tensorflow as tf
+from save_result_utils import d_list_file_name, loss_file_name, center_distances_file_name
+from generate_result_figure_utils import generate_accuracy_result_jpg, generate_loss_result_jpg, generate_center_distances_result_jpg
+from display_summary_utils import display_accuracy_summary, display_ensemble_summary, display_model_summary
 
 
 def calc_centers(x, y, model):
@@ -22,49 +24,62 @@ def calc_centers(x, y, model):
     return centers
 
 
+def calc_centers_for_support_tensor(support_true, support_pred):
+    support_true_value = K.argmax(support_true)
+    centers = []
+
+    for i in range(CONFIG["num_classes"]):
+        indices = tf.where(tf.equal(support_true_value, i))
+        pred_per_class = tf.gather_nd(support_pred, indices=indices)
+        mean_pred = K.mean(pred_per_class, axis=0)
+        centers.append(mean_pred)
+
+    return centers
+
+
 def calc_distance(x, x_support, y_support, model):
     output = model.predict_on_batch(x)
-    # centers, weights = calc_centers(x_support, y_support, model)
-
-    # d_list = np.array(
-    #     [
-    #         [
-    #             np.linalg.norm(
-    #                 vect - center
-    #             )
-    #             for center in centers
-    #         ] / weights
-    #         for vect in output
-    #     ]
-    # )
-    # d_list = np.array(
-    #     [
-    #         d / np.sum(d)
-    #         for d in d_list
-    #     ]
-    # )
-
-    coordinates = model.predict_on_batch(x_support)
+    centers = calc_centers(x_support, y_support, model)
 
     d_list = np.array(
         [
             [
                 np.linalg.norm(
-                    vect - coordinate
+                    vector - center
                 )
-                for coordinate in coordinates
+                for center in centers
             ]
-            for vect in output
+            for vector in output
+        ]
+    )
+    d_list = np.array(
+        [
+            d / np.sum(d)
+            for d in d_list
         ]
     )
 
-    return d_list
+    # coordinates = model.predict_on_batch(x_support)
+
+    # d_list = np.array(
+    #     [
+    #         [
+    #             np.linalg.norm(
+    #                 vector - coordinate
+    #             )
+    #             for coordinate in coordinates
+    #         ]
+    #         for vector in output
+    #     ]
+    # )
+
+    return d_list, centers
 
 
 def calc_distances(args):
     index, x, x_support, y_support, models = args
 
-    preds = np.array(
+    predictions = np.array(
         [
             (
                 print(
@@ -84,44 +99,69 @@ def calc_distances(args):
                 x_support,
                 y_support,
                 models[j]
-            )
+            )[0]
             for j in range(CONFIG["epochs"])
         ]
     )
 
-    return preds
+    return predictions
 
 
-def load_distances(index):
-    print("Load Distance " + str(index + 1) + "/" + str(CONFIG["num_models"]))
+def load_distances(args):
+    benchmark_index, model_index = args
+
+    print("Load Distance " + str(model_index + 1) +
+          "/" + str(CONFIG["num_models"]))
 
     distance = [
-        np.load(
-            "./temp/model_" + str(index) + "_epoch_" + str(epoch) + ".npy"
+        np.loadtxt(
+            d_list_file_name(benchmark_index, model_index, epoch),
+            delimiter=',',
+            dtype='float'
         )
         for epoch in range(CONFIG["epochs"])
     ]
     return distance
 
 
-def load_losses(index):
-    print("Load Loss " + str(index + 1) + "/" + str(CONFIG["num_models"]))
+def load_losses(args):
+    benchmark_index, model_index = args
 
-    losses = np.load(
-        "./temp/model_" + str(index) + "_losses" + ".npy"
+    print("Load Loss " + str(model_index + 1) +
+          "/" + str(CONFIG["num_models"]))
+
+    losses = np.loadtxt(
+        loss_file_name(benchmark_index, model_index),
+        delimiter=',',
+        dtype='float'
     )
     return losses
 
 
+def load_center_distances(args):
+    benchmark_index, model_index = args
+
+    print("Load Center Distances " + str(model_index + 1) +
+          "/" + str(CONFIG["num_models"]))
+
+    center_distances = np.loadtxt(
+        center_distances_file_name(benchmark_index, model_index),
+        delimiter=',',
+        dtype='float'
+    )
+
+    return center_distances
+
+
 def calc_pred(x, x_support, y_support, model):
-    d_list = calc_distance(x, x_support, y_support, model)
+    d_list, _ = calc_distance(x, x_support, y_support, model)
 
     pred = np.argmin(d_list, axis=1)
 
     return pred
 
 
-def calc_preds(args):
+def calc_predictions(args):
     index, x, x_support, y_support, models = args
 
     print(
@@ -129,7 +169,7 @@ def calc_preds(args):
         + str(index + 1) + "/" + str(CONFIG["num_models"])
     )
 
-    preds = np.array(
+    predictions = np.array(
         [
             calc_pred(
                 x,
@@ -141,11 +181,11 @@ def calc_preds(args):
         ]
     )
 
-    return preds
+    return predictions
 
 
 def accuracy_scores(args):
-    index, y, preds = args
+    index, y, predictions = args
 
     print(
         "Calculate Accuracy "
@@ -156,7 +196,7 @@ def accuracy_scores(args):
         [
             accuracy_score(
                 y,
-                preds[epoch],
+                predictions[epoch],
             )
             for epoch in range(CONFIG["epochs"])
         ]
@@ -165,218 +205,98 @@ def accuracy_scores(args):
     return acc_list
 
 
-def calc_ensemble_accuracy(x, y, y_orig, y_support, p, e_i):
+def calc_ensemble_accuracy(x, y, y_orig, y_support, p, benchmark_index):
     print("-" * 200)
 
     # distances = np.array(p.map(load_distances, range(CONFIG["num_models"])))
+    # distances = np.array(
+    #     [
+    #         load_distances(benchmark_index, model_index)
+    #         for model_index in range(CONFIG["num_models"])
+    #     ]
+    # )
+
     distances = np.array(
-        [
-            load_distances(i)
-            for i in range(CONFIG["num_models"])
-        ]
-    )
-
-    print("-" * 200)
-
-    args = [
-        [
-            i,
-            y,
-            # np.argmin(distances[i], axis=2)
-            np.array(
-                [
-                    y_support[idx]
-                    for idx in np.argmin(distances[i], axis=2)
-                ]
-            )
-        ]
-        for i in range(CONFIG["num_models"])
-    ]
-    acc_list = np.array(p.map(accuracy_scores, args))
-
-    print("-" * 200)
-
-    for model_index in range(CONFIG["num_models"]):
-        print(
-            "Model: " + str(model_index + 1) + "/" + str(CONFIG["num_models"])
-            + "\tTest Accuracy: "
-            + "\tLast: " + "{:.07f}".format(acc_list[model_index][-1])
-            + "\tAverage: " + "{:.07f}".format(np.mean(acc_list[model_index]))
-              + " ± " + "{:.07f}".format(np.std(acc_list[model_index]))
-            + "\tMin: " + "{:.07f}".format(np.min(acc_list[model_index]))
-            + "\tMax: " + "{:.07f}".format(np.max(acc_list[model_index]))
-            + "\tEnsemble Accuracy: " + "{:.07f}".format(
-              accuracy_score(
-                  y,
-                  [
-                      # np.argmin(
-                      #     np.sum(
-                      #         distances[i, :, j],
-                      #         axis=0
-                      #     )
-                      # )
-                      np.array(
-                          [
-                              y_support[
-                                  np.argmin(
-                                      np.sum(
-                                        distances[model_index, :, class_num],
-                                          axis=0
-                                      )
-                                  )
-                              ]
-                          ]
-                      )
-                      for class_num in range(distances.shape[2])
-                  ]
-              )
-            )
+        p.map(
+            load_distances,
+            [
+                [benchmark_index, model_index]
+                for model_index in range(CONFIG["num_models"])
+            ]
         )
-        pred = y_support[np.argmin(distances[model_index, -1], axis=1)]
-        c_mat = confusion_matrix(y, pred)
-        print(c_mat)
+    )
 
     print("-" * 200)
 
-    print(
-        "Accuracy Summary: " + "{:.07f}".format(np.mean(acc_list[:, -1]))
-        + " ± " + "{:.07f}".format(np.std(acc_list[:, -1]))
-        + "\tMin: " + "{:.07f}".format(np.min(acc_list[:, -1]))
-        + "\tMax: " + "{:.07f}".format(np.max(acc_list[:, -1]))
+    acc_list = np.array(
+        p.map(
+            accuracy_scores,
+            [
+                [
+                    i,
+                    y,
+                    np.argmin(distances[i], axis=2)
+                    # np.array(
+                    #     [
+                    #         y_support[idx]
+                    #         for idx in np.argmin(distances[i], axis=2)
+                    #     ]
+                    # )
+                ]
+                for i in range(CONFIG["num_models"])
+            ]
+        )
     )
+
+    print("-" * 200)
+
+    display_model_summary(y, y_support, acc_list, distances)
+
+    print("-" * 200)
+
+    display_accuracy_summary(acc_list)
 
     print("-" * 200)
 
     result = {}
 
-    ensemble_acc_list = np.array([])
-
-    for epoch in range(CONFIG["epochs"]):
-        pred = [
-            # np.argmin(
-            #     np.sum(
-            #         distances[:, i, j],
-            #         axis=0
-            #     )
-            # )
-            np.array(
-                [
-                    y_support[
-                        np.argmin(
-                            np.sum(
-                                distances[:, epoch, support_index],
-                                axis=0
-                            )
-                        )
-                    ]
-                ]
-            )
-            for support_index in range(distances.shape[2])
-        ]
-        acc = accuracy_score(y, pred)
-        ensemble_acc_list = np.append(ensemble_acc_list, acc)
-        if (epoch + 1) % 10 == 0:
-            print(
-                "Epoch: " + str(epoch + 1) + "/" +
-                str(CONFIG["epochs"])
-                + "\tEnsemble Accuracy: " + "{:.07f}".format(acc)
-            )
-        if epoch == CONFIG["epochs"] - 1:
-            report = classification_report(y, pred, target_names=LABELS)
-            print(report)
-            report2_correct = defaultdict(int)
-            report2_total = defaultdict(int)
-            for pr, yo in zip(pred, y_orig):
-                if pr == LABEL_TO_NUM[ENTRY_TYPE_REVERSE[yo]]:
-                    report2_correct[yo] += 1
-                else:
-                    report2_correct[yo] += 0
-                report2_total[yo] += 1
-            for label in ENTRY_TYPE_REVERSE:
-                if report2_total[label] > 0:
-                    print(
-                        label.ljust(20, " "),
-                        report2_correct[label],
-                        report2_total[label],
-                        "{:.04f}".format(
-                            report2_correct[label] / report2_total[label]
-                        ),
-                        sep='\t\t'
-                    )
-
-            c_mat = confusion_matrix(y, pred)
-            print(c_mat)
-            # save_report(acc, report, c_mat, "Last Ensemble")  # models[0][0])
-            result["last"] = classification_report(
-                y,
-                pred,
-                output_dict=True,
-                target_names=LABELS
-            )
+    result, ensemble_acc_list = display_ensemble_summary(
+        y, y_orig, distances, result
+    )
 
     print("-" * 200)
 
-    cm = plt.get_cmap("jet", CONFIG["num_models"] + 1)
+    generate_accuracy_result_jpg(
+        benchmark_index, ensemble_acc_list, acc_list)
 
-    plt.figure(figsize=(12, 8))
-    x = list(range(1, CONFIG["epochs"] + 1))
-    for model_index in range(CONFIG["num_models"]):
-        plt.plot(x, acc_list[model_index], label="Model %s" %
-                 (model_index + 1), c=cm(model_index))
-    plt.plot(x, ensemble_acc_list, label="Ensemble",
-             c=cm(CONFIG["num_models"]))
-    plt.xlabel("Epoch")
-    plt.xlim(0, CONFIG["epochs"])
-    plt.xticks(
-        np.arange(
-            0,
-            CONFIG["epochs"] + 1,
-            # CONFIG["epochs"],
-            25,
+    losses = np.array(
+        p.map(
+            load_losses,
+            [
+                [benchmark_index, model_index]
+                for model_index in range(CONFIG["num_models"])
+            ]
         )
     )
-    plt.ylabel("Accuracy")
-    plt.ylim(0.80, 1.00)
-    plt.grid(True)
-    plt.legend(bbox_to_anchor=(1, 1), loc="upper left", fontsize=10)
-    file_name = "result_" + str(e_i) + ".jpg"
-    if os.path.isfile(file_name):
-        os.remove(file_name)
-    plt.savefig(file_name)
 
-    plt.clf()
+    generate_loss_result_jpg(benchmark_index, losses)
 
-    losses = np.array(p.map(load_losses, range(CONFIG["num_models"])))
-
-    plt.figure(figsize=(12, 8))
-    x = list(range(1, CONFIG["epochs"] + 1))
-    for i in range(CONFIG["num_models"]):
-        plt.plot(x, losses[i], label="Model %s" % (i + 1), c=cm(i))
-    plt.xlabel("Epoch")
-    plt.xlim(0, CONFIG["epochs"])
-    plt.xticks(
-        np.arange(
-            0,
-            CONFIG["epochs"] + 1,
-            # CONFIG["epochs"],
-            25,
+    center_distances = np.array(
+        p.map(
+            load_center_distances,
+            [
+                [benchmark_index, model_index]
+                for model_index in range(CONFIG["num_models"])
+            ]
         )
     )
-    plt.ylabel("Loss")
-    plt.grid(True)
-    plt.legend(bbox_to_anchor=(1, 1), loc="upper left", fontsize=10)
-    file_name = "loss_result_" + str(e_i) + ".jpg"
-    if os.path.isfile(file_name):
-        os.remove(file_name)
-    plt.savefig(file_name)
 
-    plt.clf()
-    plt.close()
+    generate_center_distances_result_jpg(benchmark_index, center_distances)
 
     return result
 
 
-def save_report(acc, report, c_mat, title="", model=None):
+def save_report(acc, report, c_mat, title="", model=None) -> None:
     if CONFIG["save_report"]:
         now = datetime.datetime.now(pytz.timezone('Asia/Tokyo'))
         dir = "./results/" + \
@@ -406,3 +326,5 @@ def save_report(acc, report, c_mat, title="", model=None):
                     text = buf.getvalue()
 
                 print(text, file=f)
+
+    return

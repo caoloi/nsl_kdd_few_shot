@@ -1,7 +1,7 @@
 # REFERENCES PARAMETERS
 CONFIG = {
-    "epochs": 100,
-    "batch_size": 50,
+    "epochs": 50,
+    "batch_size": 50 * 26,
     "num_classes": 5,
     # "num_models": 1,
     "num_models": 12,
@@ -12,13 +12,18 @@ CONFIG = {
     "test_sampling_method": "e_025",
     "output_dim": 121,
     # "num_process": 1,
-    "num_process": 6,
+    "num_process": 12,
     "model_type": "cnn",
     "experiment_count": 1,
-    "shuffle": True,
+    # "experiment_count": 10,
+    "shuffle": False,
     "save_report": False,
-    "input_shape": (11, 11, 1),
+    "input_shape": (121, ),
     "benchmark_dir": "./benchmark",
+    "experiment_id": "playground",
+    # "experiment_id": "base",
+    # "experiment_id": "farther",
+    # "experiment_id": "closer",
 }
 
 LABEL_TO_NUM = {

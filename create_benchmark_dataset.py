@@ -8,16 +8,16 @@ from constants import CONFIG
 def __create_benchmark_support_dataset():
     for test_sampling_method in ["e_025", "e_050", "e_075", "e_100"]:
         CONFIG["test_sampling_method"] = test_sampling_method
-        for experiment_index in range(10):
+        for benchmark_index in range(10):
             x_support, y_support, y_support_value = support_data_processing(
                 [
-                    experiment_index,
+                    benchmark_index,
                     "zero",
                 ]
             )
             dir_name = CONFIG["benchmark_dir"] + "/support/" + \
                 CONFIG["test_sampling_method"] + \
-                "/" + str(experiment_index) + "/"
+                "/" + str(benchmark_index) + "/"
             if os.path.isdir(dir_name):
                 shutil.rmtree(dir_name)
             os.makedirs(dir_name)
@@ -43,18 +43,18 @@ def __create_benchmark_support_dataset():
 
 def __create_benchmark_train_dataset():
     methods = ["a", "b", "c", "d", "e", "f"]
-    for experiment_index in range(10):
+    for benchmark_index in range(10):
         for method_index in range(6):
             method = methods[method_index]
             for model_index in range(CONFIG["num_models"]):
                 x_train, y_train, y_train_value = train_data_processing(
                     [
-                        experiment_index * method_index * model_index,
+                        benchmark_index * method_index * model_index,
                         method
                     ]
                 )
                 dir_name = CONFIG["benchmark_dir"] + "/train/" + method + \
-                    "/" + str(experiment_index) + "/" + str(model_index) + "/"
+                    "/" + str(benchmark_index) + "/" + str(model_index) + "/"
                 if os.path.isdir(dir_name):
                     shutil.rmtree(dir_name)
                 os.makedirs(dir_name)
