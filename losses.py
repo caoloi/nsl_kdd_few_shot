@@ -30,9 +30,11 @@ def center_loss(y_true, y_pred):
         loss,
         1.0 * __center_loss(
             # train_y_true,
-            K.concatenate([train_y_true, support_y_true], axis=0),
+            support_y_true,
+            # K.concatenate([train_y_true, support_y_true], axis=0),
             # train_y_pred,
-            K.concatenate([train_y_pred, support_y_pred], axis=0),
+            support_y_pred,
+            # K.concatenate([train_y_pred, support_y_pred], axis=0),
             centers
         )
     )
@@ -50,7 +52,7 @@ def center_loss(y_true, y_pred):
     #     loss,
     #     0.1 * __softmax_cosine_loss(train_y_true, train_y_pred, centers)
     # )
-    if CONFIG["experiment_id"] == "farther":
+    if CONFIG["experiment_id"].startswith("farther"):
         loss = tf.add(
             loss,
             1.0 * __center_separate_loss(centers)
@@ -82,7 +84,7 @@ def __center_separate_loss(centers):
         distance = distances[i]
         # distance = tf.multiply(-1., K.log(distance))
         # distance = tf.pow(distance, -2)
-        distance = tf.pow(tf.subtract(distance, 2.5), 2)
+        distance = tf.pow(tf.subtract(distance, 2.0), 2)
         # distance = tf.log(distance)
         # distance = tf.multiply(-1., tf.pow(distance, 2))
         loss = tf.add(loss, distance)
@@ -99,10 +101,15 @@ def __center_loss(y_true, y_pred, centers):
 
         indices = tf.where(tf.equal(y_true_value, label))
         pred_per_class = tf.gather_nd(y_pred, indices=indices)
-        diff = tf.subtract(pred_per_class, center)
-        square_diff = K.pow(diff, 2)
-        sum = K.sum(K.sum(square_diff, axis=-1), axis=-1)
-        loss = tf.add(loss, sum)
+        distances_per_class = __euclidean(pred_per_class, center)
+        if CONFIG["experiment_id"].startswith("farther"):
+            square_distances = K.pow(tf.subtract(distances_per_class, 0.5), 2)
+            sum = K.sum(square_distances)
+            loss = tf.add(loss, sum)
+        else:
+            square_distances = tf.pow(distances_per_class, 2)
+            sum = K.sum(square_distances)
+            loss = tf.add(loss, sum)
 
     return loss
 

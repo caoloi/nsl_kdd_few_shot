@@ -5,6 +5,7 @@ from tensorflow.keras.layers import Input
 from tensorflow.keras.models import Model
 from tensorflow.keras.optimizers import Adam
 from tensorflow.compat.v1.keras import backend as K
+from tensorflow.python.client import device_lib
 from losses import center_loss
 from summary import create_summary, print_summary, save_summary
 from models import build_fsl_attention

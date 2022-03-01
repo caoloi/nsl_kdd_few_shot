@@ -7,8 +7,8 @@ import pathlib
 from io import StringIO
 from tensorflow.compat.v1.keras import backend as K
 import tensorflow as tf
-from save_result_utils import d_list_file_name, loss_file_name, center_distances_file_name
-from generate_result_figure_utils import generate_accuracy_result_jpg, generate_loss_result_jpg, generate_center_distances_result_jpg
+from save_result_utils import average_distances_file_name, d_list_file_name, loss_file_name, center_distances_file_name
+from generate_result_figure_utils import generate_accuracy_result_jpg, generate_loss_result_jpg, generate_center_distances_result_jpg, generate_average_distances_result_jpg
 from display_summary_utils import display_accuracy_summary, display_ensemble_summary, display_model_summary
 
 
@@ -153,6 +153,21 @@ def load_center_distances(args):
     return center_distances
 
 
+def load_average_distances(args):
+    benchmark_index, model_index = args
+
+    print("Load Average Distances " + str(model_index + 1) +
+          "/" + str(CONFIG["num_models"]))
+
+    average_distances = np.loadtxt(
+        average_distances_file_name(benchmark_index, model_index),
+        delimiter=',',
+        dtype='float'
+    )
+
+    return average_distances
+
+
 def calc_pred(x, x_support, y_support, model):
     d_list, _ = calc_distance(x, x_support, y_support, model)
 
@@ -292,6 +307,18 @@ def calc_ensemble_accuracy(x, y, y_orig, y_support, p, benchmark_index):
     )
 
     generate_center_distances_result_jpg(benchmark_index, center_distances)
+
+    average_distances = np.array(
+        p.map(
+            load_average_distances,
+            [
+                [benchmark_index, model_index]
+                for model_index in range(CONFIG["num_models"])
+            ]
+        )
+    )
+
+    generate_average_distances_result_jpg(benchmark_index, average_distances)
 
     return result
 

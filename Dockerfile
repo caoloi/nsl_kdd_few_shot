@@ -1,4 +1,6 @@
-FROM nvcr.io/nvidia/tensorflow:21.09-tf1-py3
+FROM nvcr.io/nvidia/tensorflow:21.10-tf1-py3
+
+RUN apt update -y && apt install -y fonts-noto-cjk
 
 RUN \
   pip install -U pip \

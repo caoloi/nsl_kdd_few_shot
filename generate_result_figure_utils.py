@@ -159,3 +159,57 @@ def generate_center_distances_result_jpg(benchmark_index: int, center_distances)
                 center_distance_index += 1
 
     return
+
+
+def generate_average_distances_result_jpg(benchmark_index: int, average_distances) -> None:
+    color_map = plt.get_cmap("jet", CONFIG["num_models"] + 1)
+
+    for label_i in range(CONFIG["num_classes"]):
+        plt.figure(figsize=(12, 8))
+        x = list(range(1, CONFIG["epochs"] + 1))
+        for model_index in range(CONFIG["num_models"]):
+            plt.plot(
+                x,
+                average_distances[
+                    model_index,
+                    :,
+                    label_i
+                ],
+                label="Model %s" % (model_index + 1),
+                c=color_map(model_index)
+            )
+        plt.xlabel("Epoch")
+        plt.xlim(0, CONFIG["epochs"])
+        plt.xticks(
+            np.arange(
+                0,
+                CONFIG["epochs"] + 1,
+                10,
+            )
+        )
+        plt.ylabel(
+            "Average Distance of " + LABELS[label_i]
+        )
+        plt.grid(True)
+        plt.legend(
+            bbox_to_anchor=(1, 1),
+            loc="upper left",
+            fontsize=10
+        )
+
+        dir_name = "result_fig/" + \
+            str(CONFIG["experiment_id"]) + "/average_distance/" + \
+            "/benchmark_" + str(benchmark_index) + "/"
+        file_name = dir_name + LABELS[label_i] + ".jpg"
+
+        if not os.path.isdir(dir_name):
+            os.makedirs(dir_name)
+        if os.path.isfile(file_name):
+            os.remove(file_name)
+
+        plt.savefig(file_name)
+
+        plt.clf()
+        plt.close()
+
+    return

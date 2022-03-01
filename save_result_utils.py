@@ -98,6 +98,46 @@ def save_center_distances(benchmark_index: int, model_index: int, epoch: int, ce
     return
 
 
+def save_average_distances(benchmark_index: int, model_index: int, epoch: int, average_distances) -> None:
+    dir_name = average_distances_dir_name(benchmark_index)
+    file_name = dir_name + "model_" + \
+        str(model_index) + "_average_distances_list.csv"
+    file_name = average_distances_file_name(
+        benchmark_index,
+        model_index
+    )
+
+    if epoch == 0:
+        average_distances_list = np.array([average_distances])
+    else:
+        average_distances_list = np.loadtxt(
+            file_name,
+            delimiter=',',
+            dtype='str'
+        )
+        if epoch == 1:
+            average_distances_list = average_distances_list.reshape(1, 5)
+        average_distances_list = np.append(
+            average_distances_list,
+            [average_distances],
+            axis=0,
+        )
+
+    if not os.path.isdir(dir_name):
+        os.makedirs(dir_name)
+    if os.path.isfile(file_name):
+        os.remove(file_name)
+
+    np.savetxt(
+        file_name,
+        average_distances_list,
+        delimiter=',',
+        fmt='%s',
+    )
+
+    return
+
+
 def d_list_dir_name(benchmark_index: int) -> str:
     return "./temp/" + str(CONFIG["experiment_id"]) + "/d_list/" + str(benchmark_index) + '/'
 
@@ -122,4 +162,13 @@ def center_distances_dir_name(benchmark_index: int) -> str:
 
 def center_distances_file_name(benchmark_index: int, model_index: int) -> str:
     dir_name = center_distances_dir_name(benchmark_index)
+    return dir_name + "model_" + str(model_index) + ".csv"
+
+
+def average_distances_dir_name(benchmark_index: int) -> str:
+    return "./temp/" + str(CONFIG["experiment_id"]) + "/average_distances/" + str(benchmark_index) + '/'
+
+
+def average_distances_file_name(benchmark_index: int, model_index: int) -> str:
+    dir_name = average_distances_dir_name(benchmark_index)
     return dir_name + "model_" + str(model_index) + ".csv"

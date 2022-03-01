@@ -41,7 +41,7 @@ def display_model_summary(y, y_support, acc_list, distances) -> None:
               )
             )
         )
-        pred = y_support[np.argmin(distances[model_index, -1], axis=1)]
+        pred = np.argmin(distances[model_index, -1], axis=1)
         c_mat = confusion_matrix(y, pred)
         print(c_mat)
 

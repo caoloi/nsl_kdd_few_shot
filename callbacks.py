@@ -4,7 +4,7 @@ from classifications import calc_distance
 from constants import CONFIG, LABELS
 import matplotlib.pyplot as plt
 import numpy as np
-from save_result_utils import save_d_list, save_loss, save_center_distances
+from save_result_utils import save_d_list, save_loss, save_center_distances, save_average_distances
 
 
 class Histories(keras.callbacks.Callback):
@@ -47,6 +47,11 @@ class Histories(keras.callbacks.Callback):
                     center_distances.append(
                         "{:.04f}".format(center_distance)
                     )
+
+        average_distances = []
+        for label_i in range(CONFIG["num_classes"]):
+            d_list_per_class = d_list[np.where(self.y_support == label_i)]
+            average_distances.append(np.mean(d_list_per_class[:, label_i]))
 
         if (epoch + 1) % np.min([25, CONFIG["epochs"]]) == 0:
             pred = np.argmin(d_list, axis=1)
@@ -114,6 +119,13 @@ class Histories(keras.callbacks.Callback):
             self.model_index,
             epoch,
             center_distances
+        )
+
+        save_average_distances(
+            self.benchmark_index,
+            self.model_index,
+            epoch,
+            average_distances
         )
 
         return

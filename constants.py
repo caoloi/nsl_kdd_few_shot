@@ -1,6 +1,6 @@
 # REFERENCES PARAMETERS
 CONFIG = {
-    "epochs": 50,
+    "epochs": 100,
     "batch_size": 50 * 26,
     "num_classes": 5,
     # "num_models": 1,
@@ -22,7 +22,8 @@ CONFIG = {
     "benchmark_dir": "./benchmark",
     "experiment_id": "playground",
     # "experiment_id": "base",
-    # "experiment_id": "farther",
+    "experiment_id": "farther",
+    # "experiment_id": "farther_with_train",
     # "experiment_id": "closer",
 }
 
